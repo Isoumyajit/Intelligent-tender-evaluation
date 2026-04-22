@@ -16,6 +16,11 @@ html {
   color-scheme: light;
   @include mat.theme(
     (
+      color: (
+        theme-type: light,
+        primary: mat.$blue-palette,
+        tertiary: mat.$blue-palette,
+      ),
       typography: Roboto,
       density: 0,
     )
