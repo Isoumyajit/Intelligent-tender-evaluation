@@ -1,0 +1,9 @@
+.ite-app-shell {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.ite-app-content {
+  flex: 1 0 auto;
+}

@@ -1,0 +1,197 @@
+<section class="bidder-dialog">
+  <header class="bidder-dialog__header">
+    <div>
+      <h2>Add Bidder</h2>
+      <p class="ite-text-muted">Tender: {{ data.tenderName }}</p>
+    </div>
+
+    <button mat-icon-button type="button" (click)="close()" aria-label="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+
+  <mat-stepper [linear]="true">
+    <mat-step [completed]="canProceedToReview()">
+      <ng-template matStepLabel>Upload bidder docs</ng-template>
+
+      <div class="step-content">
+        <h3>Upload Bidder Documents</h3>
+
+        <div class="mode-actions">
+          <button
+            mat-stroked-button
+            type="button"
+            (click)="setUploadMode('folder')"
+          >
+            <mat-icon>folder</mat-icon>
+            Add bidder folder
+          </button>
+
+          <button
+            mat-stroked-button
+            type="button"
+            (click)="setUploadMode('zip')"
+          >
+            <mat-icon>archive</mat-icon>
+            Upload ZIP with all bidders
+          </button>
+        </div>
+
+        <div class="upload-panel">
+          @if (uploadMode === "folder") {
+            <p class="ite-text-muted">
+              Add individual bidder folders one by one.
+            </p>
+
+            <div class="upload-dropzone">
+              <mat-icon>drive_folder_upload</mat-icon>
+              <span>Select bidder folder</span>
+              <button
+                mat-stroked-button
+                type="button"
+                (click)="triggerFolderPicker(folderInput)"
+              >
+                Browse Folder
+              </button>
+              <input
+                id="folderInput"
+                #folderInput
+                type="file"
+                hidden
+                webkitdirectory
+                directory
+                multiple
+                (change)="onFolderSelected($event)"
+              />
+            </div>
+
+            @if (bidderFolders.length > 0) {
+              <div class="actions">
+                <button mat-button type="button" (click)="resetUploads()">
+                  Clear list
+                </button>
+              </div>
+
+              <div class="list">
+                @for (folder of bidderFolders; track folder.id) {
+                  <div class="list-item">
+                    <div>
+                      <strong>{{ folder.bidderName }}</strong>
+                      <p class="ite-text-muted">
+                        {{ folder.fileCount }} files • {{ folder.totalSize }}
+                      </p>
+                    </div>
+                    <button
+                      mat-icon-button
+                      type="button"
+                      (click)="removeFolder(folder.id)"
+                    >
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+          } @else {
+            <p class="note">
+              We recommend keeping separate folders for each bidder inside the
+              ZIP.
+            </p>
+
+            <div class="upload-dropzone">
+              <mat-icon>folder_zip</mat-icon>
+              <span>Select ZIP file</span>
+              <button
+                mat-stroked-button
+                type="button"
+                (click)="triggerZipPicker(zipInput)"
+              >
+                Browse ZIP
+              </button>
+              <input
+                id="zipInput"
+                #zipInput
+                type="file"
+                hidden
+                accept=".zip"
+                (change)="onZipSelected($event)"
+              />
+            </div>
+
+            @if (zipFile) {
+              <div class="list-item">
+                <div>
+                  <strong>{{ zipFile.name }}</strong>
+                  <p class="ite-text-muted">ZIP uploaded</p>
+                </div>
+                <button mat-icon-button type="button" (click)="clearZip()">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            }
+          }
+        </div>
+
+        @if (uploadError) {
+          <p class="note">{{ uploadError }}</p>
+        }
+
+        <div class="actions">
+          <button mat-stroked-button type="button" (click)="close()">
+            Cancel
+          </button>
+          <button
+            mat-raised-button
+            type="button"
+            color="primary"
+            matStepperNext
+            [disabled]="!canProceedToReview()"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    </mat-step>
+
+    <mat-step>
+      <ng-template matStepLabel>Review and submit</ng-template>
+
+      <div class="step-content" [formGroup]="form">
+        <h3>Review and Submit</h3>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Bidder Name</mat-label>
+          <input matInput formControlName="bidderName" />
+        </mat-form-field>
+
+        <div class="review-box">
+          <p>
+            <strong>Mode:</strong>
+            {{ uploadMode === "folder" ? "Individual folders" : "ZIP file" }}
+          </p>
+          <p>
+            <strong>Items:</strong>
+            {{
+              uploadMode === "folder" ? bidderFolders.length : zipFile ? 1 : 0
+            }}
+          </p>
+        </div>
+
+        <div class="actions">
+          <button mat-stroked-button type="button" matStepperPrevious>
+            Back
+          </button>
+          <button
+            mat-raised-button
+            type="button"
+            color="primary"
+            (click)="submit()"
+            [disabled]="form.invalid"
+          >
+            Submit
+          </button>
+        </div>
+      </div>
+    </mat-step>
+  </mat-stepper>
+</section>

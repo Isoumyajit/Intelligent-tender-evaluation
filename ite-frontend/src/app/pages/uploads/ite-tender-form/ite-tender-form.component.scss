@@ -1,0 +1,404 @@
+.ite-tender-form-main {
+  display: flex;
+  flex-direction: column;
+  padding: var(--ite-spacing-lg);
+}
+
+.ite-uploads-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.ite-uploads-header {
+  margin-bottom: var(--ite-spacing-xl);
+
+  h1 {
+    margin-bottom: var(--ite-spacing-sm);
+  }
+}
+
+.ite-uploads-container {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: var(--ite-spacing-xl);
+}
+
+.ite-upload-section,
+.ite-tenders-list-section {
+  border: 1px solid var(--ite-border);
+  border-radius: var(--ite-radius-md);
+  background: var(--ite-surface);
+  box-shadow: var(--ite-shadow-sm);
+  padding: var(--ite-spacing-lg);
+}
+
+.ite-section-header {
+  margin-bottom: var(--ite-spacing-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  h2 {
+    margin: 0;
+    font-size: 1.1rem;
+  }
+
+  .ite-tenders-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 0.5rem;
+    border-radius: var(--ite-radius-full);
+    background: color-mix(in srgb, var(--ite-primary) 15%, white);
+    color: var(--ite-primary);
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+}
+
+.ite-upload-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ite-spacing-md);
+}
+
+.ite-form-field-full {
+  width: 100% !important;
+}
+
+.ite-upload-zone-wrapper {
+  margin: var(--ite-spacing-md) 0;
+}
+
+.ite-upload-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ite-spacing-sm);
+  padding: 2rem var(--ite-spacing-lg);
+  border: 2px dashed color-mix(in srgb, var(--ite-primary) 30%, white);
+  border-radius: var(--ite-radius-md);
+  background: color-mix(in srgb, var(--ite-primary) 3%, white);
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: var(--ite-primary);
+    background: color-mix(in srgb, var(--ite-primary) 6%, white);
+  }
+
+  &--drag {
+    border-color: var(--ite-primary);
+    background: color-mix(in srgb, var(--ite-primary) 10%, white);
+  }
+}
+
+.ite-upload-icon {
+  font-size: 2.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--ite-primary);
+}
+
+.ite-upload-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ite-text-primary);
+}
+
+.ite-upload-subtitle,
+.ite-upload-hint {
+  font-size: 0.9rem;
+  color: var(--ite-text-secondary);
+}
+
+.ite-uploaded-file {
+  display: flex;
+  align-items: center;
+  gap: var(--ite-spacing-md);
+  padding: var(--ite-spacing-lg);
+  border: 1px solid var(--ite-border);
+  border-radius: var(--ite-radius-md);
+  background: color-mix(in srgb, var(--ite-primary) 5%, white);
+}
+
+.ite-file-icon {
+  color: var(--ite-primary);
+  font-size: 1.8rem;
+  width: 1.8rem;
+  height: 1.8rem;
+  flex-shrink: 0;
+}
+
+.ite-file-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.ite-file-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.ite-file-size {
+  font-size: 0.85rem;
+}
+
+.ite-file-remove {
+  flex-shrink: 0;
+}
+
+.ite-upload-actions {
+  display: flex;
+  gap: var(--ite-spacing-md);
+  justify-content: flex-end;
+  margin-top: var(--ite-spacing-md);
+
+  button {
+    min-width: 120px;
+  }
+}
+
+.ite-tenders-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ite-spacing-md);
+}
+
+.ite-tender-item {
+  border: 1px solid var(--ite-border);
+  border-radius: var(--ite-radius-md);
+  background: color-mix(in srgb, var(--ite-primary) 2%, white);
+  overflow: hidden;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: var(--ite-primary);
+    box-shadow: 0 2px 8px
+      color-mix(in srgb, var(--ite-primary) 12%, transparent);
+  }
+}
+
+.ite-tender-item__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ite-spacing-lg);
+  padding: var(--ite-spacing-lg);
+  cursor: pointer;
+
+  h3 {
+    margin: 0 0 0.25rem;
+    font-size: 0.98rem;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.85rem;
+  }
+}
+
+.ite-tender-item__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ite-tender-item__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--ite-spacing-sm);
+  flex-shrink: 0;
+}
+
+.ite-bidders-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: var(--ite-radius-full);
+  background: color-mix(in srgb, var(--ite-primary) 12%, white);
+  color: var(--ite-primary);
+  font-size: 0.82rem;
+  font-weight: 600;
+
+  mat-icon {
+    font-size: 0.9rem;
+    width: 0.9rem;
+    height: 0.9rem;
+  }
+}
+
+.ite-expand-btn {
+  mat-icon {
+    transition: transform 0.3s ease;
+  }
+
+  &:not(.ite-expanded) mat-icon {
+    transform: rotate(-90deg);
+  }
+}
+
+.ite-tender-item__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ite-spacing-md);
+  padding: 0 var(--ite-spacing-lg) var(--ite-spacing-lg);
+  border-top: 1px solid var(--ite-border);
+}
+
+.ite-tender-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ite-spacing-sm);
+}
+
+.ite-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.ite-detail-label {
+  font-weight: 600;
+  color: var(--ite-text-secondary);
+}
+
+.ite-detail-value {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--ite-text-primary);
+
+  mat-icon {
+    font-size: 0.85rem;
+    width: 0.85rem;
+    height: 0.85rem;
+  }
+}
+
+.ite-bidder-form-container {
+  padding: var(--ite-spacing-lg);
+  border: 1px solid var(--ite-border);
+  border-radius: var(--ite-radius-md);
+  background: color-mix(in srgb, var(--ite-primary) 4%, white);
+
+  h4 {
+    margin: 0 0 var(--ite-spacing-md);
+    font-size: 0.95rem;
+  }
+}
+
+.ite-bidder-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ite-spacing-md);
+}
+
+.ite-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--ite-spacing-md);
+
+  mat-form-field {
+    width: 100% !important;
+  }
+}
+
+.ite-bidder-form-actions {
+  display: flex;
+  gap: var(--ite-spacing-md);
+  justify-content: flex-end;
+  margin-top: var(--ite-spacing-sm);
+}
+
+.ite-add-bidder-btn {
+  width: 100%;
+}
+
+.ite-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ite-spacing-md);
+  padding: 3rem var(--ite-spacing-lg);
+  text-align: center;
+
+  mat-icon {
+    font-size: 3rem;
+    width: 3rem;
+    height: 3rem;
+    color: var(--ite-text-secondary);
+    opacity: 0.5;
+  }
+
+  p {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--ite-text-primary);
+  }
+
+  .ite-text-muted {
+    margin-top: 0.25rem;
+  }
+}
+
+@media (max-width: 1100px) {
+  .ite-uploads-container {
+    grid-template-columns: 1fr;
+  }
+
+  .ite-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .ite-tender-form-main {
+    padding: var(--ite-spacing-md);
+  }
+
+  .ite-upload-section,
+  .ite-tenders-list-section {
+    padding: var(--ite-spacing-md);
+  }
+
+  .ite-tender-item__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--ite-spacing-md);
+  }
+
+  .ite-tender-item__meta {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .ite-upload-actions {
+    flex-direction: column;
+
+    button {
+      width: 100%;
+      margin: 0;
+    }
+  }
+
+  .ite-bidder-form-actions {
+    flex-direction: column;
+
+    button {
+      width: 100%;
+    }
+  }
+}

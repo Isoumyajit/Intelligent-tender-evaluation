@@ -1,0 +1,125 @@
+.ite-gov-header {
+  border-bottom: 1px solid var(--ite-border);
+  box-shadow: var(--ite-shadow-sm);
+  background: var(--ite-surface);
+}
+
+.ite-top-strip {
+  height: 6px;
+  background: linear-gradient(
+    to right,
+    #ff7300 0% 33.3%,
+    #ffffff 33.3% 66.6%,
+    var(--ite-success) 66.6% 100%
+  );
+}
+
+.ite-container {
+  width: min(1160px, calc(100% - 2rem));
+  margin: 0 auto;
+}
+
+.ite-identity {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ite-spacing-lg);
+  padding: var(--ite-spacing-md) 0;
+}
+
+.ite-brand-block {
+  display: flex;
+  align-items: center;
+  gap: var(--ite-spacing-md);
+}
+
+.ite-emblem {
+  width: 6rem;
+}
+
+.ite-brand-text {
+  .ite-gov-india {
+    margin: 0;
+    font-size: var(--ite-font-size-sm);
+    font-weight: 600;
+    color: var(--ite-primary-lighter);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    margin: var(--ite-spacing-sm) 0;
+    font-size: clamp(1rem, 1.9vw, 1.35rem);
+    color: var(--ite-primary);
+    font-weight: 700;
+  }
+
+  .ite-ministry {
+    margin: 0;
+    font-size: 0.78rem;
+    color: var(--ite-text-secondary);
+  }
+}
+
+.ite-portal-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ite-spacing-sm);
+  background: var(--ite-success-lighter);
+  color: var(--ite-success);
+  border: 1px solid #b8ddc2;
+  border-radius: var(--ite-radius-full);
+  padding: var(--ite-spacing-sm) var(--ite-spacing-md);
+  font-weight: 600;
+  font-size: var(--ite-font-size-sm);
+
+  .ite-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--ite-success);
+  }
+}
+
+.ite-main-nav {
+  background: var(--ite-primary);
+}
+
+.ite-nav-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ite-spacing-sm);
+  padding: var(--ite-spacing-sm) 0;
+
+  a {
+    color: var(--ite-surface);
+    text-decoration: none;
+    padding: var(--ite-spacing-sm) var(--ite-spacing-md);
+    border-radius: var(--ite-radius-sm);
+    font-size: 0.92rem;
+    font-weight: 500;
+    transition: background-color var(--ite-transition-fast);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.16);
+    }
+
+    &.active {
+      background: var(--ite-surface);
+      color: var(--ite-primary);
+      font-weight: 700;
+    }
+  }
+}
+
+@media (max-width: 720px) {
+  .ite-identity {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .ite-portal-badge {
+    align-self: flex-start;
+  }
+}

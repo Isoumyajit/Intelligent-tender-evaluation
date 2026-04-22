@@ -1,0 +1,176 @@
+@use "@angular/material" as mat;
+
+/* Custom brand colors (single source of truth) */
+$ite-primary-light: #10264b;
+$ite-on-primary-light: #ffffff;
+$ite-primary-container-light: #d9e3ff;
+$ite-on-primary-container-light: #001b4f;
+
+$ite-primary-dark: #b4c5ff;
+$ite-on-primary-dark: #0f2554;
+$ite-primary-container-dark: #233d72;
+$ite-on-primary-container-dark: #dce4ff;
+
+/* Global styles + Angular Material theme */
+html {
+  color-scheme: light;
+  @include mat.theme(
+    (
+      typography: Roboto,
+      density: 0,
+    )
+  );
+
+  @include mat.theme-overrides(
+    (
+      primary: $ite-primary-light,
+      on-primary: $ite-on-primary-light,
+      primary-container: $ite-primary-container-light,
+      on-primary-container: $ite-on-primary-container-light,
+    )
+  );
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  @include mat.theme(
+    (
+      color: (
+        theme-type: dark,
+        primary: mat.$blue-palette,
+        tertiary: mat.$blue-palette,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
+
+  @include mat.theme-overrides(
+    (
+      primary: $ite-primary-dark,
+      on-primary: $ite-on-primary-dark,
+      primary-container: $ite-primary-container-dark,
+      on-primary-container: $ite-on-primary-container-dark,
+    )
+  );
+}
+
+:root {
+  /* App tokens mapped to Material system vars */
+  --ite-primary: var(--mat-sys-primary);
+  --ite-primary-light: var(--mat-sys-primary-container);
+  --ite-primary-lighter: var(--mat-sys-secondary);
+  --ite-primary-dark: var(--mat-sys-on-primary-container);
+
+  --ite-accent: var(--mat-sys-tertiary);
+  --ite-accent-light: var(--mat-sys-tertiary-container);
+  --ite-accent-dark: var(--mat-sys-on-tertiary-container);
+
+  --ite-success: #138808;
+  --ite-success-light: #2d9d1d;
+  --ite-success-lighter: #eaf7ed;
+
+  --ite-text: var(--mat-sys-on-surface);
+  --ite-text-secondary: var(--mat-sys-on-surface-variant);
+  --ite-text-muted: color-mix(
+    in srgb,
+    var(--mat-sys-on-surface-variant) 78%,
+    transparent
+  );
+  --ite-bg: var(--mat-sys-surface);
+  --ite-surface: var(--mat-sys-surface-container-low);
+  --ite-border: var(--mat-sys-outline-variant);
+  --ite-border-light: var(--mat-sys-outline);
+
+  /* Shadow */
+  --ite-shadow-sm: 0 2px 8px rgba(15, 39, 77, 0.08);
+  --ite-shadow-md: 0 4px 12px rgba(15, 39, 77, 0.12);
+  --ite-shadow-lg: 0 8px 24px rgba(15, 39, 77, 0.16);
+
+  /* Spacing */
+  --ite-spacing-xs: 0.25rem;
+  --ite-spacing-sm: 0.5rem;
+  --ite-spacing-md: 1rem;
+  --ite-spacing-lg: 1.5rem;
+  --ite-spacing-xl: 2rem;
+
+  /* Border radius */
+  --ite-radius-sm: 4px;
+  --ite-radius-md: 10px;
+  --ite-radius-lg: 16px;
+  --ite-radius-full: 999px;
+
+  /* Typography */
+  --ite-font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  --ite-font-size-sm: 0.75rem;
+  --ite-font-size-base: 1rem;
+  --ite-font-size-lg: 1.25rem;
+  --ite-font-size-xl: 1.5rem;
+  --ite-line-height-tight: 1.25;
+  --ite-line-height-normal: 1.5;
+  --ite-line-height-relaxed: 1.75;
+
+  /* Transitions */
+  --ite-transition-fast: 0.18s ease;
+  --ite-transition-normal: 0.3s ease;
+  --ite-transition-slow: 0.5s ease;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  color: var(--ite-text);
+  background: var(--ite-bg);
+  line-height: var(--ite-line-height-normal);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0 0 var(--ite-spacing-md);
+  color: var(--ite-primary);
+  line-height: var(--ite-line-height-tight);
+}
+
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+  display: block;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

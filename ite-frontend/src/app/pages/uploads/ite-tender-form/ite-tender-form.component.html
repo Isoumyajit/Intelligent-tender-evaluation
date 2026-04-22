@@ -1,0 +1,180 @@
+<main class="ite-tender-form-main">
+  <div class="ite-uploads-wrapper">
+    <div class="ite-uploads-header">
+      <h1>Tender Management</h1>
+      <p class="ite-text-muted">
+        Upload tender documents and add bidders for evaluation
+      </p>
+    </div>
+
+    <div class="ite-uploads-container">
+      <!-- Upload Section -->
+      <section class="ite-upload-section">
+        <div class="ite-section-header">
+          <h2>Upload New Tender</h2>
+          <p class="ite-text-muted">Add a new tender to the pipeline</p>
+        </div>
+
+        <form [formGroup]="form" class="ite-upload-form">
+          <mat-form-field appearance="outline" class="ite-form-field-full">
+            <mat-label>Tender Name</mat-label>
+            <input
+              matInput
+              type="text"
+              placeholder="e.g., Highway Maintenance Contract"
+              formControlName="tenderName"
+              required
+            />
+            @if (form.get("tenderName")?.hasError("required")) {
+              <mat-error>Tender name is required</mat-error>
+            }
+          </mat-form-field>
+
+          <div class="ite-upload-zone-wrapper">
+            @if (!uploadedFile) {
+              <label
+                class="ite-upload-zone"
+                [class.ite-upload-zone--drag]="isDragOver"
+                (dragover)="onDragOver($event)"
+                (dragleave)="onDragLeave()"
+                (drop)="onDrop($event)"
+                for="ite-file-input"
+              >
+                <mat-icon class="ite-upload-icon">upload_file</mat-icon>
+                <span class="ite-upload-title">Drop your document here</span>
+                <span class="ite-upload-subtitle">or click to browse</span>
+                <span class="ite-upload-hint">Supports PDF, DOCX, DOC</span>
+                <input
+                  id="ite-file-input"
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  hidden
+                  (change)="onFileSelected($event)"
+                />
+              </label>
+            } @else {
+              <div class="ite-uploaded-file">
+                <mat-icon class="ite-file-icon">description</mat-icon>
+                <div class="ite-file-info">
+                  <span class="ite-file-name">{{ uploadedFile.name }}</span>
+                  <span class="ite-file-size ite-text-muted">
+                    {{ formatFileSize(uploadedFile.size) }}
+                  </span>
+                </div>
+                <button
+                  mat-icon-button
+                  class="ite-file-remove"
+                  (click)="removeFile()"
+                  matTooltip="Remove file"
+                >
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            }
+          </div>
+
+          <div class="ite-upload-actions">
+            <button
+              mat-stroked-button
+              type="button"
+              (click)="form.reset(); removeFile()"
+              [disabled]="form.pristine && !uploadedFile"
+            >
+              Clear
+            </button>
+            <button
+              mat-raised-button
+              color="primary"
+              type="button"
+              (click)="onUploadTender()"
+              [disabled]="!form.valid || !uploadedFile"
+            >
+              <mat-icon>upload</mat-icon>
+              Upload Tender
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Tenders List Section -->
+      <section class="ite-tenders-list-section">
+        <div class="ite-section-header">
+          <h2>Uploaded Tenders</h2>
+          <span class="ite-tenders-count">{{ uploadedTenders.length }}</span>
+        </div>
+
+        @if (uploadedTenders.length > 0) {
+          <div class="ite-tenders-list">
+            @for (tender of uploadedTenders; track tender.id) {
+              <div class="ite-tender-item">
+                <div class="ite-tender-item__header">
+                  <div class="ite-tender-item__info">
+                    <h3>{{ tender.name }}</h3>
+                    <p class="ite-text-muted">
+                      Uploaded on {{ tender.uploadedDate }} •
+                      {{ tender.fileSize }}
+                    </p>
+                  </div>
+
+                  <div class="ite-tender-item__meta">
+                    <span class="ite-bidders-badge">
+                      <mat-icon>person</mat-icon>
+                      {{ tender.biddersCount }} bidders
+                    </span>
+                    <button
+                      mat-icon-button
+                      (click)="toggleTenderExpansion(tender.id)"
+                      class="ite-expand-btn"
+                    >
+                      <mat-icon [class.ite-expanded]="tender.isExpanded">
+                        expand_more
+                      </mat-icon>
+                    </button>
+                  </div>
+                </div>
+
+                @if (tender.isExpanded) {
+                  <div class="ite-tender-item__content">
+                    <div class="ite-tender-details">
+                      <div class="ite-detail-row">
+                        <span class="ite-detail-label">Document:</span>
+                        <span class="ite-detail-value"
+                          ><mat-icon>description</mat-icon
+                          >{{ tender.fileName }}</span
+                        >
+                      </div>
+                      <div class="ite-detail-row">
+                        <span class="ite-detail-label">Uploaded:</span>
+                        <span class="ite-detail-value">{{
+                          tender.uploadedDate
+                        }}</span>
+                      </div>
+                    </div>
+
+                    <button
+                      mat-raised-button
+                      color="accent"
+                      (click)="openBidderDialog(tender.id)"
+                      class="ite-add-bidder-btn"
+                    >
+                      <mat-icon>person_add</mat-icon>
+                      Add Bidder
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="ite-empty-state">
+            <mat-icon>folder_open</mat-icon>
+            <p>No tenders uploaded yet</p>
+            <span class="ite-text-muted"
+              >Upload your first tender document to get started</span
+            >
+          </div>
+        }
+      </section>
+    </div>
+  </div>
+</main>

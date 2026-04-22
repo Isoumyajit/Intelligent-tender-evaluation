@@ -1,0 +1,97 @@
+.bidder-dialog {
+  width: min(100%, 760px);
+  display: flex;
+  flex-direction: column;
+}
+
+.bidder-dialog__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  padding: 1rem 1rem 0;
+
+  h2 {
+    margin: 0;
+  }
+
+  p {
+    margin: 0.25rem 0 0;
+  }
+}
+
+.step-content {
+  padding: 1rem;
+}
+
+.mode-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin: 0.75rem 0 1rem;
+  flex-wrap: wrap;
+}
+
+.upload-panel {
+  border: 1px solid var(--ite-border);
+  border-radius: var(--ite-radius-md);
+  padding: 0.9rem;
+}
+
+.upload-dropzone {
+  border: 1px dashed var(--ite-primary);
+  border-radius: var(--ite-radius-md);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem;
+  cursor: pointer;
+  margin-bottom: 0.75rem;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.list-item {
+  border: 1px solid var(--ite-border);
+  border-radius: var(--ite-radius-sm);
+  padding: 0.5rem 0.7rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  p {
+    margin: 0.2rem 0 0;
+  }
+}
+
+.note {
+  margin-top: 0;
+  background: color-mix(in srgb, var(--ite-primary) 8%, white);
+  border-left: 3px solid var(--ite-primary);
+  padding: 0.5rem 0.7rem;
+  border-radius: 0.25rem;
+}
+
+.review-box {
+  border: 1px solid var(--ite-border);
+  border-radius: var(--ite-radius-md);
+  padding: 0.8rem;
+  margin-bottom: 1rem;
+
+  p {
+    margin: 0.3rem 0;
+  }
+}
+
+.actions {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+
+.full-width {
+  width: 100%;
+}

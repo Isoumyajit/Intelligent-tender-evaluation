@@ -1,0 +1,125 @@
+<main class="ite-dashboard-main">
+  <section class="ite-dashboard-hero">
+    <div>
+      <p class="ite-dashboard-eyebrow">Tender Analytics</p>
+      <h1>Evaluation command center</h1>
+      <p class="ite-text-muted">
+        Monitor current bid activity, track review progress, and compare recent
+        tender statistics.
+      </p>
+    </div>
+
+    <div class="ite-dashboard-hero-actions">
+      <div class="ite-dashboard-highlight">
+        <span class="ite-dashboard-highlight__label">Live review queue</span>
+        <strong>28 active tenders</strong>
+        <span class="ite-text-muted"
+          >Updated from the latest evaluation cycle</span
+        >
+      </div>
+
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="navigateToUpload()"
+        class="ite-upload-btn"
+      >
+        <mat-icon>upload</mat-icon>
+        Upload New Tender
+      </button>
+    </div>
+  </section>
+
+  <section class="ite-dashboard-metrics">
+    @for (metric of metrics; track metric.label) {
+      <article class="ite-dashboard-card">
+        <div class="ite-dashboard-card__header">
+          <span>{{ metric.label }}</span>
+          <mat-icon>{{ metric.icon }}</mat-icon>
+        </div>
+        <div class="ite-dashboard-card__value">{{ metric.value }}</div>
+        <p class="ite-text-muted">{{ metric.subtitle }}</p>
+      </article>
+    }
+  </section>
+
+  <section class="ite-dashboard-pending">
+    <div class="ite-dashboard-panel__header">
+      <h2>Pending Tenders</h2>
+      <span class="ite-text-muted"
+        >Uploaded but awaiting bidder evaluation</span
+      >
+    </div>
+
+    <div class="ite-pending-list">
+      @for (tender of pendingTenders; track tender.id) {
+        <div class="ite-pending-item">
+          <div class="ite-pending-item__left">
+            <mat-icon class="ite-pending-item__icon">folder_open</mat-icon>
+            <div class="ite-pending-item__content">
+              <h4>{{ tender.name }}</h4>
+              <p class="ite-text-muted">{{ tender.documentName }}</p>
+              <span class="ite-pending-item__date">{{
+                tender.uploadedDate
+              }}</span>
+            </div>
+          </div>
+          <button
+            mat-raised-button
+            color="accent"
+            class="ite-pending-item__action"
+          >
+            <mat-icon>person_add</mat-icon>
+            Add Bidders
+          </button>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="ite-dashboard-panels">
+    <article class="ite-dashboard-panel">
+      <div class="ite-dashboard-panel__header">
+        <h2>Evaluation Status</h2>
+        <span class="ite-text-muted">Current pipeline overview</span>
+      </div>
+
+      <div class="ite-status-list">
+        @for (status of tenderStatuses; track status.title) {
+          <div class="ite-status-item">
+            <div>
+              <h3>{{ status.title }}</h3>
+              <p class="ite-text-muted">{{ status.trend }}</p>
+            </div>
+            <strong>{{ status.count }}</strong>
+          </div>
+        }
+      </div>
+    </article>
+
+    <article class="ite-dashboard-panel">
+      <div class="ite-dashboard-panel__header">
+        <h2>Recent Tenders</h2>
+        <span class="ite-text-muted">Latest bid activity snapshot</span>
+      </div>
+
+      <div class="ite-tender-table">
+        <div class="ite-tender-table__head">
+          <span>Reference</span>
+          <span>Authority</span>
+          <span>Bids</span>
+          <span>Status</span>
+        </div>
+
+        @for (tender of recentTenders; track tender.reference) {
+          <div class="ite-tender-table__row">
+            <span>{{ tender.reference }}</span>
+            <span>{{ tender.authority }}</span>
+            <span>{{ tender.bids }}</span>
+            <span class="ite-status-pill">{{ tender.status }}</span>
+          </div>
+        }
+      </div>
+    </article>
+  </section>
+</main>
