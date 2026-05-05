@@ -99,7 +99,16 @@
                   </div>
                   <div>
                     <dt>Documents</dt>
-                    <dd>{{ bidder.documentsCount }} • {{ bidder.totalSize }}</dd>
+                    <dd>
+                      <a
+                        class="docs-link"
+                        [routerLink]="routes.bidderDocuments(bidder.tenderId, bidder.id)"
+                        (click)="$event.stopPropagation()"
+                      >
+                        <mat-icon>folder_open</mat-icon>
+                        {{ bidder.documentsCount }} files • {{ bidder.totalSize }}
+                      </a>
+                    </dd>
                   </div>
                 </dl>
               </div>

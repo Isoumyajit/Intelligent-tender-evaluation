@@ -24,6 +24,14 @@
   }
 }
 
+.ite-gov-footer-container-content-team {
+  font-weight: 600;
+  background-color: var(--ite-surface);
+  color: var(--ite-primary);
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.2rem;
+}
+
 @media (max-width: 768px) {
   .ite-gov-footer-container-content {
     flex-direction: column;

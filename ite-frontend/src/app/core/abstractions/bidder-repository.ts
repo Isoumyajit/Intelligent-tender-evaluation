@@ -1,6 +1,7 @@
 import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
+  BidderDocument,
   BidderEvaluation,
   BidderSummary,
 } from '../models/evaluation.models';
@@ -11,6 +12,10 @@ export interface BidderRepository {
     tenderId: string,
     bidderId: string,
   ): Observable<BidderEvaluation | undefined>;
+  listDocuments(
+    tenderId: string,
+    bidderId: string,
+  ): Observable<BidderDocument[]>;
 }
 
 export const BIDDER_REPOSITORY = new InjectionToken<BidderRepository>(

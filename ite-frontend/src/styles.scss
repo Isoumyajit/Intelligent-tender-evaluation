@@ -75,6 +75,21 @@ html {
   --ite-success-light: #2d9d1d;
   --ite-success-lighter: #eaf7ed;
 
+  /* Semantic status palette (Material-3 tonal structure, hand-tuned). Used
+     exclusively through the .ite-status--* classes below so every chip,
+     progress bar, or status accent reads from the same source. */
+  --ite-pass: #1e7a3a;               /* green 40 — accent */
+  --ite-pass-container: #cdedd4;     /* green 90 — surface */
+  --ite-on-pass-container: #0b3a1b;  /* green 10 */
+
+  --ite-warn: #b0640a;               /* amber 40 — accent (review / partial) */
+  --ite-warn-container: #ffe0b3;     /* amber 90 — surface */
+  --ite-on-warn-container: #3d2a07;  /* amber 10 */
+
+  --ite-danger: #b3261e;             /* red 40 — accent (Material error equivalent) */
+  --ite-danger-container: #fcd8d4;   /* red 90 — surface */
+  --ite-on-danger-container: #410e0b; /* red 10 */
+
   --ite-text: var(--mat-sys-on-surface);
   --ite-text-secondary: var(--mat-sys-on-surface-variant);
   --ite-text-muted: color-mix(
@@ -169,6 +184,13 @@ button {
   cursor: pointer;
 }
 
+/* Add-bidder dialog — roomier shell with zero default container padding so
+   the inner component controls all spacing. */
+.ite-bidder-dialog .mat-mdc-dialog-surface {
+  padding: 0 !important;
+  border-radius: var(--ite-radius-md);
+}
+
 /* Center-align the label of every Material button so text stays centered
    regardless of button width (e.g. full-width steppers, .view-btn, etc.). */
 .mat-mdc-button,
@@ -187,58 +209,64 @@ button {
   }
 }
 
-/* Shared Material status classes — drive mat-chip / mat-progress-bar
-   coloring via Material system tokens only (no hex). */
+/* Shared semantic status classes — drive mat-chip / mat-progress-bar / icons
+   coloring from our own status palette so positive/review/negative never
+   collide with Material's brand primary. */
 .ite-status--pass {
-  --mdc-chip-elevated-container-color: var(--mat-sys-primary-container);
-  --mdc-chip-label-text-color: var(--mat-sys-on-primary-container);
-  --mdc-chip-elevated-selected-container-color: var(--mat-sys-primary-container);
-  --mdc-chip-selected-label-text-color: var(--mat-sys-on-primary-container);
-  --mdc-chip-with-icon-icon-color: var(--mat-sys-on-primary-container);
-  --mdc-chip-with-icon-selected-icon-color: var(--mat-sys-on-primary-container);
+  --mdc-chip-elevated-container-color: var(--ite-pass-container);
+  --mdc-chip-label-text-color: var(--ite-on-pass-container);
+  --mdc-chip-elevated-selected-container-color: var(--ite-pass-container);
+  --mdc-chip-selected-label-text-color: var(--ite-on-pass-container);
+  --mdc-chip-with-icon-icon-color: var(--ite-on-pass-container);
+  --mdc-chip-with-icon-selected-icon-color: var(--ite-on-pass-container);
   --mdc-chip-outline-color: transparent;
-  --mdc-linear-progress-active-indicator-color: var(--mat-sys-primary);
+  --mdc-linear-progress-active-indicator-color: var(--ite-pass);
   --mdc-linear-progress-track-color: color-mix(
     in srgb,
-    var(--mat-sys-primary) 20%,
+    var(--ite-pass) 20%,
     transparent
   );
+  --ite-status-accent: var(--ite-pass);
+  --ite-status-surface: var(--ite-pass-container);
+  --ite-status-on-surface: var(--ite-on-pass-container);
 }
 
 .ite-status--partial {
-  --mdc-chip-elevated-container-color: var(--mat-sys-tertiary-container);
-  --mdc-chip-label-text-color: var(--mat-sys-on-tertiary-container);
-  --mdc-chip-elevated-selected-container-color: var(
-    --mat-sys-tertiary-container
-  );
-  --mdc-chip-selected-label-text-color: var(--mat-sys-on-tertiary-container);
-  --mdc-chip-with-icon-icon-color: var(--mat-sys-on-tertiary-container);
-  --mdc-chip-with-icon-selected-icon-color: var(
-    --mat-sys-on-tertiary-container
-  );
+  --mdc-chip-elevated-container-color: var(--ite-warn-container);
+  --mdc-chip-label-text-color: var(--ite-on-warn-container);
+  --mdc-chip-elevated-selected-container-color: var(--ite-warn-container);
+  --mdc-chip-selected-label-text-color: var(--ite-on-warn-container);
+  --mdc-chip-with-icon-icon-color: var(--ite-on-warn-container);
+  --mdc-chip-with-icon-selected-icon-color: var(--ite-on-warn-container);
   --mdc-chip-outline-color: transparent;
-  --mdc-linear-progress-active-indicator-color: var(--mat-sys-tertiary);
+  --mdc-linear-progress-active-indicator-color: var(--ite-warn);
   --mdc-linear-progress-track-color: color-mix(
     in srgb,
-    var(--mat-sys-tertiary) 20%,
+    var(--ite-warn) 20%,
     transparent
   );
+  --ite-status-accent: var(--ite-warn);
+  --ite-status-surface: var(--ite-warn-container);
+  --ite-status-on-surface: var(--ite-on-warn-container);
 }
 
 .ite-status--fail {
-  --mdc-chip-elevated-container-color: var(--mat-sys-error-container);
-  --mdc-chip-label-text-color: var(--mat-sys-on-error-container);
-  --mdc-chip-elevated-selected-container-color: var(--mat-sys-error-container);
-  --mdc-chip-selected-label-text-color: var(--mat-sys-on-error-container);
-  --mdc-chip-with-icon-icon-color: var(--mat-sys-on-error-container);
-  --mdc-chip-with-icon-selected-icon-color: var(--mat-sys-on-error-container);
+  --mdc-chip-elevated-container-color: var(--ite-danger-container);
+  --mdc-chip-label-text-color: var(--ite-on-danger-container);
+  --mdc-chip-elevated-selected-container-color: var(--ite-danger-container);
+  --mdc-chip-selected-label-text-color: var(--ite-on-danger-container);
+  --mdc-chip-with-icon-icon-color: var(--ite-on-danger-container);
+  --mdc-chip-with-icon-selected-icon-color: var(--ite-on-danger-container);
   --mdc-chip-outline-color: transparent;
-  --mdc-linear-progress-active-indicator-color: var(--mat-sys-error);
+  --mdc-linear-progress-active-indicator-color: var(--ite-danger);
   --mdc-linear-progress-track-color: color-mix(
     in srgb,
-    var(--mat-sys-error) 20%,
+    var(--ite-danger) 20%,
     transparent
   );
+  --ite-status-accent: var(--ite-danger);
+  --ite-status-surface: var(--ite-danger-container);
+  --ite-status-on-surface: var(--ite-on-danger-container);
 }
 
 .ite-status--neutral {

@@ -1,0 +1,197 @@
+<main
+  class="ite-bidder-docs"
+  [class.ite-bidder-docs--split]="!!selectedDocument"
+>
+  <section class="ite-bidder-docs__main">
+    <app-breadcrumb [segments]="crumbs"></app-breadcrumb>
+
+    @if (state$ | async; as s) {
+      @if (s.status !== 'success') {
+        <app-loading-panel
+          [state]="s"
+          loadingLabel="Loading documents…"
+        ></app-loading-panel>
+      } @else if (!tender || !bidder) {
+        <div class="empty">
+          <mat-icon>error_outline</mat-icon>
+          <p>Bidder documents are not available.</p>
+          <button
+            mat-stroked-button
+            color="primary"
+            [routerLink]="routes.tenders()"
+          >
+            Back to tender list
+          </button>
+        </div>
+      } @else {
+        <header class="header">
+          <div class="header__main">
+            <p class="eyebrow">
+              {{ tender.reference }} • {{ tender.name }}
+            </p>
+            <h1>{{ bidder.name }}</h1>
+            <p class="subline">
+              {{ documents.length }} documents • {{ totalSize | fileSize }} •
+              submitted {{ bidder.submittedOn }}
+            </p>
+
+            <div class="header__actions">
+              <button
+                mat-stroked-button
+                [routerLink]="
+                  routes.bidderEvaluation(tender.id, bidder.id)
+                "
+              >
+                <mat-icon>fact_check</mat-icon>
+                View evaluation report
+              </button>
+              <button
+                mat-stroked-button
+                [routerLink]="routes.tenderBidders(tender.id)"
+              >
+                <mat-icon>arrow_back</mat-icon>
+                All bidders
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <section class="filters">
+          <mat-chip-set
+            class="filters__chips"
+            aria-label="Filter by category"
+          >
+            <mat-chip
+              class="ite-status--neutral"
+              [class.active]="activeCategory === 'All'"
+              (click)="setCategory('All')"
+              disableRipple
+            >
+              All ({{ countFor('All') }})
+            </mat-chip>
+            @for (cat of categories; track cat) {
+              <mat-chip
+                [class]="categoryClass(cat)"
+                [class.active]="activeCategory === cat"
+                (click)="setCategory(cat)"
+                disableRipple
+              >
+                {{ cat }} ({{ countFor(cat) }})
+              </mat-chip>
+            }
+          </mat-chip-set>
+
+          <mat-form-field
+            appearance="outline"
+            class="filters__search"
+            subscriptSizing="dynamic"
+          >
+            <mat-label>Search documents</mat-label>
+            <mat-icon matPrefix>search</mat-icon>
+            <input
+              matInput
+              [(ngModel)]="filter"
+              placeholder="e.g. audited_financials"
+            />
+            @if (filter) {
+              <button
+                mat-icon-button
+                matSuffix
+                (click)="filter = ''"
+                aria-label="Clear search"
+              >
+                <mat-icon>close</mat-icon>
+              </button>
+            }
+          </mat-form-field>
+        </section>
+
+        @if (filteredDocuments.length === 0) {
+          <div class="empty empty--inline">
+            <mat-icon>search_off</mat-icon>
+            <p>No documents match this filter.</p>
+          </div>
+        } @else {
+          <div class="doc-grid">
+            @for (doc of filteredDocuments; track doc.id) {
+              <mat-card
+                appearance="outlined"
+                class="doc-card"
+                [class.doc-card--active]="selectedDocument?.id === doc.id"
+                tabindex="0"
+                (click)="openDocument(doc)"
+                (keyup.enter)="openDocument(doc)"
+              >
+                <mat-card-content class="doc-card__content">
+                  <div class="doc-card__icon">
+                    <mat-icon>{{ iconForMime(doc.mimeType) }}</mat-icon>
+                  </div>
+
+                  <div class="doc-card__info">
+                    <strong class="doc-card__name">{{ doc.fileName }}</strong>
+                    @if (doc.description) {
+                      <span class="doc-card__desc">{{ doc.description }}</span>
+                    }
+                    <div class="doc-card__meta">
+                      <span>{{ doc.sizeBytes | fileSize }}</span>
+                      @if (doc.pageCount) {
+                        <span>• {{ doc.pageCount }} pages</span>
+                      }
+                      <span>• uploaded {{ doc.uploadedOn }}</span>
+                    </div>
+                  </div>
+
+                  <mat-chip
+                    [class]="categoryClass(doc.category)"
+                    disableRipple
+                  >
+                    {{ doc.category }}
+                  </mat-chip>
+                </mat-card-content>
+              </mat-card>
+            }
+          </div>
+        }
+      }
+    }
+  </section>
+
+  <aside
+    class="ite-bidder-docs__panel"
+    [attr.aria-hidden]="!selectedDocument"
+  >
+    @if (selectedDocument; as doc) {
+      <div class="viewer-shell">
+        <header class="viewer-shell__header">
+          <div class="viewer-shell__meta">
+            <mat-icon>{{ iconForMime(doc.mimeType) }}</mat-icon>
+            <div>
+              <strong>{{ doc.fileName }}</strong>
+              <span>
+                {{ doc.category }} • {{ doc.sizeBytes | fileSize }}
+                @if (doc.pageCount) {
+                  • {{ doc.pageCount }} pages
+                }
+              </span>
+            </div>
+          </div>
+          <button
+            mat-icon-button
+            (click)="closeViewer()"
+            aria-label="Close viewer"
+            matTooltip="Close viewer"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        </header>
+        <div class="viewer-shell__stage">
+          <app-document-viewer
+            [documentId]="doc.fileName"
+            [initialPage]="1"
+            (closed)="closeViewer()"
+          ></app-document-viewer>
+        </div>
+      </div>
+    }
+  </aside>
+</main>

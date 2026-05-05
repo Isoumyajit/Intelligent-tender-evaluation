@@ -2,12 +2,99 @@
   display: block;
 }
 
+/* Default state: page sits inside the app shell's centered max-width
+   like every other page. Only when a criterion is selected (the
+   --split modifier) does the page break out to full-viewport and a
+   document viewer lands on the right. All animations use only opacity
+   + transform (compositor-only) to keep the interaction at 60fps. */
 .ite-eval-report {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--ite-spacing-lg);
   width: 100%;
   padding: clamp(16px, 2.5vw, 32px) 0;
+
+  /* When open, expand to full viewport without disturbing flow. */
+  &--split {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    padding-left: clamp(16px, 3vw, 40px);
+    padding-right: clamp(16px, 3vw, 40px);
+  }
+
+  &__main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ite-spacing-lg);
+    min-width: 0;
+    width: 100%;
+    will-change: transform;
+    transition: max-width 320ms cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+
+  /* When split, reserve space for the fixed panel on the right (50% of
+     viewport, capped). The main column has padding-right — no layout
+     shifts, just a gentle constraint. */
+  &--split &__main {
+    padding-right: clamp(480px, 48vw, 760px);
+  }
+
+  /* Panel is absolutely positioned so its show/hide never reflows the
+     main column. Translate + opacity only — GPU-accelerated. */
+  &__panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: clamp(480px, 48vw, 760px);
+    height: 100dvh;
+    background: var(--mat-sys-surface);
+    border-left: 1px solid var(--mat-sys-outline-variant);
+    box-shadow: -4px 0 16px
+      color-mix(in srgb, var(--mat-sys-scrim) 10%, transparent);
+    overflow: hidden;
+    z-index: 50;
+    will-change: transform, opacity;
+    transform: translate3d(100%, 0, 0);
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+    transition:
+      transform 320ms cubic-bezier(0.25, 0.1, 0.25, 1),
+      opacity 220ms cubic-bezier(0.25, 0.1, 0.25, 1),
+      visibility 0s linear 320ms;
+  }
+
+  &--split &__panel {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+    pointer-events: auto;
+    visibility: visible;
+    transition:
+      transform 320ms cubic-bezier(0.25, 0.1, 0.25, 1),
+      opacity 220ms cubic-bezier(0.25, 0.1, 0.25, 1) 40ms,
+      visibility 0s linear 0s;
+  }
+}
+
+@media (max-width: 960px) {
+  .ite-eval-report--split {
+    .ite-eval-report__main {
+      padding-right: 0;
+    }
+
+    .ite-eval-report__panel {
+      width: 100vw;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ite-eval-report__main,
+  .ite-eval-report__panel {
+    transition: none !important;
+  }
 }
 
 .loading {
@@ -104,7 +191,7 @@
     strong {
       font-size: 3rem;
       font-weight: 700;
-      color: var(--mat-sys-primary);
+      color: var(--ite-status-accent, var(--mat-sys-primary));
       line-height: 1;
     }
 
@@ -217,63 +304,72 @@
   }
 }
 
-.criterion {
-  margin-bottom: var(--ite-spacing-sm);
+/* Flat criterion rows — click one to open the evidence side panel. */
+.criterion-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
 
-  ::ng-deep .mat-expansion-panel-header {
-    height: auto !important;
-    min-height: 64px;
-    padding: var(--ite-spacing-sm) var(--ite-spacing-lg);
-    gap: var(--ite-spacing-md);
+.criterion-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--ite-spacing-md);
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  padding: var(--ite-spacing-md) var(--ite-spacing-lg);
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-left: 4px solid var(--mat-sys-outline-variant);
+  border-radius: var(--ite-radius-sm);
+  background: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+  font: inherit;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--mat-sys-surface-container-low);
+    outline: none;
   }
 
-  ::ng-deep .mat-expansion-panel-header.mat-expanded {
-    height: auto !important;
-    min-height: 64px;
+  &--passed {
+    border-left-color: var(--ite-pass);
   }
 
-  ::ng-deep .mat-content {
-    align-items: center;
-    gap: var(--ite-spacing-md);
-    overflow: visible;
+  &--partial {
+    border-left-color: var(--ite-warn);
   }
 
-  ::ng-deep .mat-expansion-panel-header-title {
-    flex: 1 1 auto;
-    min-width: 0;
-    margin-right: var(--ite-spacing-md);
-    align-items: center;
-  }
-
-  ::ng-deep .mat-expansion-panel-header-description {
-    flex: 0 0 auto;
-    margin-right: 0;
-    justify-content: flex-end;
+  &--failed {
+    border-left-color: var(--ite-danger);
   }
 
   &__icon {
-    margin-right: 0.75rem;
     flex-shrink: 0;
 
     &.ite-status--pass {
-      color: var(--mat-sys-primary);
+      color: var(--ite-pass);
     }
-
     &.ite-status--partial {
-      color: var(--mat-sys-tertiary);
+      color: var(--ite-warn);
     }
-
     &.ite-status--fail {
-      color: var(--mat-sys-error);
+      color: var(--ite-danger);
     }
   }
 
-  &__title {
+  &__text {
     display: flex;
     flex-direction: column;
     gap: 0.2rem;
     min-width: 0;
-    flex: 1 1 auto;
 
     strong {
       font-size: 0.98rem;
@@ -291,11 +387,10 @@
     }
   }
 
-  &__desc {
+  &__meta {
     display: flex;
     align-items: center;
     gap: var(--ite-spacing-sm);
-    justify-content: flex-end;
   }
 
   &__score {
@@ -304,138 +399,12 @@
     color: var(--mat-sys-on-surface);
     white-space: nowrap;
   }
-}
 
-.evidence-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ite-spacing-md);
-  padding: var(--ite-spacing-md) 0 var(--ite-spacing-sm);
-}
-
-.evidence-heading {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  font-size: 0.78rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--mat-sys-on-surface-variant);
-
-  mat-icon {
-    font-size: 1rem;
-    width: 1rem;
-    height: 1rem;
-  }
-}
-
-.evidence-card {
-  &__header {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    column-gap: var(--ite-spacing-md);
-    row-gap: 0.25rem;
-    align-items: center;
-    padding: var(--ite-spacing-md) var(--ite-spacing-lg) 0;
-
-    ::ng-deep .mat-mdc-card-header-text {
-      margin: 0;
-      min-width: 0;
-    }
-  }
-
-  &__title {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    min-width: 0;
-    font-size: 0.95rem !important;
-    color: var(--mat-sys-primary) !important;
-
-    mat-icon {
-      font-size: 1.1rem;
-      width: 1.1rem;
-      height: 1.1rem;
-    }
-  }
-
-  &__confidence {
-    grid-row: 1 / span 2;
-    grid-column: 2;
-    justify-self: end;
-  }
-
-  &__content {
-    padding: var(--ite-spacing-md) var(--ite-spacing-lg) var(--ite-spacing-lg);
-    display: flex;
-    flex-direction: column;
-    gap: var(--ite-spacing-md);
-  }
-
-  &__extracted {
-    display: flex;
-    align-items: center;
-    gap: var(--ite-spacing-sm);
-    flex-wrap: wrap;
-
-    span {
-      font-size: 0.78rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--mat-sys-on-surface-variant);
-    }
-  }
-}
-
-.excerpt-card {
-  background: var(--mat-sys-surface-container-low);
-
-  ::ng-deep .mat-mdc-card-content {
-    padding: var(--ite-spacing-md) var(--ite-spacing-lg);
-    display: flex;
-    gap: var(--ite-spacing-md);
-    align-items: flex-start;
-  }
-
-  &__quote {
-    color: var(--mat-sys-primary);
-    font-size: 1.4rem;
-    width: 1.4rem;
-    height: 1.4rem;
-    flex-shrink: 0;
-    opacity: 0.7;
-  }
-
-  p {
-    margin: 0;
-    font-style: italic;
-    line-height: 1.6;
-    color: var(--mat-sys-on-surface);
-    font-size: 0.95rem;
-  }
-}
-
-.note-card {
-  background: var(--mat-sys-tertiary-container);
-  color: var(--mat-sys-on-tertiary-container);
-
-  &__content {
-    display: flex;
-    gap: 0.6rem;
-    align-items: flex-start;
-    padding: var(--ite-spacing-md) var(--ite-spacing-lg);
-
-    mat-icon {
-      color: var(--mat-sys-on-tertiary-container);
-      flex-shrink: 0;
-    }
-
-    span {
-      font-size: 0.9rem;
-      line-height: 1.5;
-    }
+  &__chevron {
+    color: var(--mat-sys-on-surface-variant);
+    font-size: 1.1rem;
+    width: 1.1rem;
+    height: 1.1rem;
   }
 }
 
@@ -450,18 +419,13 @@
     grid-template-columns: 1fr;
   }
 
-  .criterion__desc {
-    flex-wrap: wrap;
-    justify-content: flex-start;
-  }
+  .criterion-row {
+    grid-template-columns: auto minmax(0, 1fr);
 
-  .evidence-card__header {
-    grid-template-columns: 1fr;
-  }
-
-  .evidence-card__confidence {
-    grid-row: auto;
-    grid-column: auto;
-    justify-self: start;
+    &__meta {
+      grid-column: 1 / -1;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
   }
 }

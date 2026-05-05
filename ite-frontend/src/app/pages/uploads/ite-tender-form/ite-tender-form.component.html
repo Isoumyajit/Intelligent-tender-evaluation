@@ -122,9 +122,26 @@
                       {{ tender.biddersCount }} bidders
                     </span>
                     <button
+                      mat-flat-button
+                      color="primary"
+                      type="button"
+                      [disabled]="tender.biddersCount === 0"
+                      [matTooltip]="
+                        tender.biddersCount === 0
+                          ? 'Add at least one bidder to start'
+                          : 'Begin AI evaluation of the submitted bidders'
+                      "
+                      (click)="startEvaluation(tender.id); $event.stopPropagation()"
+                      class="ite-start-btn"
+                    >
+                      <mat-icon>play_arrow</mat-icon>
+                      Start evaluation
+                    </button>
+                    <button
                       mat-icon-button
                       (click)="toggleTenderExpansion(tender.id)"
                       class="ite-expand-btn"
+                      aria-label="Toggle details"
                     >
                       <mat-icon [class.ite-expanded]="tender.isExpanded">
                         expand_more

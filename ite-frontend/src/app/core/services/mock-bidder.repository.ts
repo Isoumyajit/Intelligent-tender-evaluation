@@ -4,8 +4,11 @@ import { delay } from 'rxjs/operators';
 import { BidderRepository } from '../abstractions/bidder-repository';
 import { CriterionCatalogProvider } from '../evaluation/criterion-catalog.provider';
 import {
+  BidderDocument,
+  BidderDocumentCategory,
   BidderEvaluation,
   BidderSummary,
+  CriterionCategory,
 } from '../models/evaluation.models';
 
 @Injectable({ providedIn: 'root' })
@@ -441,5 +444,114 @@ export class MockBidderRepository implements BidderRepository {
       ? { ...summary, criteria: this.catalog.build(summary) }
       : undefined;
     return of(evaluation).pipe(delay(150));
+  }
+
+  listDocuments(
+    tenderId: string,
+    bidderId: string,
+  ): Observable<BidderDocument[]> {
+    const summary = (this.summariesByTender[tenderId] ?? []).find(
+      (b) => b.id === bidderId,
+    );
+    if (!summary) return of([]).pipe(delay(120));
+
+    // Deduplicate by document name across all evidence in the criteria.
+    const seen = new Map<string, { category: CriterionCategory }>();
+    for (const crit of this.catalog.build(summary)) {
+      for (const ev of crit.evidence) {
+        if (!seen.has(ev.documentName)) {
+          seen.set(ev.documentName, { category: crit.category });
+        }
+      }
+    }
+
+    const docs: BidderDocument[] = Array.from(seen.entries()).map(
+      ([fileName, { category }], idx) =>
+        this.synthesizeDocument(summary, fileName, category, idx),
+    );
+
+    return of(docs).pipe(delay(200));
+  }
+
+  private synthesizeDocument(
+    summary: BidderSummary,
+    fileName: string,
+    criterionCategory: CriterionCategory,
+    index: number,
+  ): BidderDocument {
+    const lower = fileName.toLowerCase();
+    const mimeType = this.guessMimeType(lower);
+    const category = this.mapCategory(criterionCategory);
+    const baseDate = new Date(summary.submittedOn);
+    baseDate.setDate(baseDate.getDate() - index);
+    return {
+      id: `${summary.id}-DOC-${index + 1}`,
+      tenderId: summary.tenderId,
+      bidderId: summary.id,
+      fileName,
+      mimeType,
+      sizeBytes: this.pseudoSize(fileName, summary.id),
+      uploadedOn: baseDate.toISOString().split('T')[0],
+      pageCount: this.pseudoPageCount(fileName, summary.id),
+      category,
+      description: this.shortDescription(lower),
+    };
+  }
+
+  private guessMimeType(lowerName: string): string {
+    if (lowerName.endsWith('.pdf')) return 'application/pdf';
+    if (lowerName.endsWith('.xlsx')) {
+      return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+    }
+    if (lowerName.endsWith('.xls')) return 'application/vnd.ms-excel';
+    if (lowerName.endsWith('.docx')) {
+      return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+    }
+    if (lowerName.endsWith('.doc')) return 'application/msword';
+    if (lowerName.endsWith('.png')) return 'image/png';
+    if (lowerName.endsWith('.jpg') || lowerName.endsWith('.jpeg')) {
+      return 'image/jpeg';
+    }
+    return 'application/octet-stream';
+  }
+
+  private mapCategory(c: CriterionCategory): BidderDocumentCategory {
+    return c;
+  }
+
+  private pseudoSize(name: string, salt: string): number {
+    // Deterministic pseudo-random between 120 KB and 12 MB.
+    const seed = [...(name + salt)].reduce((s, ch) => s + ch.charCodeAt(0), 0);
+    return 120 * 1024 + (seed * 7919) % (12 * 1024 * 1024);
+  }
+
+  private pseudoPageCount(name: string, salt: string): number | undefined {
+    if (!/\.(pdf|docx?|pptx?)$/i.test(name)) return undefined;
+    const seed = [...(name + salt)].reduce((s, ch) => s + ch.charCodeAt(0), 0);
+    return (seed % 28) + 2;
+  }
+
+  private shortDescription(lower: string): string | undefined {
+    if (lower.includes('financial')) return 'Audited financial statement';
+    if (lower.includes('gst')) return 'GST registration certificate';
+    if (lower.includes('pan')) return 'PAN verification record';
+    if (lower.includes('completion')) return 'Project completion certificates';
+    if (lower.includes('team') || lower.includes('cv')) {
+      return 'Key personnel CVs';
+    }
+    if (lower.includes('equipment')) return 'Equipment & fleet inventory';
+    if (lower.includes('price') || lower.includes('bid')) {
+      return 'Priced bid document';
+    }
+    if (lower.includes('emd') || lower.includes('guarantee')) {
+      return 'Earnest money / bank guarantee';
+    }
+    if (lower.includes('affidavit') || lower.includes('declaration')) {
+      return 'Self-declaration affidavit';
+    }
+    if (lower.includes('epfo') || lower.includes('esic')) {
+      return 'EPFO/ESIC compliance record';
+    }
+    return undefined;
   }
 }

@@ -1,7 +1,8 @@
-<main class="ite-eval-report">
-  <app-breadcrumb [segments]="crumbs"></app-breadcrumb>
+<main class="ite-eval-report" [class.ite-eval-report--split]="!!selectedCriterion">
+  <section class="ite-eval-report__main">
+    <app-breadcrumb [segments]="crumbs"></app-breadcrumb>
 
-  @if (state$ | async; as s) {
+    @if (state$ | async; as s) {
     @if (s.status !== 'success') {
       <app-loading-panel [state]="s" loadingLabel="Loading evaluation report…" />
     } @else if (!tender || !bidder) {
@@ -25,6 +26,14 @@
         </p>
 
         <div class="header-main__actions">
+          <button
+            mat-stroked-button
+            color="primary"
+            [routerLink]="routes.bidderDocuments(tender.id, bidder.id)"
+          >
+            <mat-icon>folder_open</mat-icon>
+            View all documents
+          </button>
           <button mat-stroked-button
                   [routerLink]="routes.tenderBidders(tender.id)">
             <mat-icon>arrow_back</mat-icon>
@@ -39,7 +48,7 @@
 
       <mat-card appearance="outlined" class="summary-card">
         <mat-card-content class="summary-card__content">
-          <div class="summary-card__score">
+          <div class="summary-card__score {{ overallScoreClass }}">
             <span class="summary-card__label">Overall Score</span>
             <div class="summary-card__value">
               <strong>{{ overallScore }}</strong>
@@ -131,109 +140,59 @@
                 </mat-card-content>
               </mat-card>
 
-              <mat-accordion multi>
+              <ul class="criterion-list" role="list">
                 @for (criterion of group.criteria; track criterion.id) {
-                  <mat-expansion-panel
-                    class="criterion"
-                    [expanded]="criterion.status !== 'passed'"
-                  >
-                    <mat-expansion-panel-header>
-                      <mat-panel-title>
-                        <mat-icon
-                          class="criterion__icon {{ statusClass(criterion.status) }}"
-                        >
-                          {{ statusIcon(criterion.status) }}
-                        </mat-icon>
-                        <div class="criterion__title">
-                          <strong>{{ criterion.title }}</strong>
-                          <small>{{ criterion.requirement }}</small>
-                        </div>
-                      </mat-panel-title>
+                  <li>
+                    <button
+                      type="button"
+                      class="criterion-row criterion-row--{{ criterion.status }}"
+                      (click)="openEvidence(criterion)"
+                    >
+                      <mat-icon
+                        class="criterion-row__icon {{ statusClass(criterion.status) }}"
+                      >
+                        {{ statusIcon(criterion.status) }}
+                      </mat-icon>
 
-                      <mat-panel-description class="criterion__desc">
+                      <div class="criterion-row__text">
+                        <strong>{{ criterion.title }}</strong>
+                        <small>{{ criterion.requirement }}</small>
+                      </div>
+
+                      <div class="criterion-row__meta">
                         <mat-chip
                           class="{{ statusClass(criterion.status) }}"
                           disableRipple
                         >
                           {{ statusLabel(criterion.status) }}
                         </mat-chip>
-                        <span class="criterion__score">
+                        <span class="criterion-row__score">
                           {{ criterion.score }}/{{ criterion.weight }}
                         </span>
-                      </mat-panel-description>
-                    </mat-expansion-panel-header>
-
-                    <div class="evidence-wrap">
-                      <div class="evidence-heading">
-                        <mat-icon>description</mat-icon>
-                        <span>Source-document evidence</span>
+                        <mat-icon class="criterion-row__chevron">
+                          chevron_right
+                        </mat-icon>
                       </div>
-
-                      @for (
-                        evidence of criterion.evidence;
-                        track evidence.documentName;
-                        let last = $last
-                      ) {
-                        <mat-card appearance="outlined" class="evidence-card">
-                          <mat-card-header class="evidence-card__header">
-                            <mat-card-title class="evidence-card__title">
-                              <mat-icon>article</mat-icon>
-                              {{ evidence.documentName }}
-                            </mat-card-title>
-                            <mat-card-subtitle>
-                              {{ evidence.pageOrSection }}
-                            </mat-card-subtitle>
-                            <mat-chip
-                              class="evidence-card__confidence ite-status--pass"
-                              disableRipple
-                            >
-                              <mat-icon matChipAvatar>psychology</mat-icon>
-                              {{ evidence.confidence }}%
-                            </mat-chip>
-                          </mat-card-header>
-
-                          <mat-card-content class="evidence-card__content">
-                            <mat-card appearance="outlined" class="excerpt-card">
-                              <mat-card-content>
-                                <mat-icon class="excerpt-card__quote">
-                                  format_quote
-                                </mat-icon>
-                                <p>{{ evidence.excerpt }}</p>
-                              </mat-card-content>
-                            </mat-card>
-
-                            @if (evidence.extractedValue) {
-                              <div class="evidence-card__extracted">
-                                <span>Extracted value</span>
-                                <mat-chip
-                                  class="{{ statusClass(criterion.status) }}"
-                                  disableRipple
-                                >
-                                  {{ evidence.extractedValue }}
-                                </mat-chip>
-                              </div>
-                            }
-                          </mat-card-content>
-                        </mat-card>
-                      }
-
-                      @if (criterion.notes) {
-                        <mat-card appearance="outlined" class="note-card">
-                          <mat-card-content class="note-card__content">
-                            <mat-icon>sticky_note_2</mat-icon>
-                            <span>{{ criterion.notes }}</span>
-                          </mat-card-content>
-                        </mat-card>
-                      }
-                    </div>
-                  </mat-expansion-panel>
+                    </button>
+                  </li>
                 }
-              </mat-accordion>
+              </ul>
             </div>
           </mat-tab>
         }
       </mat-tab-group>
     </mat-card>
     }
-  }
+    }
+  </section>
+
+  <aside
+    class="ite-eval-report__panel"
+    [attr.aria-hidden]="!selectedCriterion"
+  >
+    <app-evidence-panel
+      [criterion]="selectedCriterion"
+      (closed)="closeEvidence()"
+    ></app-evidence-panel>
+  </aside>
 </main>

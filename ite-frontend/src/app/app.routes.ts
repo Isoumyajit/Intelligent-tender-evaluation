@@ -36,6 +36,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: RoutePaths.BIDDER_DOCUMENTS,
+    loadComponent: () =>
+      import('./pages/bidder-documents/bidder-documents.component').then(
+        (m) => m.BidderDocumentsComponent,
+      ),
+  },
+  {
     path: RoutePaths.BIDDER_EVALUATION,
     loadComponent: () =>
       import('./pages/evaluation-report/evaluation-report.component').then(

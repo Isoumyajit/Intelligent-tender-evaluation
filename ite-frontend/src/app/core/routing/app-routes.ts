@@ -21,6 +21,13 @@ export const AppRoutes = {
     bidderId,
     'evaluation',
   ],
+  bidderDocuments: (tenderId: string, bidderId: string): string[] => [
+    '/tenders',
+    tenderId,
+    'bidders',
+    bidderId,
+    'documents',
+  ],
 } as const;
 
 /**
@@ -33,4 +40,5 @@ export const RoutePaths = {
   TENDERS: 'tenders',
   TENDER_BIDDERS: 'tenders/:tenderId/bidders',
   BIDDER_EVALUATION: 'tenders/:tenderId/bidders/:bidderId/evaluation',
+  BIDDER_DOCUMENTS: 'tenders/:tenderId/bidders/:bidderId/documents',
 } as const;

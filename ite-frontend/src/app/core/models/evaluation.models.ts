@@ -89,3 +89,23 @@ export interface BidderEvaluation extends BidderSummary {
  * BidderEvaluation for report contexts.
  */
 export type Bidder = BidderEvaluation;
+
+export type BidderDocumentCategory =
+  | 'Eligibility'
+  | 'Technical'
+  | 'Financial'
+  | 'Compliance'
+  | 'Other';
+
+export interface BidderDocument {
+  id: string;
+  tenderId: string;
+  bidderId: string;
+  fileName: string;
+  mimeType: string;
+  sizeBytes: number;
+  uploadedOn: string;
+  pageCount?: number;
+  category: BidderDocumentCategory;
+  description?: string;
+}

@@ -1,0 +1,86 @@
+<aside
+  class="evidence-panel"
+  role="complementary"
+  [attr.aria-labelledby]="'evidence-title'"
+>
+  @if (criterion) {
+    <header class="evidence-panel__header">
+      <div class="evidence-panel__heading">
+        <span class="eyebrow">Source-document evidence</span>
+        <h2 id="evidence-title">{{ criterion.title }}</h2>
+        <p class="requirement">{{ criterion.requirement }}</p>
+      </div>
+      <button
+        mat-icon-button
+        class="evidence-panel__close"
+        (click)="close()"
+        aria-label="Close evidence panel"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    </header>
+
+    <div class="evidence-panel__status">
+      <mat-chip class="{{ statusClass(criterion.status) }}" disableRipple>
+        <mat-icon matChipAvatar>{{ statusIcon(criterion.status) }}</mat-icon>
+        {{ statusLabel(criterion.status) }}
+      </mat-chip>
+      <span class="score">{{ criterion.score }}/{{ criterion.weight }}</span>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <div class="evidence-panel__body">
+      @if (criterion.evidence.length === 0) {
+        <div class="empty-state empty-state--missing">
+          <mat-icon>search_off</mat-icon>
+          <strong>Could not locate this value</strong>
+          <span>
+            The AI could not extract this criterion from the submitted
+            documents. Please verify manually.
+          </span>
+        </div>
+      } @else {
+        @let primary = criterion.evidence[0];
+        <section class="viewer-section">
+          <header class="viewer-section__meta">
+            <div class="viewer-section__ref">
+              <mat-icon>description</mat-icon>
+              <div>
+                <strong>{{ primary.documentName }}</strong>
+                <span>{{ primary.pageOrSection }}</span>
+              </div>
+            </div>
+            <span class="viewer-section__confidence">
+              {{ primary.confidence }}% extraction confidence
+            </span>
+          </header>
+
+          <div class="viewer-section__stage">
+            <app-document-viewer
+              [documentId]="primary.documentName"
+              [initialPage]="1"
+              (closed)="close()"
+            ></app-document-viewer>
+          </div>
+
+          @if (primary.extractedValue) {
+            <footer class="viewer-section__extracted">
+              <span class="label">Extracted value</span>
+              <mat-chip class="{{ statusClass(criterion.status) }}" disableRipple>
+                {{ primary.extractedValue }}
+              </mat-chip>
+            </footer>
+          }
+        </section>
+
+        @if (criterion.notes) {
+          <div class="note-card">
+            <mat-icon>sticky_note_2</mat-icon>
+            <span>{{ criterion.notes }}</span>
+          </div>
+        }
+      }
+    </div>
+  }
+</aside>

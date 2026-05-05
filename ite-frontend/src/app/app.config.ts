@@ -8,11 +8,13 @@ import {
 
 import { routes } from './app.routes';
 import { BIDDER_REPOSITORY } from './core/abstractions/bidder-repository';
+import { DOCUMENT_RENDERER } from './core/abstractions/document-renderer';
 import { TENDER_REPOSITORY } from './core/abstractions/tender-repository';
 import { UPLOAD_TRANSPORT } from './core/abstractions/upload-transport';
 import { apiErrorInterceptor } from './core/http/api-error.interceptor';
 import { MockBidderRepository } from './core/services/mock-bidder.repository';
 import { MockChunkTransport } from './core/services/mock-chunk-transport';
+import { MockImageRenderer } from './core/services/mock-image-renderer';
 import { MockTenderRepository } from './core/services/mock-tender.repository';
 
 export const appConfig: ApplicationConfig = {
@@ -27,5 +29,7 @@ export const appConfig: ApplicationConfig = {
     { provide: BIDDER_REPOSITORY, useExisting: MockBidderRepository },
     // Upload transport — swap to S3MultipartTransport / TusTransport / HttpPostTransport.
     { provide: UPLOAD_TRANSPORT, useExisting: MockChunkTransport },
+    // Document renderer — swap to ServerImageRenderer / PdfJsRenderer when real docs arrive.
+    { provide: DOCUMENT_RENDERER, useExisting: MockImageRenderer },
   ],
 };

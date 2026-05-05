@@ -1,0 +1,47 @@
+<div class="viewer">
+  <app-viewer-toolbar></app-viewer-toolbar>
+
+  <div class="stage" #stage>
+    @if (errorMessage) {
+      <div class="message message--error" role="alert">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ errorMessage }}</span>
+      </div>
+    } @else if (loading && !pageImageUrl) {
+      <div class="message message--loading">
+        <mat-spinner diameter="28"></mat-spinner>
+        <span>Loading document…</span>
+      </div>
+    }
+
+    @if (pageImageUrl) {
+      <div class="page-frame {{ pageSizingClass() }}">
+        <div class="page-frame__scaler" [style.transform]="pageTransform()">
+          <img
+            class="page-image"
+            [src]="pageImageUrl"
+            [alt]="'Page ' + currentPage + ' of ' + totalPages"
+            draggable="false"
+          />
+
+          <!-- Highlight layer slot. Kept empty for now; future bbox layers
+               will be mounted here and share the page's coordinate space. -->
+          <div class="highlight-layer" aria-hidden="true">
+            <ng-content select="[viewerHighlightLayer]"></ng-content>
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (loading && pageImageUrl) {
+      <div class="loading-overlay" aria-live="polite">
+        <mat-spinner diameter="24"></mat-spinner>
+      </div>
+    }
+  </div>
+
+  <div class="statusbar">
+    <span>Page {{ currentPage }} of {{ totalPages || 1 }}</span>
+    <span>{{ documentId }}</span>
+  </div>
+</div>

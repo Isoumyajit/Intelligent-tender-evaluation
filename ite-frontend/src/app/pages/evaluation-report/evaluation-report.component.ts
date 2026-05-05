@@ -5,7 +5,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -27,6 +26,7 @@ import {
   BreadcrumbComponent,
   BreadcrumbSegment,
 } from '../../shared/breadcrumb/breadcrumb.component';
+import { EvidencePanelComponent } from '../../shared/evidence-panel/evidence-panel.component';
 import { LoadingPanelComponent } from '../../shared/loading-panel/loading-panel.component';
 
 interface CategoryGroup {
@@ -53,10 +53,10 @@ interface EvaluationReportData {
     MatCardModule,
     MatChipsModule,
     MatDividerModule,
-    MatExpansionModule,
     MatProgressBarModule,
     MatTabsModule,
     BreadcrumbComponent,
+    EvidencePanelComponent,
     LoadingPanelComponent,
   ],
   templateUrl: './evaluation-report.component.html',
@@ -73,7 +73,16 @@ export class EvaluationReportComponent implements OnInit {
   crumbs: BreadcrumbSegment[] = [];
   categoryGroups: CategoryGroup[] = [];
   state$!: Observable<LoadState<EvaluationReportData>>;
+  selectedCriterion: EvaluationCriterion | null = null;
   readonly routes = AppRoutes;
+
+  openEvidence(criterion: EvaluationCriterion): void {
+    this.selectedCriterion = criterion;
+  }
+
+  closeEvidence(): void {
+    this.selectedCriterion = null;
+  }
 
   ngOnInit() {
     const tenderId = this.route.snapshot.paramMap.get('tenderId')!;
@@ -95,7 +104,10 @@ export class EvaluationReportComponent implements OnInit {
         this.crumbs = [
           { label: 'Tender List', link: AppRoutes.tenders() },
           { label: tender.name, link: AppRoutes.tenderBidders(tender.id) },
-          { label: bidder.name },
+          {
+            label: bidder.name,
+            link: AppRoutes.bidderDocuments(tender.id, bidder.id),
+          },
           { label: 'Evaluation Report' },
         ];
         this.categoryGroups = this.groupByCategory(bidder.criteria);

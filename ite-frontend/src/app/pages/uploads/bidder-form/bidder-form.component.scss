@@ -1,15 +1,22 @@
 .bidder-dialog {
-  width: min(100%, 920px);
+  width: 100%;
   display: flex;
   flex-direction: column;
-  max-height: 90vh;
+  max-height: 92vh;
+
+  /* Give the stepper header breathing room from the dialog edges — the
+     global `.mat-mdc-dialog-surface { padding: 0 }` override stripped
+     Material's default inset. */
+  ::ng-deep .mat-horizontal-stepper-header-container {
+    padding: 0 1.25rem;
+  }
 }
 
 .bidder-dialog__header {
   display: flex;
   justify-content: space-between;
   align-items: start;
-  padding: 1rem 1rem 0;
+  padding: 1.5rem 1.75rem 0.25rem;
 
   h2 {
     margin: 0;
@@ -21,7 +28,7 @@
 }
 
 .step-content {
-  padding: 1rem;
+  padding: 1.5rem 1.75rem 1.75rem;
   overflow-y: auto;
 }
 

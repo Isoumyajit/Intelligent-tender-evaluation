@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -7,14 +7,17 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FileSizePipe, formatFileSize } from '../../../core/pipes/file-size.pipe';
+import { AppRoutes } from '../../../core/routing/app-routes';
 import { BidderFormComponent } from '../bidder-form/bidder-form.component';
 
 interface UploadedTender {
@@ -41,6 +44,7 @@ interface UploadedTender {
     MatIconModule,
     MatTooltipModule,
     MatDialogModule,
+    MatSnackBarModule,
     FileSizePipe,
   ],
   templateUrl: './ite-tender-form.component.html',
@@ -70,6 +74,9 @@ export class IteTenderFormComponent implements OnInit {
       isExpanded: false,
     },
   ];
+
+  private readonly router = inject(Router);
+  private readonly snackBar = inject(MatSnackBar);
 
   constructor(
     private fb: FormBuilder,
@@ -146,6 +153,23 @@ export class IteTenderFormComponent implements OnInit {
     }
   }
 
+  startEvaluation(tenderId: string) {
+    const tender = this.uploadedTenders.find((t) => t.id === tenderId);
+    if (!tender || tender.biddersCount === 0) return;
+
+    this.snackBar.open(
+      `Evaluation queued for "${tender.name}" — ${tender.biddersCount} bidder(s)`,
+      'View',
+      { duration: 4500, horizontalPosition: 'end', verticalPosition: 'bottom' },
+    ).onAction().subscribe(() => {
+      this.router.navigate(AppRoutes.tenders());
+    });
+
+    // Take the user straight to the processed-tender list so they can watch
+    // the evaluation progress alongside other tenders.
+    this.router.navigate(AppRoutes.tenders());
+  }
+
   openBidderDialog(tenderId: string) {
     const tender = this.uploadedTenders.find((t) => t.id === tenderId);
     if (!tender) {
@@ -153,8 +177,11 @@ export class IteTenderFormComponent implements OnInit {
     }
 
     const dialogRef = this.dialog.open(BidderFormComponent, {
-      minWidth: '760px',
-      minHeight: '60vh',
+      width: '960px',
+      maxWidth: '92vw',
+      minHeight: '68vh',
+      maxHeight: '92vh',
+      panelClass: 'ite-bidder-dialog',
       data: {
         tenderId: tender.id,
         tenderName: tender.name,

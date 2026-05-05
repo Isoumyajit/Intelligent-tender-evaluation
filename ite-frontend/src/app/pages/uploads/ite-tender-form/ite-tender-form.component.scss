@@ -215,6 +215,12 @@
   align-items: center;
   gap: var(--ite-spacing-sm);
   flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.ite-start-btn {
+  white-space: nowrap;
 }
 
 .ite-bidders-badge {

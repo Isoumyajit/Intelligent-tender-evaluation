@@ -1,0 +1,110 @@
+@if (state$ | async; as s) {
+  <div class="viewer-toolbar" role="toolbar" aria-label="Document viewer">
+    <div class="group">
+      <button
+        mat-icon-button
+        type="button"
+        matTooltip="Previous page"
+        (click)="prev()"
+        [disabled]="s.currentPage <= 1"
+        aria-label="Previous page"
+      >
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+
+      <div class="page-indicator" aria-label="Current page">
+        <input
+          type="text"
+          inputmode="numeric"
+          class="page-input"
+          [value]="s.currentPage"
+          (change)="onPageInput($any($event.target).value)"
+          aria-label="Go to page"
+        />
+        <span class="page-total">/ {{ s.totalPages || 1 }}</span>
+      </div>
+
+      <button
+        mat-icon-button
+        type="button"
+        matTooltip="Next page"
+        (click)="next()"
+        [disabled]="s.currentPage >= s.totalPages"
+        aria-label="Next page"
+      >
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    </div>
+
+    <mat-divider vertical></mat-divider>
+
+    <div class="group">
+      <button
+        mat-icon-button
+        type="button"
+        matTooltip="Zoom out"
+        (click)="zoomOut()"
+        aria-label="Zoom out"
+      >
+        <mat-icon>remove</mat-icon>
+      </button>
+      <span class="zoom-readout">{{ zoomPercent(s.zoom) }}</span>
+      <button
+        mat-icon-button
+        type="button"
+        matTooltip="Zoom in"
+        (click)="zoomIn()"
+        aria-label="Zoom in"
+      >
+        <mat-icon>add</mat-icon>
+      </button>
+
+      <button
+        mat-icon-button
+        type="button"
+        matTooltip="Fit to width"
+        (click)="fitWidth()"
+        [class.active]="s.fitMode === 'width'"
+        aria-label="Fit to width"
+      >
+        <mat-icon>swap_horiz</mat-icon>
+      </button>
+
+      <button
+        mat-icon-button
+        type="button"
+        matTooltip="Fit to page"
+        (click)="fitPage()"
+        [class.active]="s.fitMode === 'page'"
+        aria-label="Fit to page"
+      >
+        <mat-icon>fit_screen</mat-icon>
+      </button>
+    </div>
+
+    <mat-divider vertical></mat-divider>
+
+    <div class="group">
+      <button
+        mat-icon-button
+        type="button"
+        matTooltip="Rotate 90°"
+        (click)="rotate()"
+        aria-label="Rotate"
+      >
+        <mat-icon>rotate_right</mat-icon>
+      </button>
+
+      <button
+        mat-icon-button
+        type="button"
+        [matTooltip]="s.fullscreen ? 'Exit fullscreen' : 'Fullscreen'"
+        (click)="fullscreen()"
+        aria-label="Toggle fullscreen"
+      >
+        <mat-icon>{{ s.fullscreen ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
+      </button>
+    </div>
+
+  </div>
+}
