@@ -1,0 +1,351 @@
+{
+	"info": {
+		"name": "ITE API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8000"
+		},
+		{
+			"key": "tender_id",
+			"value": ""
+		},
+		{
+			"key": "bid_id",
+			"value": ""
+		},
+		{
+			"key": "attachment_ref_id",
+			"value": ""
+		}
+	],
+	"item": [
+		{
+			"name": "Health",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/health",
+							"host": ["{{baseUrl}}"],
+							"path": ["health"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Items",
+			"item": [
+				{
+					"name": "List Items",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/items/",
+							"host": ["{{baseUrl}}"],
+							"path": ["items", ""]
+						}
+					}
+				},
+				{
+					"name": "Get Item",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/items/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["items", "1"]
+						}
+					}
+				},
+				{
+					"name": "Create Item",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"New Item\",\n  \"description\": \"A sample item\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/items/",
+							"host": ["{{baseUrl}}"],
+							"path": ["items", ""]
+						}
+					}
+				},
+				{
+					"name": "Update Item",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Item\",\n  \"description\": \"Updated description\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/items/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["items", "1"]
+						}
+					}
+				},
+				{
+					"name": "Delete Item",
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "{{baseUrl}}/items/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["items", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Tenders",
+			"item": [
+				{
+					"name": "Create Tender",
+					"request": {
+						"method": "POST",
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "tender_name",
+									"value": "Sample Tender",
+									"type": "text"
+								},
+								{
+									"key": "document",
+									"type": "file",
+									"src": ""
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/tenders/",
+							"host": ["{{baseUrl}}"],
+							"path": ["tenders", ""]
+						}
+					}
+				},
+				{
+					"name": "List Tenders",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/tenders/",
+							"host": ["{{baseUrl}}"],
+							"path": ["tenders", ""]
+						}
+					}
+				},
+				{
+					"name": "Get Tender",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/tenders/{{tender_id}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["tenders", "{{tender_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Update Tender",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tender_name\": \"Updated Tender Name\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/tenders/{{tender_id}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["tenders", "{{tender_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete Tender",
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "{{baseUrl}}/tenders/{{tender_id}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["tenders", "{{tender_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Download Tender Document",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/tenders/{{tender_id}}/document",
+							"host": ["{{baseUrl}}"],
+							"path": ["tenders", "{{tender_id}}", "document"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Bids",
+			"item": [
+				{
+					"name": "Create Bid",
+					"request": {
+						"method": "POST",
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "bidder_name",
+									"value": "Acme Corp",
+									"type": "text"
+								},
+								{
+									"key": "documents",
+									"type": "file",
+									"src": ""
+								},
+								{
+									"key": "documents",
+									"type": "file",
+									"src": ""
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/tenders/{{tender_id}}/bid/",
+							"host": ["{{baseUrl}}"],
+							"path": ["tenders", "{{tender_id}}", "bid", ""]
+						}
+					}
+				},
+				{
+					"name": "List Bids",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/tenders/{{tender_id}}/bid/",
+							"host": ["{{baseUrl}}"],
+							"path": ["tenders", "{{tender_id}}", "bid", ""]
+						}
+					}
+				},
+				{
+					"name": "Get Bid",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/tenders/{{tender_id}}/bid/{{bid_id}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["tenders", "{{tender_id}}", "bid", "{{bid_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Update Bid",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"bidder_name\": \"Updated Bidder Name\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/tenders/{{tender_id}}/bid/{{bid_id}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["tenders", "{{tender_id}}", "bid", "{{bid_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete Bid",
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "{{baseUrl}}/tenders/{{tender_id}}/bid/{{bid_id}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["tenders", "{{tender_id}}", "bid", "{{bid_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Add Bid Document",
+					"request": {
+						"method": "PUT",
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "document",
+									"type": "file",
+									"src": ""
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/tenders/{{tender_id}}/bid/{{bid_id}}/documents",
+							"host": ["{{baseUrl}}"],
+							"path": ["tenders", "{{tender_id}}", "bid", "{{bid_id}}", "documents"]
+						}
+					}
+				},
+				{
+					"name": "Remove Bid Document",
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "{{baseUrl}}/tenders/{{tender_id}}/bid/{{bid_id}}/documents/{{attachment_ref_id}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["tenders", "{{tender_id}}", "bid", "{{bid_id}}", "documents", "{{attachment_ref_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Download Bid Document",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/tenders/{{tender_id}}/bid/{{bid_id}}/documents/{{attachment_ref_id}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["tenders", "{{tender_id}}", "bid", "{{bid_id}}", "documents", "{{attachment_ref_id}}"]
+						}
+					}
+				}
+			]
+		}
+	]
+}

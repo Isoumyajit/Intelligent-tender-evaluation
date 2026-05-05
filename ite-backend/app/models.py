@@ -32,6 +32,7 @@ class Attachment(Base):
     created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
 
     tender: Mapped["Tender | None"] = relationship(back_populates="attachment")
+    bid_attachments: Mapped[list["BidAttachment"]] = relationship(back_populates="attachment")
 
 
 class Tender(Base):
@@ -48,3 +49,40 @@ class Tender(Base):
     updated_at: Mapped[datetime] = mapped_column(default=datetime.utcnow, onupdate=datetime.utcnow)
 
     attachment: Mapped[Attachment] = relationship(back_populates="tender", lazy="selectin")
+    bids: Mapped[list["Bid"]] = relationship(back_populates="tender", lazy="selectin")
+
+
+class Bid(Base):
+    __tablename__ = "bids"
+
+    bid_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    tender_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("tenders.tender_id", ondelete="CASCADE"), nullable=False
+    )
+    bidder_name: Mapped[str] = mapped_column(String(512), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    tender: Mapped[Tender] = relationship(back_populates="bids")
+    bid_attachments: Mapped[list["BidAttachment"]] = relationship(
+        back_populates="bid", lazy="selectin", cascade="all, delete-orphan"
+    )
+
+
+class BidAttachment(Base):
+    __tablename__ = "bid_attachments"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    bid_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("bids.bid_id", ondelete="CASCADE"), nullable=False
+    )
+    attachment_ref_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("attachments.attachment_ref_id", ondelete="CASCADE"), nullable=False
+    )
+
+    bid: Mapped[Bid] = relationship(back_populates="bid_attachments")
+    attachment: Mapped[Attachment] = relationship(back_populates="bid_attachments", lazy="selectin")

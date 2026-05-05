@@ -27,3 +27,17 @@ CREATE TABLE IF NOT EXISTS tenders (
     created_at   TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at   TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+CREATE TABLE IF NOT EXISTS bids (
+    bid_id      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tender_id   UUID NOT NULL REFERENCES tenders(tender_id) ON DELETE CASCADE,
+    bidder_name VARCHAR(512) NOT NULL,
+    created_at  TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at  TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS bid_attachments (
+    id                 UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    bid_id             UUID NOT NULL REFERENCES bids(bid_id) ON DELETE CASCADE,
+    attachment_ref_id  UUID NOT NULL REFERENCES attachments(attachment_ref_id) ON DELETE CASCADE
+);

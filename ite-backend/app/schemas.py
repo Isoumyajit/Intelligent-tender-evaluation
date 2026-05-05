@@ -64,3 +64,30 @@ class TenderListResponse(BaseModel):
     updated_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+# ── Bid schemas ──
+
+class BidUpdate(BaseModel):
+    bidder_name: str | None = None
+
+
+class BidResponse(BaseModel):
+    bid_id: UUID
+    tender_id: UUID
+    bidder_name: str
+    created_at: datetime
+    updated_at: datetime
+    attachments: list[AttachmentResponse]
+
+    model_config = {"from_attributes": True}
+
+
+class BidListResponse(BaseModel):
+    bid_id: UUID
+    tender_id: UUID
+    bidder_name: str
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = {"from_attributes": True}
