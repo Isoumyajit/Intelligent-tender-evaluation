@@ -128,32 +128,6 @@
     </div>
   </section>
 
-  <!-- Workflow explainer -->
-  <section class="workflow" aria-label="How this works">
-    <header class="section-header">
-      <h2>How this works</h2>
-      <p>Four simple steps from upload to decision.</p>
-    </header>
-
-    <ol class="workflow__steps">
-      @for (step of workflowSteps; track step.number; let last = $last) {
-        <li class="workflow__step">
-          <div class="workflow__number">
-            <span>{{ step.number }}</span>
-          </div>
-          <mat-icon class="workflow__icon">{{ step.icon }}</mat-icon>
-          <h3>{{ step.title }}</h3>
-          <p>{{ step.description }}</p>
-          @if (!last) {
-            <mat-icon class="workflow__arrow" aria-hidden="true">
-              chevron_right
-            </mat-icon>
-          }
-        </li>
-      }
-    </ol>
-  </section>
-
   <!-- Action queue -->
   <section class="action-queue" aria-label="What needs your attention">
     <header class="section-header section-header--with-action">
@@ -210,7 +184,7 @@
                 <button
                   mat-flat-button
                   color="primary"
-                  [routerLink]="item.route"
+                  (click)="runAction(item)"
                 >
                   <mat-icon>{{ item.actionIcon }}</mat-icon>
                   {{ item.actionLabel }}

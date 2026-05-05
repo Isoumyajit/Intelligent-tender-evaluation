@@ -153,6 +153,7 @@
   &__actions {
     margin-top: var(--ite-spacing-md);
     display: flex;
+    align-items: center;
     gap: var(--ite-spacing-sm);
     flex-wrap: wrap;
   }
@@ -316,7 +317,7 @@
 
 .criterion-row {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: 24px minmax(0, 1fr) 240px;
   gap: var(--ite-spacing-md);
   align-items: center;
   width: 100%;
@@ -353,6 +354,10 @@
 
   &__icon {
     flex-shrink: 0;
+    justify-self: center;
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
 
     &.ite-status--pass {
       color: var(--ite-pass);
@@ -388,9 +393,17 @@
   }
 
   &__meta {
-    display: flex;
+    display: grid;
+    grid-template-columns: 120px 56px 20px;
     align-items: center;
-    gap: var(--ite-spacing-sm);
+    column-gap: var(--ite-spacing-sm);
+    justify-self: end;
+    width: 100%;
+    max-width: 240px;
+  }
+
+  &__meta .mat-mdc-chip {
+    justify-self: start;
   }
 
   &__score {
@@ -398,6 +411,8 @@
     font-weight: 700;
     color: var(--mat-sys-on-surface);
     white-space: nowrap;
+    text-align: right;
+    justify-self: end;
   }
 
   &__chevron {
@@ -405,6 +420,7 @@
     font-size: 1.1rem;
     width: 1.1rem;
     height: 1.1rem;
+    justify-self: center;
   }
 }
 

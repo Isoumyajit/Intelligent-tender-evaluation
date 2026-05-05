@@ -6,7 +6,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Observable } from 'rxjs';
 import { TENDER_REPOSITORY } from '../../core/abstractions/tender-repository';
 import { LoadState, toLoadState } from '../../core/models/load-state';
@@ -22,6 +22,7 @@ import { LoadingPanelComponent } from '../../shared/loading-panel/loading-panel.
   imports: [
     CommonModule,
     FormsModule,
+    RouterLink,
     MatIconModule,
     MatButtonModule,
     MatChipsModule,
@@ -35,6 +36,7 @@ import { LoadingPanelComponent } from '../../shared/loading-panel/loading-panel.
 })
 export class TenderListComponent implements OnInit {
   private readonly router = inject(Router);
+  readonly routes = AppRoutes;
   private readonly tenderRepo = inject(TENDER_REPOSITORY);
 
   tenders: ProcessedTender[] = [];

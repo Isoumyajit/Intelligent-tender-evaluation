@@ -29,7 +29,7 @@
   }
 
   <div class="filter-bar">
-    <mat-form-field appearance="outline" class="filter-field">
+    <mat-form-field appearance="outline" class="filter-field" subscriptSizing="dynamic">
       <mat-label>Search tender by name, reference, or authority</mat-label>
       <input matInput [(ngModel)]="filter" placeholder="e.g., Highway, ITE/2026/029, Smart City" />
       @if (filter) {
@@ -38,6 +38,16 @@
         </button>
       }
     </mat-form-field>
+
+    <button
+      mat-stroked-button
+      color="primary"
+      [routerLink]="routes.evaluations()"
+      class="filter-bar__live"
+    >
+      <mat-icon>radar</mat-icon>
+      Live evaluations
+    </button>
   </div>
 
   <div class="tender-grid">

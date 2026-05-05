@@ -1,14 +1,14 @@
 <main class="ite-tender-form-main">
   <div class="ite-uploads-wrapper">
     <div class="ite-uploads-header">
-      <h1>Tender Management</h1>
+      <h1>Upload a tender</h1>
       <p class="ite-text-muted">
-        Upload tender documents and add bidders for evaluation
+        Upload the tender document and add bidders to start evaluation.
       </p>
     </div>
 
     <div class="ite-uploads-container">
-      <!-- Upload Section -->
+      <!-- Left: the upload form -->
       <section class="ite-upload-section">
         <div class="ite-section-header">
           <h2>Upload New Tender</h2>
@@ -96,99 +96,91 @@
         </form>
       </section>
 
-      <!-- Tenders List Section -->
-      <section class="ite-tenders-list-section">
-        <div class="ite-section-header">
-          <h2>Uploaded Tenders</h2>
-          <span class="ite-tenders-count">{{ uploadedTenders.length }}</span>
-        </div>
-
-        @if (uploadedTenders.length > 0) {
-          <div class="ite-tenders-list">
-            @for (tender of uploadedTenders; track tender.id) {
-              <div class="ite-tender-item">
-                <div class="ite-tender-item__header">
-                  <div class="ite-tender-item__info">
-                    <h3>{{ tender.name }}</h3>
-                    <p class="ite-text-muted">
-                      Uploaded on {{ tender.uploadedDate }} •
-                      {{ tender.fileSize }}
-                    </p>
-                  </div>
-
-                  <div class="ite-tender-item__meta">
-                    <span class="ite-bidders-badge">
-                      <mat-icon>person</mat-icon>
-                      {{ tender.biddersCount }} bidders
-                    </span>
-                    <button
-                      mat-flat-button
-                      color="primary"
-                      type="button"
-                      [disabled]="tender.biddersCount === 0"
-                      [matTooltip]="
-                        tender.biddersCount === 0
-                          ? 'Add at least one bidder to start'
-                          : 'Begin AI evaluation of the submitted bidders'
-                      "
-                      (click)="startEvaluation(tender.id); $event.stopPropagation()"
-                      class="ite-start-btn"
-                    >
-                      <mat-icon>play_arrow</mat-icon>
-                      Start evaluation
-                    </button>
-                    <button
-                      mat-icon-button
-                      (click)="toggleTenderExpansion(tender.id)"
-                      class="ite-expand-btn"
-                      aria-label="Toggle details"
-                    >
-                      <mat-icon [class.ite-expanded]="tender.isExpanded">
-                        expand_more
-                      </mat-icon>
-                    </button>
-                  </div>
-                </div>
-
-                @if (tender.isExpanded) {
-                  <div class="ite-tender-item__content">
-                    <div class="ite-tender-details">
-                      <div class="ite-detail-row">
-                        <span class="ite-detail-label">Document:</span>
-                        <span class="ite-detail-value"
-                          ><mat-icon>description</mat-icon
-                          >{{ tender.fileName }}</span
-                        >
-                      </div>
-                      <div class="ite-detail-row">
-                        <span class="ite-detail-label">Uploaded:</span>
-                        <span class="ite-detail-value">{{
-                          tender.uploadedDate
-                        }}</span>
-                      </div>
-                    </div>
-
-                    <button
-                      mat-raised-button
-                      color="accent"
-                      (click)="openBidderDialog(tender.id)"
-                      class="ite-add-bidder-btn"
-                    >
-                      <mat-icon>person_add</mat-icon>
-                      Add Bidder
-                    </button>
-                  </div>
-                }
-              </div>
-            }
+      <!-- Right: next-step panel for the latest upload -->
+      <section class="ite-next-step">
+        @if (!lastUploaded) {
+          <div class="ite-next-step__empty">
+            <mat-icon>east</mat-icon>
+            <h3>What happens next</h3>
+            <p class="ite-text-muted">
+              Once you upload a tender, its next step appears here so you can
+              add bidder submissions right away.
+            </p>
+            <div class="ite-next-step__shortcuts">
+              <button
+                mat-stroked-button
+                type="button"
+                (click)="goToEvaluations()"
+              >
+                <mat-icon>timelapse</mat-icon>
+                See tenders needing bidders
+              </button>
+              <button mat-stroked-button type="button" (click)="goToTenders()">
+                <mat-icon>format_list_bulleted</mat-icon>
+                Processed tenders
+              </button>
+            </div>
           </div>
         } @else {
-          <div class="ite-empty-state">
-            <mat-icon>folder_open</mat-icon>
-            <p>No tenders uploaded yet</p>
-            <span class="ite-text-muted"
-              >Upload your first tender document to get started</span
-            >
+          <div class="ite-next-step__card">
+            <header class="ite-next-step__header">
+              <mat-icon>check_circle</mat-icon>
+              <div>
+                <h3>Tender uploaded</h3>
+                <p class="ite-text-muted">Now add bidder submissions.</p>
+              </div>
+            </header>
+
+            <div class="ite-next-step__body">
+              <dl class="ite-next-step__meta">
+                <div>
+                  <dt>Tender</dt>
+                  <dd>{{ lastUploaded.name }}</dd>
+                </div>
+                <div>
+                  <dt>Document</dt>
+                  <dd>
+                    <mat-icon>description</mat-icon>
+                    {{ lastUploaded.fileName }}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Size</dt>
+                  <dd>{{ lastUploaded.fileSize }}</dd>
+                </div>
+                <div>
+                  <dt>Uploaded</dt>
+                  <dd>{{ lastUploaded.uploadedDate }}</dd>
+                </div>
+              </dl>
+
+              @if (lastUploaded.biddersAdded) {
+                <p class="ite-next-step__success">
+                  <mat-icon>verified</mat-icon>
+                  Bidders added. Evaluation is in progress.
+                </p>
+              }
+            </div>
+
+            <footer class="ite-next-step__actions">
+              <button
+                mat-flat-button
+                color="primary"
+                type="button"
+                (click)="openBidderDialog()"
+              >
+                <mat-icon>person_add</mat-icon>
+                {{ lastUploaded.biddersAdded ? 'Add another bidder' : 'Add bidders now' }}
+              </button>
+              <button
+                mat-stroked-button
+                type="button"
+                (click)="goToEvaluations()"
+              >
+                <mat-icon>timelapse</mat-icon>
+                Track evaluation
+              </button>
+            </footer>
           </div>
         }
       </section>

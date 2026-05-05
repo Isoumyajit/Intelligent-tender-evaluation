@@ -22,6 +22,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: RoutePaths.EVALUATIONS,
+    loadComponent: () =>
+      import('./pages/evaluations/evaluations.component').then(
+        (m) => m.EvaluationsComponent,
+      ),
+  },
+  {
     path: RoutePaths.TENDERS,
     loadComponent: () =>
       import('./pages/tender-list/tender-list.component').then(

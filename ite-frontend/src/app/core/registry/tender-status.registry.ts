@@ -18,8 +18,16 @@ export interface TenderStatusDescriptor {
   actionIcon: string;
   /** CSS class key toggling Material status tokens. */
   tone: TenderStatusTone;
-  /** Route helper key — resolved at callsite via AppRoutes. */
-  actionRoute: 'upload' | 'tender-bidders' | 'none';
+  /**
+   * What the action button should do. `'add-bidder-dialog'` opens the
+   * bidder-upload dialog inline (no navigation); the others resolve via
+   * AppRoutes.
+   */
+  actionRoute:
+    | 'upload'
+    | 'tender-bidders'
+    | 'add-bidder-dialog'
+    | 'none';
   /** Bucket used by dashboard "Your work today" quick stats. */
   bucket:
     | 'waiting-for-bidders'
@@ -37,7 +45,7 @@ export const TENDER_STATUS_DESCRIPTORS: readonly TenderStatusDescriptor[] = [
     actionLabel: 'Add bidders',
     actionIcon: 'person_add',
     tone: 'ite-status--partial',
-    actionRoute: 'upload',
+    actionRoute: 'add-bidder-dialog',
     bucket: 'waiting-for-bidders',
   },
   {
@@ -111,4 +119,36 @@ export function describeStatus(
   status: TenderStatus,
 ): TenderStatusDescriptor {
   return descriptorByStatus.get(status) ?? fallback;
+}
+
+/**
+ * Indicative progress percentage for a tender in its current stage. Values
+ * are derived from the status only today; when the backend starts emitting a
+ * real `progress` field on ProcessedTender, callers should prefer that and
+ * fall back to this helper for tenders that don't yet have one.
+ */
+const stageProgress: Record<TenderStatus, number> = {
+  'Pending Review': 10,
+  'Technical Evaluation': 55,
+  'Financial Comparison': 85,
+  'Award Recommended': 100,
+  'On Hold': 0,
+  Closed: 100,
+};
+
+export function progressForStatus(status: TenderStatus): number {
+  return stageProgress[status] ?? 0;
+}
+
+/**
+ * Buckets currently considered "in progress" for the Evaluations dashboard.
+ * The single source of truth — dashboard, header badge, evaluations page all
+ * read this, so changing what counts as 'in flight' is a one-line edit.
+ */
+export const IN_PROGRESS_BUCKETS: ReadonlyArray<
+  TenderStatusDescriptor['bucket']
+> = ['waiting-for-bidders', 'being-evaluated', 'ready-for-review'];
+
+export function isInProgress(status: TenderStatus): boolean {
+  return IN_PROGRESS_BUCKETS.includes(describeStatus(status).bucket);
 }

@@ -18,12 +18,13 @@
 
 .ite-uploads-container {
   display: grid;
-  grid-template-columns: 1fr 1.2fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: var(--ite-spacing-xl);
+  align-items: start;
 }
 
 .ite-upload-section,
-.ite-tenders-list-section {
+.ite-next-step {
   border: 1px solid var(--ite-border);
   border-radius: var(--ite-radius-md);
   background: var(--ite-surface);
@@ -40,20 +41,6 @@
   h2 {
     margin: 0;
     font-size: 1.1rem;
-  }
-
-  .ite-tenders-count {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 28px;
-    height: 28px;
-    padding: 0 0.5rem;
-    border-radius: var(--ite-radius-full);
-    background: color-mix(in srgb, var(--ite-primary) 15%, white);
-    color: var(--ite-primary);
-    font-size: 0.85rem;
-    font-weight: 700;
   }
 }
 
@@ -156,6 +143,7 @@
 
 .ite-upload-actions {
   display: flex;
+  align-items: center;
   gap: var(--ite-spacing-md);
   justify-content: flex-end;
   margin-top: var(--ite-spacing-md);
@@ -165,196 +153,158 @@
   }
 }
 
-.ite-tenders-list {
+/* ---------- Right column: next-step panel ---------- */
+
+.ite-next-step {
   display: flex;
   flex-direction: column;
-  gap: var(--ite-spacing-md);
-}
+  min-height: 100%;
 
-.ite-tender-item {
-  border: 1px solid var(--ite-border);
-  border-radius: var(--ite-radius-md);
-  background: color-mix(in srgb, var(--ite-primary) 2%, white);
-  overflow: hidden;
-  transition: all 0.3s ease;
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--ite-spacing-md);
+    padding: clamp(1rem, 3vw, 3rem);
+    text-align: center;
+    color: var(--mat-sys-on-surface-variant);
+    min-height: 320px;
+    justify-content: center;
 
-  &:hover {
-    border-color: var(--ite-primary);
-    box-shadow: 0 2px 8px
-      color-mix(in srgb, var(--ite-primary) 12%, transparent);
+    mat-icon {
+      font-size: 2.25rem;
+      width: 2.25rem;
+      height: 2.25rem;
+      color: var(--ite-primary);
+      opacity: 0.6;
+    }
+
+    h3 {
+      margin: 0;
+      color: var(--mat-sys-on-surface);
+    }
+
+    p {
+      margin: 0;
+      max-width: 320px;
+    }
   }
-}
 
-.ite-tender-item__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--ite-spacing-lg);
-  padding: var(--ite-spacing-lg);
-  cursor: pointer;
-
-  h3 {
-    margin: 0 0 0.25rem;
-    font-size: 0.98rem;
-    font-weight: 600;
+  &__shortcuts {
+    display: flex;
+    align-items: center;
+    gap: var(--ite-spacing-sm);
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: var(--ite-spacing-sm);
   }
 
-  p {
+  &__card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ite-spacing-md);
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: var(--ite-spacing-md);
+
+    mat-icon {
+      font-size: 2rem;
+      width: 2rem;
+      height: 2rem;
+      color: var(--ite-pass);
+    }
+
+    h3 {
+      margin: 0 0 0.1rem;
+      font-size: 1.05rem;
+      color: var(--mat-sys-on-surface);
+    }
+
+    p {
+      margin: 0;
+      font-size: 0.88rem;
+    }
+  }
+
+  &__body {
+    padding: var(--ite-spacing-md) var(--ite-spacing-lg);
+    background: color-mix(in srgb, var(--ite-primary) 4%, white);
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: var(--ite-radius-sm);
+  }
+
+  &__meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: var(--ite-spacing-md);
     margin: 0;
-    font-size: 0.85rem;
-  }
-}
 
-.ite-tender-item__info {
-  flex: 1;
-  min-width: 0;
-}
+    > div {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+      min-width: 0;
+    }
 
-.ite-tender-item__meta {
-  display: flex;
-  align-items: center;
-  gap: var(--ite-spacing-sm);
-  flex-shrink: 0;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
+    dt {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 600;
+      color: var(--mat-sys-on-surface-variant);
+    }
 
-.ite-start-btn {
-  white-space: nowrap;
-}
+    dd {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--mat-sys-on-surface);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
 
-.ite-bidders-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.35rem 0.65rem;
-  border-radius: var(--ite-radius-full);
-  background: color-mix(in srgb, var(--ite-primary) 12%, white);
-  color: var(--ite-primary);
-  font-size: 0.82rem;
-  font-weight: 600;
-
-  mat-icon {
-    font-size: 0.9rem;
-    width: 0.9rem;
-    height: 0.9rem;
-  }
-}
-
-.ite-expand-btn {
-  mat-icon {
-    transition: transform 0.3s ease;
+      mat-icon {
+        font-size: 1rem;
+        width: 1rem;
+        height: 1rem;
+        color: var(--ite-primary);
+        flex-shrink: 0;
+      }
+    }
   }
 
-  &:not(.ite-expanded) mat-icon {
-    transform: rotate(-90deg);
-  }
-}
-
-.ite-tender-item__content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ite-spacing-md);
-  padding: 0 var(--ite-spacing-lg) var(--ite-spacing-lg);
-  border-top: 1px solid var(--ite-border);
-}
-
-.ite-tender-details {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ite-spacing-sm);
-}
-
-.ite-detail-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.9rem;
-}
-
-.ite-detail-label {
-  font-weight: 600;
-  color: var(--ite-text-secondary);
-}
-
-.ite-detail-value {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  color: var(--ite-text-primary);
-
-  mat-icon {
-    font-size: 0.85rem;
-    width: 0.85rem;
-    height: 0.85rem;
-  }
-}
-
-.ite-bidder-form-container {
-  padding: var(--ite-spacing-lg);
-  border: 1px solid var(--ite-border);
-  border-radius: var(--ite-radius-md);
-  background: color-mix(in srgb, var(--ite-primary) 4%, white);
-
-  h4 {
-    margin: 0 0 var(--ite-spacing-md);
-    font-size: 0.95rem;
-  }
-}
-
-.ite-bidder-form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ite-spacing-md);
-}
-
-.ite-form-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--ite-spacing-md);
-
-  mat-form-field {
-    width: 100% !important;
-  }
-}
-
-.ite-bidder-form-actions {
-  display: flex;
-  gap: var(--ite-spacing-md);
-  justify-content: flex-end;
-  margin-top: var(--ite-spacing-sm);
-}
-
-.ite-add-bidder-btn {
-  width: 100%;
-}
-
-.ite-empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--ite-spacing-md);
-  padding: 3rem var(--ite-spacing-lg);
-  text-align: center;
-
-  mat-icon {
-    font-size: 3rem;
-    width: 3rem;
-    height: 3rem;
-    color: var(--ite-text-secondary);
-    opacity: 0.5;
-  }
-
-  p {
-    margin: 0;
-    font-size: 1rem;
+  &__success {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: var(--ite-spacing-md) 0 0;
+    padding: var(--ite-spacing-sm) var(--ite-spacing-md);
+    background: var(--ite-pass-container);
+    color: var(--ite-on-pass-container);
+    border-radius: var(--ite-radius-sm);
+    font-size: 0.88rem;
     font-weight: 600;
-    color: var(--ite-text-primary);
+
+    mat-icon {
+      font-size: 1.1rem;
+      width: 1.1rem;
+      height: 1.1rem;
+      color: var(--ite-pass);
+    }
   }
 
-  .ite-text-muted {
-    margin-top: 0.25rem;
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--ite-spacing-sm);
+    flex-wrap: wrap;
+    margin-top: var(--ite-spacing-sm);
   }
 }
 
@@ -362,31 +312,16 @@
   .ite-uploads-container {
     grid-template-columns: 1fr;
   }
-
-  .ite-form-grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-width: 768px) {
   .ite-tender-form-main {
-    padding: var(--ite-spacing-md);
+    padding: clamp(16px, 2.5vw, 32px) 0;
   }
 
   .ite-upload-section,
-  .ite-tenders-list-section {
+  .ite-next-step {
     padding: var(--ite-spacing-md);
-  }
-
-  .ite-tender-item__header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--ite-spacing-md);
-  }
-
-  .ite-tender-item__meta {
-    width: 100%;
-    justify-content: space-between;
   }
 
   .ite-upload-actions {
@@ -395,14 +330,6 @@
     button {
       width: 100%;
       margin: 0;
-    }
-  }
-
-  .ite-bidder-form-actions {
-    flex-direction: column;
-
-    button {
-      width: 100%;
     }
   }
 }

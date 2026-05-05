@@ -133,6 +133,7 @@
   &__actions {
     margin-top: var(--ite-spacing-md);
     display: flex;
+    align-items: center;
     gap: var(--ite-spacing-sm);
     flex-wrap: wrap;
   }

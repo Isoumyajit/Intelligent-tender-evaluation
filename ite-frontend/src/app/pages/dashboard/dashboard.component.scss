@@ -26,7 +26,7 @@
 
   &--with-action {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
     gap: var(--ite-spacing-md);
     flex-wrap: wrap;
@@ -195,13 +195,20 @@
 /* ============ Quick stats ============ */
 .quick-stats__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: var(--ite-spacing-md);
+  align-items: stretch;
 }
 
 .stat-card {
   cursor: pointer;
   transition: box-shadow 0.2s ease;
+  min-height: 160px;
+  display: flex;
+
+  mat-card-content {
+    width: 100%;
+  }
 
   &:hover,
   &:focus-visible {
@@ -210,21 +217,30 @@
   }
 
   &__content {
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr;
+    column-gap: var(--ite-spacing-md);
+    row-gap: 0.4rem;
     padding: var(--ite-spacing-lg) !important;
+    height: 100%;
   }
 
   &__icon {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: center;
+    justify-self: center;
     color: var(--mat-sys-primary);
     font-size: 1.75rem;
     width: 1.75rem;
     height: 1.75rem;
-    margin-bottom: 0.25rem;
   }
 
   &__count {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
     font-size: 2.25rem;
     font-weight: 700;
     color: var(--mat-sys-primary);
@@ -232,87 +248,21 @@
   }
 
   &__label {
+    grid-column: 1 / -1;
+    grid-row: 2;
     font-size: 1rem;
     font-weight: 600;
     color: var(--mat-sys-on-surface);
   }
 
   &__help {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    align-self: end;
     font-size: 0.85rem;
     color: var(--mat-sys-on-surface-variant);
     line-height: 1.4;
   }
-}
-
-/* ============ Workflow ============ */
-.workflow__steps {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--ite-spacing-md);
-  align-items: stretch;
-}
-
-.workflow__step {
-  position: relative;
-  background: var(--mat-sys-surface);
-  border: 1px solid var(--mat-sys-outline-variant);
-  border-radius: var(--ite-radius-md);
-  padding: var(--ite-spacing-lg);
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-
-  h3 {
-    margin: 0;
-    font-size: 1rem;
-    color: var(--mat-sys-on-surface);
-    font-weight: 600;
-  }
-
-  p {
-    margin: 0;
-    color: var(--mat-sys-on-surface-variant);
-    font-size: 0.9rem;
-    line-height: 1.5;
-  }
-}
-
-.workflow__number {
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 50%;
-  background: var(--mat-sys-primary);
-  color: var(--mat-sys-on-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 1rem;
-  margin-bottom: 0.25rem;
-}
-
-.workflow__icon {
-  color: var(--mat-sys-primary);
-  font-size: 1.6rem;
-  width: 1.6rem;
-  height: 1.6rem;
-  margin-bottom: 0.2rem;
-}
-
-.workflow__arrow {
-  position: absolute;
-  top: 50%;
-  right: calc(var(--ite-spacing-md) * -1 - 0.25rem);
-  transform: translate(50%, -50%);
-  color: var(--mat-sys-outline);
-  font-size: 1.6rem;
-  width: 1.6rem;
-  height: 1.6rem;
-  background: var(--mat-sys-surface);
-  border-radius: 50%;
 }
 
 /* ============ Action queue ============ */
@@ -467,14 +417,6 @@
 
 /* ============ Responsive ============ */
 @media (max-width: 1000px) {
-  .workflow__steps {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .workflow__arrow {
-    display: none;
-  }
-
   .greeting {
     grid-template-columns: 1fr;
   }
@@ -490,10 +432,6 @@
 }
 
 @media (max-width: 760px) {
-  .workflow__steps {
-    grid-template-columns: 1fr;
-  }
-
   .queue-item__grid {
     grid-template-columns: 1fr;
     gap: var(--ite-spacing-md);
