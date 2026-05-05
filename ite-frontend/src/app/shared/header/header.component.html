@@ -28,6 +28,20 @@
     <div class="ite-container ite-nav-inner">
       <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
       <a routerLink="/upload" routerLinkActive="active">Upload</a>
+      <a
+        routerLink="/evaluations"
+        routerLinkActive="active"
+        class="ite-nav-link-with-badge"
+      >
+        Evaluations
+        @if ((inProgressCount$ | async) ?? 0; as c) {
+          @if (c > 0) {
+            <span class="ite-nav-badge" aria-label="In-flight tenders">
+              {{ c }}
+            </span>
+          }
+        }
+      </a>
       <a routerLink="/tenders" routerLinkActive="active">Processed Tenders</a>
     </div>
   </nav>

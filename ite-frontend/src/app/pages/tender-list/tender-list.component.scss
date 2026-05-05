@@ -44,12 +44,21 @@
 }
 
 .filter-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--ite-spacing-md);
   margin-bottom: var(--ite-spacing-md);
+  flex-wrap: wrap;
 }
 
 .filter-field {
   width: 100%;
   max-width: 480px;
+  flex: 1 1 320px;
+}
+
+.filter-bar__live {
+  flex-shrink: 0;
 }
 
 .tender-grid {

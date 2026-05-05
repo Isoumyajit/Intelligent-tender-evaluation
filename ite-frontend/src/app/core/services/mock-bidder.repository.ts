@@ -1,7 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { delay } from 'rxjs/operators';
-import { BidderRepository } from '../abstractions/bidder-repository';
+import { delay, tap } from 'rxjs/operators';
+import {
+  AddBidderPayload,
+  BidderRepository,
+} from '../abstractions/bidder-repository';
 import { CriterionCatalogProvider } from '../evaluation/criterion-catalog.provider';
 import {
   BidderDocument,
@@ -10,10 +13,14 @@ import {
   BidderSummary,
   CriterionCategory,
 } from '../models/evaluation.models';
+import { MockTenderRepository } from './mock-tender.repository';
+import { RefreshBus } from './refresh-bus';
 
 @Injectable({ providedIn: 'root' })
 export class MockBidderRepository implements BidderRepository {
   private readonly catalog = inject(CriterionCatalogProvider);
+  private readonly tenderRepo = inject(MockTenderRepository);
+  private readonly refresh = inject(RefreshBus);
 
   private readonly summariesByTender: Record<string, BidderSummary[]> = {
     'TEND-2026-041': [
@@ -471,6 +478,54 @@ export class MockBidderRepository implements BidderRepository {
     );
 
     return of(docs).pipe(delay(200));
+  }
+
+  addBidderToTender(
+    tenderId: string,
+    payload: AddBidderPayload,
+  ): Observable<BidderSummary> {
+    const existing = this.summariesByTender[tenderId] ?? [];
+    const rank = existing.length + 1;
+    const summary: BidderSummary = {
+      id: `${tenderId}-BID-${rank}-${Date.now().toString(36)}`,
+      tenderId,
+      name: payload.bidderName,
+      registrationNo: `CIN-PENDING-${rank}`,
+      confidenceScore: 70,
+      rank,
+      overallStatus: 'Under Review',
+      technicalScore: 0,
+      financialScore: 0,
+      complianceScore: 0,
+      bidAmount: '—',
+      submittedOn: new Date().toISOString().split('T')[0],
+      documentsCount: payload.fileCount ?? 0,
+      totalSize: this.humanSize(payload.totalSizeBytes ?? 0),
+    };
+
+    this.summariesByTender[tenderId] = [...existing, summary];
+
+    // Policy: once the first bidder lands, a Pending Review tender moves
+    // into Technical Evaluation. The real backend owns this rule in HTTP
+    // world; here we mimic it so pages can just re-read after write.
+    this.tenderRepo.incrementBiddersCount(tenderId);
+    if (existing.length === 0) {
+      this.tenderRepo.mutateStatus(tenderId, 'Technical Evaluation');
+    }
+
+    return of(summary).pipe(
+      delay(200),
+      tap(() => this.refresh.emitTendersChanged()),
+    );
+  }
+
+  private humanSize(bytes: number): string {
+    if (bytes <= 0) return '—';
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    if (bytes < 1024 * 1024 * 1024) {
+      return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    }
+    return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
   }
 
   private synthesizeDocument(

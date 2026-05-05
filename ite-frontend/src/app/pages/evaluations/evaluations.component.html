@@ -1,0 +1,140 @@
+<main class="ite-evaluations">
+  <app-breadcrumb [segments]="crumbs"></app-breadcrumb>
+
+  @if (state$ | async; as s) {
+    @if (s.status !== 'success') {
+      <app-loading-panel
+        [state]="s"
+        loadingLabel="Loading evaluations…"
+      ></app-loading-panel>
+    } @else {
+      <header class="header">
+        <div class="header__main">
+          <p class="eyebrow">Live pipeline</p>
+          <h1>Evaluations in progress</h1>
+          <p class="subline">
+            Tenders currently moving through review. Progress figures are
+            indicative until the backend reports per-tender progress.
+          </p>
+        </div>
+
+        <div class="header__summary">
+          <button
+            type="button"
+            class="summary-chip summary-chip--all"
+            [class.active]="activeFilter === 'all'"
+            (click)="setFilter('all')"
+          >
+            <span class="summary-chip__count">{{ countFor('all') }}</span>
+            <span class="summary-chip__label">In flight</span>
+          </button>
+
+          @for (bucket of buckets; track bucket) {
+            <button
+              type="button"
+              class="summary-chip {{ bucketTone(bucket) }}"
+              [class.active]="activeFilter === bucket"
+              (click)="setFilter(bucket)"
+            >
+              <span class="summary-chip__count">{{ countFor(bucket) }}</span>
+              <span class="summary-chip__label">{{ bucketLabel(bucket) }}</span>
+            </button>
+          }
+        </div>
+      </header>
+
+      <section class="toolbar">
+        <span class="toolbar__count">
+          {{ filteredSorted.length }}
+          {{ filteredSorted.length === 1 ? 'tender' : 'tenders' }}
+        </span>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Sort by</mat-label>
+          <mat-select [(value)]="sortBy">
+            <mat-option value="progress">Progress (high → low)</mat-option>
+            <mat-option value="closing">Closing date (soonest)</mat-option>
+            <mat-option value="stage">Stage (alphabetical)</mat-option>
+            <mat-option value="bidders">Bidder count (high → low)</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </section>
+
+      @if (filteredSorted.length === 0) {
+        <div class="empty">
+          <mat-icon>task_alt</mat-icon>
+          <p>You are all caught up — no tenders need attention right now.</p>
+          <button
+            mat-stroked-button
+            color="primary"
+            [routerLink]="routes.tenders()"
+          >
+            View processed tenders
+          </button>
+        </div>
+      } @else {
+        <div class="list">
+          @for (row of filteredSorted; track row.tender.id) {
+            <mat-card
+              appearance="outlined"
+              class="row"
+              tabindex="0"
+              (click)="openDetail(row)"
+              (keyup.enter)="openDetail(row)"
+            >
+              <mat-card-content class="row__grid">
+                <div class="row__info">
+                  <div class="row__title">
+                    <mat-chip
+                      class="{{ row.descriptor.tone }}"
+                      disableRipple
+                    >
+                      {{ row.descriptor.label }}
+                    </mat-chip>
+                    <strong>{{ row.tender.name }}</strong>
+                  </div>
+                  <p class="row__ref">
+                    {{ row.tender.reference }} • {{ row.tender.authority }}
+                  </p>
+                  <p class="row__next">
+                    <mat-icon>info</mat-icon>
+                    {{ row.descriptor.nextStep }}
+                  </p>
+                </div>
+
+                <div class="row__progress">
+                  <div class="row__progress-head">
+                    <span class="row__progress-label">Progress</span>
+                    <span class="row__progress-value">
+                      {{ row.progress }}%
+                    </span>
+                  </div>
+                  <mat-progress-bar
+                    mode="determinate"
+                    [value]="row.progress"
+                    class="{{ row.descriptor.tone }}"
+                  ></mat-progress-bar>
+                  <div class="row__progress-meta">
+                    <span>{{ row.tender.biddersCount }} bidders</span>
+                    <span>• closes {{ row.tender.closingDate }}</span>
+                  </div>
+                </div>
+
+                <div class="row__action">
+                  <button
+                    mat-flat-button
+                    color="primary"
+                    (click)="openAction(row); $event.stopPropagation()"
+                  >
+                    <mat-icon>{{ row.descriptor.actionIcon }}</mat-icon>
+                    {{ row.descriptor.actionLabel }}
+                  </button>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
+      }
+    }
+  }
+</main>

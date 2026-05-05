@@ -113,6 +113,32 @@
   }
 }
 
+.ite-nav-link-with-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.ite-nav-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 0.4rem;
+  border-radius: var(--ite-radius-full);
+  background: var(--mat-sys-surface);
+  color: var(--ite-primary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.ite-nav-link-with-badge.active .ite-nav-badge {
+  background: var(--ite-primary);
+  color: var(--mat-sys-surface);
+}
+
 @media (max-width: 720px) {
   .ite-identity {
     align-items: flex-start;

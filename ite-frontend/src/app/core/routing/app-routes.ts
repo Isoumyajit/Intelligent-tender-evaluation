@@ -8,6 +8,7 @@
 export const AppRoutes = {
   dashboard: (): string[] => ['/dashboard'],
   upload: (): string[] => ['/upload'],
+  evaluations: (): string[] => ['/evaluations'],
   tenders: (): string[] => ['/tenders'],
   tenderBidders: (tenderId: string): string[] => [
     '/tenders',
@@ -37,6 +38,7 @@ export const AppRoutes = {
 export const RoutePaths = {
   DASHBOARD: 'dashboard',
   UPLOAD: 'upload',
+  EVALUATIONS: 'evaluations',
   TENDERS: 'tenders',
   TENDER_BIDDERS: 'tenders/:tenderId/bidders',
   BIDDER_EVALUATION: 'tenders/:tenderId/bidders/:bidderId/evaluation',

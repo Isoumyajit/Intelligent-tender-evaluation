@@ -85,10 +85,30 @@ export class MockTenderRepository implements TenderRepository {
   ];
 
   list(): Observable<ProcessedTender[]> {
-    return of(this.tenders).pipe(delay(150));
+    return of(this.tenders.map((t) => ({ ...t }))).pipe(delay(150));
   }
 
   getById(id: string): Observable<ProcessedTender | undefined> {
-    return of(this.tenders.find((t) => t.id === id)).pipe(delay(100));
+    const found = this.tenders.find((t) => t.id === id);
+    return of(found ? { ...found } : undefined).pipe(delay(100));
+  }
+
+  /**
+   * Internal mock-only hook: lets the bidder mock repo evolve tender state
+   * after writes (e.g. first bidder added → Pending Review flips to
+   * Technical Evaluation). In the real HTTP world the backend owns this —
+   * the HTTP repository doesn't need an equivalent.
+   */
+  mutateStatus(tenderId: string, status: ProcessedTender['status']): void {
+    const tender = this.tenders.find((t) => t.id === tenderId);
+    if (!tender) return;
+    tender.status = status;
+  }
+
+  /** Internal mock hook: keeps the biddersCount accurate after a write. */
+  incrementBiddersCount(tenderId: string): void {
+    const tender = this.tenders.find((t) => t.id === tenderId);
+    if (!tender) return;
+    tender.biddersCount += 1;
   }
 }
