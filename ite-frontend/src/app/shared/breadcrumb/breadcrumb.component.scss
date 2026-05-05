@@ -1,0 +1,44 @@
+.ite-breadcrumb {
+  ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.88rem;
+  }
+
+  li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+
+    a {
+      color: var(--ite-primary);
+      text-decoration: none;
+      font-weight: 600;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    span {
+      color: var(--ite-text-secondary);
+    }
+
+    span[aria-current="page"] {
+      color: var(--ite-text);
+      font-weight: 700;
+    }
+
+    mat-icon {
+      font-size: 1rem;
+      width: 1rem;
+      height: 1rem;
+      color: var(--ite-text-secondary);
+    }
+  }
+}

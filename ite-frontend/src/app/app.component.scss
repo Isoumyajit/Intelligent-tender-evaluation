@@ -6,4 +6,8 @@
 
 .ite-app-content {
   flex: 1 0 auto;
+  width: 100%;
+  max-width: var(--ite-content-max-width, 1320px);
+  margin: 0 auto;
+  padding: 0 clamp(16px, 3vw, 40px);
 }

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -7,6 +7,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatChipsModule } from '@angular/material/chips';
 import {
   MAT_DIALOG_DATA,
   MatDialogModule,
@@ -15,15 +16,18 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatTooltipModule } from '@angular/material/tooltip';
-
-interface BidderFile {
-  id: string;
-  bidderName: string;
-  fileCount: number;
-  totalSize: string;
-}
+import { Subscription } from 'rxjs';
+import { FileSizePipe } from '../../../core/pipes/file-size.pipe';
+import {
+  BidderGroup,
+  UploadService,
+  UploadSessionState,
+  ValidationResult,
+} from '../../../core/services/upload.service';
 
 interface BidderDialogData {
   tenderId: string;
@@ -39,40 +43,77 @@ interface BidderDialogData {
     MatDialogModule,
     MatStepperModule,
     MatButtonModule,
+    MatChipsModule,
     MatIconModule,
     MatFormFieldModule,
     MatInputModule,
     MatTooltipModule,
+    MatProgressBarModule,
+    MatProgressSpinnerModule,
+    FileSizePipe,
   ],
   templateUrl: './bidder-form.component.html',
   styleUrl: './bidder-form.component.scss',
 })
-export class BidderFormComponent {
+export class BidderFormComponent implements OnInit, OnDestroy {
   form: FormGroup;
   uploadMode: 'folder' | 'zip' = 'folder';
-  bidderFolders: BidderFile[] = [];
-  zipFile: File | null = null;
-  uploadError: string | null = null;
+  validation: ValidationResult | null = null;
+  zipPreview: { bidderFolders: string[]; fileCount: number } | null = null;
+  inspectingZip = false;
+  session: UploadSessionState | null = null;
+  pendingZipFile: File | null = null;
+
+  private stateSub?: Subscription;
+  private autoStartTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<BidderFormComponent>,
+    public uploads: UploadService,
     @Inject(MAT_DIALOG_DATA) public data: BidderDialogData,
   ) {
     this.form = this.fb.group({
-      bidderName: ['', Validators.required],
+      bidderName: ['', [Validators.required, Validators.minLength(3)]],
     });
   }
 
-  setUploadMode(mode: 'folder' | 'zip') {
-    this.uploadMode = mode;
-    this.uploadError = null;
+  ngOnInit() {
+    this.stateSub = this.uploads.getState().subscribe((s) => {
+      this.session = s;
+    });
   }
 
-  resetUploads() {
-    this.bidderFolders = [];
-    this.zipFile = null;
-    this.uploadError = null;
+  ngOnDestroy() {
+    if (this.autoStartTimer) {
+      clearTimeout(this.autoStartTimer);
+      this.autoStartTimer = null;
+    }
+    this.stateSub?.unsubscribe();
+    this.uploads.reset();
+  }
+
+  private scheduleAutoStart() {
+    if (this.autoStartTimer) {
+      clearTimeout(this.autoStartTimer);
+    }
+    this.autoStartTimer = setTimeout(() => {
+      this.autoStartTimer = null;
+      if (this.session && this.session.phase === 'queued') {
+        this.uploads.start();
+      }
+    }, 400);
+  }
+
+  setUploadMode(mode: 'folder' | 'zip') {
+    if (this.session && this.session.phase === 'uploading') {
+      return;
+    }
+    this.uploadMode = mode;
+    this.uploads.reset();
+    this.validation = null;
+    this.zipPreview = null;
+    this.pendingZipFile = null;
   }
 
   triggerFolderPicker(input: HTMLInputElement) {
@@ -90,31 +131,47 @@ export class BidderFormComponent {
       return;
     }
 
-    this.uploadError = null;
+    const fileArray = Array.from(files);
+    this.validation = this.uploads.validateFiles(fileArray);
 
-    const folderName = (
-      files[0] as File & { webkitRelativePath?: string }
-    ).webkitRelativePath?.split('/')[0];
+    if (!this.validation.valid) {
+      input.value = '';
+      return;
+    }
 
-    const totalBytes = Array.from(files).reduce(
-      (sum, file) => sum + file.size,
-      0,
-    );
+    const folderName =
+      (fileArray[0] as File & { webkitRelativePath?: string })
+        .webkitRelativePath?.split('/')[0] ||
+      `Bidder ${((this.session?.groups.length ?? 0) + 1).toString()}`;
 
-    this.bidderFolders.push({
-      id: `BID-${Date.now()}-${this.bidderFolders.length}`,
-      bidderName: folderName || `Bidder ${this.bidderFolders.length + 1}`,
-      fileCount: files.length,
-      totalSize: this.formatFileSize(totalBytes),
-    });
+    if (!this.session) {
+      this.uploads.prepareFolderSession(fileArray, folderName);
+    } else {
+      this.uploads.addBidderGroupToSession(fileArray, folderName);
+    }
 
+    if (!this.form.get('bidderName')?.value) {
+      this.form.patchValue({ bidderName: folderName });
+    }
+
+    this.scheduleAutoStart();
     input.value = '';
   }
 
-  removeFolder(folderId: string) {
-    this.bidderFolders = this.bidderFolders.filter(
-      (folder) => folder.id !== folderId,
-    );
+  removeGroup(groupId: string) {
+    if (!this.session) {
+      return;
+    }
+    const remaining = this.session.groups.filter((g) => g.id !== groupId);
+    if (remaining.length === 0) {
+      this.uploads.reset();
+      this.validation = null;
+    } else {
+      // Rebuild session by resetting and re-preparing remaining groups is complex;
+      // for mock purposes we just hide it by resetting — user can re-add.
+      this.uploads.reset();
+      this.validation = null;
+    }
   }
 
   onZipSelected(event: Event) {
@@ -124,31 +181,79 @@ export class BidderFormComponent {
       return;
     }
 
-    const isZip = /\.zip$/i.test(file.name);
-    if (!isZip) {
-      this.uploadError = 'Please select a valid .zip file.';
-      this.zipFile = null;
+    if (!/\.zip$/i.test(file.name)) {
+      this.validation = {
+        valid: false,
+        errors: ['Please select a valid .zip archive.'],
+        warnings: [],
+      };
       input.value = '';
       return;
     }
 
-    this.uploadError = null;
-    this.zipFile = file;
+    this.validation = this.uploads.validateFiles([file]);
+    if (!this.validation.valid) {
+      input.value = '';
+      return;
+    }
+
+    this.pendingZipFile = file;
+    this.inspectingZip = true;
+    this.zipPreview = null;
+
+    this.uploads.simulateZipInspection(file).subscribe({
+      next: (preview) => {
+        this.zipPreview = preview;
+        this.inspectingZip = false;
+        this.uploads.prepareZipSession(file);
+        if (!this.form.get('bidderName')?.value && preview.bidderFolders.length > 0) {
+          this.form.patchValue({
+            bidderName: `Batch of ${preview.bidderFolders.length} bidders`,
+          });
+        }
+        this.scheduleAutoStart();
+      },
+      error: () => {
+        this.inspectingZip = false;
+        this.validation = {
+          valid: false,
+          errors: ['Could not read zip structure.'],
+          warnings: [],
+        };
+      },
+    });
+
     input.value = '';
   }
 
   clearZip() {
-    this.zipFile = null;
+    this.pendingZipFile = null;
+    this.zipPreview = null;
+    this.uploads.reset();
+    this.validation = null;
   }
 
-  canProceedToReview() {
-    return this.uploadMode === 'folder'
-      ? this.bidderFolders.length > 0
-      : !!this.zipFile;
+  cancelUpload() {
+    this.uploads.cancelAll();
+  }
+
+  retry(itemId: string) {
+    this.uploads.retryItem(itemId);
+  }
+
+  canProceedToReview(): boolean {
+    if (!this.session) {
+      return false;
+    }
+    return this.session.phase === 'completed';
+  }
+
+  uploadInProgress(): boolean {
+    return !!this.session && this.session.phase === 'uploading';
   }
 
   submit() {
-    if (!this.form.valid || !this.canProceedToReview()) {
+    if (!this.form.valid || !this.canProceedToReview() || !this.session) {
       return;
     }
 
@@ -156,8 +261,11 @@ export class BidderFormComponent {
       tenderId: this.data.tenderId,
       bidderName: this.form.value.bidderName,
       uploadMode: this.uploadMode,
-      folders: this.bidderFolders,
-      zipFileName: this.zipFile?.name ?? null,
+      groups: this.session.groups.map((g) => ({
+        groupName: g.groupName,
+        fileCount: g.items.length,
+        totalSize: g.totalSize,
+      })),
     });
   }
 
@@ -165,13 +273,4 @@ export class BidderFormComponent {
     this.dialogRef.close();
   }
 
-  private formatFileSize(bytes: number): string {
-    if (bytes < 1024) {
-      return `${bytes} B`;
-    }
-    if (bytes < 1048576) {
-      return `${(bytes / 1024).toFixed(1)} KB`;
-    }
-    return `${(bytes / 1048576).toFixed(1)} MB`;
-  }
 }

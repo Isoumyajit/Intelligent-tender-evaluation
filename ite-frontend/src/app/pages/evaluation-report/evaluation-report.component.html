@@ -1,0 +1,239 @@
+<main class="ite-eval-report">
+  <app-breadcrumb [segments]="crumbs"></app-breadcrumb>
+
+  @if (state$ | async; as s) {
+    @if (s.status !== 'success') {
+      <app-loading-panel [state]="s" loadingLabel="Loading evaluation report…" />
+    } @else if (!tender || !bidder) {
+      <div class="empty">
+        <mat-icon>error_outline</mat-icon>
+        <p>Evaluation report not available for this bidder.</p>
+        <button mat-stroked-button color="primary" [routerLink]="routes.tenders()">
+          Back to tender list
+        </button>
+      </div>
+    } @else {
+    <section class="header-grid">
+      <div class="header-main">
+        <p class="eyebrow">
+          {{ tender.reference }} • {{ tender.name }}
+        </p>
+        <h1>{{ bidder.name }}</h1>
+        <p class="subline">
+          {{ bidder.registrationNo }} • {{ bidder.documentsCount }} documents •
+          {{ bidder.totalSize }} • submitted {{ bidder.submittedOn }}
+        </p>
+
+        <div class="header-main__actions">
+          <button mat-stroked-button
+                  [routerLink]="routes.tenderBidders(tender.id)">
+            <mat-icon>arrow_back</mat-icon>
+            All bidders for this tender
+          </button>
+          <button mat-stroked-button [routerLink]="routes.tenders()">
+            <mat-icon>format_list_bulleted</mat-icon>
+            Back to tender list
+          </button>
+        </div>
+      </div>
+
+      <mat-card appearance="outlined" class="summary-card">
+        <mat-card-content class="summary-card__content">
+          <div class="summary-card__score">
+            <span class="summary-card__label">Overall Score</span>
+            <div class="summary-card__value">
+              <strong>{{ overallScore }}</strong>
+              <span>/ 100</span>
+            </div>
+            <mat-progress-bar
+              mode="determinate"
+              [value]="overallScore"
+              [class]="overallScoreClass"
+            ></mat-progress-bar>
+          </div>
+
+          <mat-divider></mat-divider>
+
+          <mat-chip-set class="summary-card__chips" aria-label="Criteria summary">
+            <mat-chip class="ite-status--pass" disableRipple>
+              <mat-icon matChipAvatar>check_circle</mat-icon>
+              {{ passedCount }} Passed
+            </mat-chip>
+            <mat-chip class="ite-status--partial" disableRipple>
+              <mat-icon matChipAvatar>error</mat-icon>
+              {{ partialCount }} Partial
+            </mat-chip>
+            <mat-chip class="ite-status--fail" disableRipple>
+              <mat-icon matChipAvatar>cancel</mat-icon>
+              {{ failedCount }} Failed
+            </mat-chip>
+          </mat-chip-set>
+
+          <mat-divider></mat-divider>
+
+          <dl class="summary-card__meta">
+            <div>
+              <dt>AI confidence</dt>
+              <dd>{{ bidder.confidenceScore }}%</dd>
+            </div>
+            <div>
+              <dt>Bid value</dt>
+              <dd>{{ bidder.bidAmount }}</dd>
+            </div>
+            <div>
+              <dt>Rank</dt>
+              <dd>#{{ bidder.rank }}</dd>
+            </div>
+            <div>
+              <dt>Status</dt>
+              <dd>{{ bidder.overallStatus }}</dd>
+            </div>
+          </dl>
+        </mat-card-content>
+      </mat-card>
+    </section>
+
+    <mat-card appearance="outlined" class="report-card">
+      <mat-tab-group dynamicHeight animationDuration="150ms">
+        @for (group of categoryGroups; track group.category) {
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <mat-icon class="tab-icon">
+                @switch (group.category) {
+                  @case ('Eligibility') { verified_user }
+                  @case ('Technical') { build }
+                  @case ('Financial') { payments }
+                  @case ('Compliance') { gavel }
+                  @default { assignment }
+                }
+              </mat-icon>
+              <span class="tab-text">
+                {{ group.category }}
+                <small>{{ group.passRate }}% pass</small>
+              </span>
+            </ng-template>
+
+            <div class="tab-body">
+              <mat-card appearance="outlined" class="category-summary">
+                <mat-card-content class="category-summary__grid">
+                  <div>
+                    <span class="category-summary__label">Criteria</span>
+                    <strong>{{ group.criteria.length }}</strong>
+                  </div>
+                  <div>
+                    <span class="category-summary__label">Score</span>
+                    <strong>{{ group.scoreTotal }} / {{ group.weightTotal }}</strong>
+                  </div>
+                  <div>
+                    <span class="category-summary__label">Pass rate</span>
+                    <strong>{{ group.passRate }}%</strong>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+
+              <mat-accordion multi>
+                @for (criterion of group.criteria; track criterion.id) {
+                  <mat-expansion-panel
+                    class="criterion"
+                    [expanded]="criterion.status !== 'passed'"
+                  >
+                    <mat-expansion-panel-header>
+                      <mat-panel-title>
+                        <mat-icon
+                          class="criterion__icon {{ statusClass(criterion.status) }}"
+                        >
+                          {{ statusIcon(criterion.status) }}
+                        </mat-icon>
+                        <div class="criterion__title">
+                          <strong>{{ criterion.title }}</strong>
+                          <small>{{ criterion.requirement }}</small>
+                        </div>
+                      </mat-panel-title>
+
+                      <mat-panel-description class="criterion__desc">
+                        <mat-chip
+                          class="{{ statusClass(criterion.status) }}"
+                          disableRipple
+                        >
+                          {{ statusLabel(criterion.status) }}
+                        </mat-chip>
+                        <span class="criterion__score">
+                          {{ criterion.score }}/{{ criterion.weight }}
+                        </span>
+                      </mat-panel-description>
+                    </mat-expansion-panel-header>
+
+                    <div class="evidence-wrap">
+                      <div class="evidence-heading">
+                        <mat-icon>description</mat-icon>
+                        <span>Source-document evidence</span>
+                      </div>
+
+                      @for (
+                        evidence of criterion.evidence;
+                        track evidence.documentName;
+                        let last = $last
+                      ) {
+                        <mat-card appearance="outlined" class="evidence-card">
+                          <mat-card-header class="evidence-card__header">
+                            <mat-card-title class="evidence-card__title">
+                              <mat-icon>article</mat-icon>
+                              {{ evidence.documentName }}
+                            </mat-card-title>
+                            <mat-card-subtitle>
+                              {{ evidence.pageOrSection }}
+                            </mat-card-subtitle>
+                            <mat-chip
+                              class="evidence-card__confidence ite-status--pass"
+                              disableRipple
+                            >
+                              <mat-icon matChipAvatar>psychology</mat-icon>
+                              {{ evidence.confidence }}%
+                            </mat-chip>
+                          </mat-card-header>
+
+                          <mat-card-content class="evidence-card__content">
+                            <mat-card appearance="outlined" class="excerpt-card">
+                              <mat-card-content>
+                                <mat-icon class="excerpt-card__quote">
+                                  format_quote
+                                </mat-icon>
+                                <p>{{ evidence.excerpt }}</p>
+                              </mat-card-content>
+                            </mat-card>
+
+                            @if (evidence.extractedValue) {
+                              <div class="evidence-card__extracted">
+                                <span>Extracted value</span>
+                                <mat-chip
+                                  class="{{ statusClass(criterion.status) }}"
+                                  disableRipple
+                                >
+                                  {{ evidence.extractedValue }}
+                                </mat-chip>
+                              </div>
+                            }
+                          </mat-card-content>
+                        </mat-card>
+                      }
+
+                      @if (criterion.notes) {
+                        <mat-card appearance="outlined" class="note-card">
+                          <mat-card-content class="note-card__content">
+                            <mat-icon>sticky_note_2</mat-icon>
+                            <span>{{ criterion.notes }}</span>
+                          </mat-card-content>
+                        </mat-card>
+                      }
+                    </div>
+                  </mat-expansion-panel>
+                }
+              </mat-accordion>
+            </div>
+          </mat-tab>
+        }
+      </mat-tab-group>
+    </mat-card>
+    }
+  }
+</main>

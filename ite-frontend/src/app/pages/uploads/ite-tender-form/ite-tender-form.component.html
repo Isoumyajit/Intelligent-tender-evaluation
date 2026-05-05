@@ -58,7 +58,7 @@
                 <div class="ite-file-info">
                   <span class="ite-file-name">{{ uploadedFile.name }}</span>
                   <span class="ite-file-size ite-text-muted">
-                    {{ formatFileSize(uploadedFile.size) }}
+                    {{ uploadedFile.size | fileSize }}
                   </span>
                 </div>
                 <button

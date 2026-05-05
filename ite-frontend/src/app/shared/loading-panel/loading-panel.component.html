@@ -1,0 +1,14 @@
+@if (isLoading) {
+  <div class="loading-panel loading-panel--loading">
+    <mat-spinner diameter="28"></mat-spinner>
+    <span>{{ loadingLabel }}</span>
+  </div>
+} @else if (isError) {
+  <div class="loading-panel loading-panel--error">
+    <mat-icon>error_outline</mat-icon>
+    <div>
+      <strong>Unable to load</strong>
+      <span>{{ errorMessage }}</span>
+    </div>
+  </div>
+}

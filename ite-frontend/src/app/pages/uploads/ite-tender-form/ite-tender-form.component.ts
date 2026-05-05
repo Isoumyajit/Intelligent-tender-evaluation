@@ -14,6 +14,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { FileSizePipe, formatFileSize } from '../../../core/pipes/file-size.pipe';
 import { BidderFormComponent } from '../bidder-form/bidder-form.component';
 
 interface UploadedTender {
@@ -40,6 +41,7 @@ interface UploadedTender {
     MatIconModule,
     MatTooltipModule,
     MatDialogModule,
+    FileSizePipe,
   ],
   templateUrl: './ite-tender-form.component.html',
   styleUrl: './ite-tender-form.component.scss',
@@ -119,16 +121,6 @@ export class IteTenderFormComponent implements OnInit {
     this.form.patchValue({ uploadedFile: null });
   }
 
-  formatFileSize(bytes: number): string {
-    if (bytes < 1024) {
-      return `${bytes} B`;
-    }
-    if (bytes < 1048576) {
-      return `${(bytes / 1024).toFixed(1)} KB`;
-    }
-    return `${(bytes / 1048576).toFixed(1)} MB`;
-  }
-
   onUploadTender() {
     if (this.form.valid && this.uploadedFile) {
       const newTender: UploadedTender = {
@@ -136,7 +128,7 @@ export class IteTenderFormComponent implements OnInit {
         name: this.form.get('tenderName')?.value,
         fileName: this.uploadedFile.name,
         uploadedDate: new Date().toISOString().split('T')[0],
-        fileSize: this.formatFileSize(this.uploadedFile.size),
+        fileSize: formatFileSize(this.uploadedFile.size),
         biddersCount: 0,
         isExpanded: false,
       };

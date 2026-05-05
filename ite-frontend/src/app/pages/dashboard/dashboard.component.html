@@ -1,125 +1,271 @@
-<main class="ite-dashboard-main">
-  <section class="ite-dashboard-hero">
-    <div>
-      <p class="ite-dashboard-eyebrow">Tender Analytics</p>
-      <h1>Evaluation command center</h1>
-      <p class="ite-text-muted">
-        Monitor current bid activity, track review progress, and compare recent
-        tender statistics.
+<main class="ite-dashboard">
+  <!-- Greeting strip -->
+  <section class="greeting">
+    <div class="greeting__text">
+      <p class="greeting__hello">
+        {{ greeting }}, <strong>{{ officerName }}</strong>
+      </p>
+      <p class="greeting__sub">
+        {{ officerTitle }}
+      </p>
+      <p class="greeting__date">
+        <mat-icon>calendar_today</mat-icon>
+        {{ today | date: 'fullDate' }}
       </p>
     </div>
 
-    <div class="ite-dashboard-hero-actions">
-      <div class="ite-dashboard-highlight">
-        <span class="ite-dashboard-highlight__label">Live review queue</span>
-        <strong>28 active tenders</strong>
-        <span class="ite-text-muted"
-          >Updated from the latest evaluation cycle</span
-        >
+    <div class="greeting__help">
+      <mat-icon>support_agent</mat-icon>
+      <div>
+        <strong>Need help?</strong>
+        <span>Call the ITE helpdesk at <a href="tel:18001801551">1800-180-1551</a></span>
       </div>
-
-      <button
-        mat-raised-button
-        color="primary"
-        (click)="navigateToUpload()"
-        class="ite-upload-btn"
-      >
-        <mat-icon>upload</mat-icon>
-        Upload New Tender
-      </button>
     </div>
   </section>
 
-  <section class="ite-dashboard-metrics">
-    @for (metric of metrics; track metric.label) {
-      <article class="ite-dashboard-card">
-        <div class="ite-dashboard-card__header">
-          <span>{{ metric.label }}</span>
-          <mat-icon>{{ metric.icon }}</mat-icon>
+  <!-- Primary action tiles -->
+  <section class="primary-actions" aria-label="Main actions">
+    <mat-card
+      appearance="outlined"
+      class="action-tile action-tile--primary"
+      tabindex="0"
+      (click)="navigateToUpload()"
+      (keyup.enter)="navigateToUpload()"
+    >
+      <mat-card-content class="action-tile__content">
+        <div class="action-tile__icon">
+          <mat-icon>upload_file</mat-icon>
         </div>
-        <div class="ite-dashboard-card__value">{{ metric.value }}</div>
-        <p class="ite-text-muted">{{ metric.subtitle }}</p>
-      </article>
+        <h2>Upload a new tender</h2>
+        <p>
+          Start here to add a new tender notice. You can attach the PDF or
+          Word file.
+        </p>
+        <button mat-flat-button color="primary" class="action-tile__cta">
+          Start upload
+          <mat-icon iconPositionEnd>arrow_forward</mat-icon>
+        </button>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card
+      appearance="outlined"
+      class="action-tile"
+      tabindex="0"
+      (click)="navigateToTenders()"
+      (keyup.enter)="navigateToTenders()"
+    >
+      <mat-card-content class="action-tile__content">
+        <div class="action-tile__icon">
+          <mat-icon>folder_shared</mat-icon>
+        </div>
+        <h2>Add bidder submissions</h2>
+        <p>
+          Pick the tender and upload each bidder's documents, one folder or
+          one ZIP at a time.
+        </p>
+        <button mat-flat-button color="primary" class="action-tile__cta">
+          Open tender list
+          <mat-icon iconPositionEnd>arrow_forward</mat-icon>
+        </button>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card
+      appearance="outlined"
+      class="action-tile"
+      tabindex="0"
+      (click)="navigateToReady()"
+      (keyup.enter)="navigateToReady()"
+    >
+      <mat-card-content class="action-tile__content">
+        <div class="action-tile__icon">
+          <mat-icon>fact_check</mat-icon>
+        </div>
+        <h2>Review evaluation reports</h2>
+        <p>
+          Open a tender, pick a bidder, and read the AI-generated evaluation
+          with source-document evidence.
+        </p>
+        <button mat-flat-button color="primary" class="action-tile__cta">
+          Go to reports
+          <mat-icon iconPositionEnd>arrow_forward</mat-icon>
+        </button>
+      </mat-card-content>
+    </mat-card>
+  </section>
+
+  @if (state$ | async; as s) {
+    @if (s.status !== 'success') {
+      <app-loading-panel [state]="s" loadingLabel="Loading your dashboard…" />
     }
-  </section>
+  }
 
-  <section class="ite-dashboard-pending">
-    <div class="ite-dashboard-panel__header">
-      <h2>Pending Tenders</h2>
-      <span class="ite-text-muted"
-        >Uploaded but awaiting bidder evaluation</span
-      >
-    </div>
+  <!-- Quick stats -->
+  <section class="quick-stats" aria-label="Today's numbers">
+    <header class="section-header">
+      <h2>Your work today</h2>
+      <p>Plain numbers, no jargon.</p>
+    </header>
 
-    <div class="ite-pending-list">
-      @for (tender of pendingTenders; track tender.id) {
-        <div class="ite-pending-item">
-          <div class="ite-pending-item__left">
-            <mat-icon class="ite-pending-item__icon">folder_open</mat-icon>
-            <div class="ite-pending-item__content">
-              <h4>{{ tender.name }}</h4>
-              <p class="ite-text-muted">{{ tender.documentName }}</p>
-              <span class="ite-pending-item__date">{{
-                tender.uploadedDate
-              }}</span>
-            </div>
-          </div>
-          <button
-            mat-raised-button
-            color="accent"
-            class="ite-pending-item__action"
-          >
-            <mat-icon>person_add</mat-icon>
-            Add Bidders
-          </button>
-        </div>
+    <div class="quick-stats__grid">
+      @for (stat of quickStats; track stat.label) {
+        <mat-card
+          appearance="outlined"
+          class="stat-card"
+          tabindex="0"
+          [routerLink]="stat.routerLink"
+          (keyup.enter)="null"
+        >
+          <mat-card-content class="stat-card__content">
+            <mat-icon class="stat-card__icon">{{ stat.icon }}</mat-icon>
+            <strong class="stat-card__count">{{ stat.count }}</strong>
+            <span class="stat-card__label">{{ stat.label }}</span>
+            <span class="stat-card__help">{{ stat.help }}</span>
+          </mat-card-content>
+        </mat-card>
       }
     </div>
   </section>
 
-  <section class="ite-dashboard-panels">
-    <article class="ite-dashboard-panel">
-      <div class="ite-dashboard-panel__header">
-        <h2>Evaluation Status</h2>
-        <span class="ite-text-muted">Current pipeline overview</span>
-      </div>
+  <!-- Workflow explainer -->
+  <section class="workflow" aria-label="How this works">
+    <header class="section-header">
+      <h2>How this works</h2>
+      <p>Four simple steps from upload to decision.</p>
+    </header>
 
-      <div class="ite-status-list">
-        @for (status of tenderStatuses; track status.title) {
-          <div class="ite-status-item">
-            <div>
-              <h3>{{ status.title }}</h3>
-              <p class="ite-text-muted">{{ status.trend }}</p>
-            </div>
-            <strong>{{ status.count }}</strong>
+    <ol class="workflow__steps">
+      @for (step of workflowSteps; track step.number; let last = $last) {
+        <li class="workflow__step">
+          <div class="workflow__number">
+            <span>{{ step.number }}</span>
           </div>
+          <mat-icon class="workflow__icon">{{ step.icon }}</mat-icon>
+          <h3>{{ step.title }}</h3>
+          <p>{{ step.description }}</p>
+          @if (!last) {
+            <mat-icon class="workflow__arrow" aria-hidden="true">
+              chevron_right
+            </mat-icon>
+          }
+        </li>
+      }
+    </ol>
+  </section>
+
+  <!-- Action queue -->
+  <section class="action-queue" aria-label="What needs your attention">
+    <header class="section-header section-header--with-action">
+      <div>
+        <h2>What needs your attention</h2>
+        <p>Tenders with a clear next step for you.</p>
+      </div>
+      <button mat-stroked-button (click)="navigateToTenders()">
+        See all tenders
+        <mat-icon iconPositionEnd>chevron_right</mat-icon>
+      </button>
+    </header>
+
+    @if (actionQueue.length === 0) {
+      <mat-card appearance="outlined" class="empty">
+        <mat-card-content>
+          <mat-icon>task_alt</mat-icon>
+          <p>You are all caught up. Nothing waiting on you right now.</p>
+        </mat-card-content>
+      </mat-card>
+    } @else {
+      <div class="action-queue__list">
+        @for (item of actionQueue; track item.tender.id) {
+          <mat-card appearance="outlined" class="queue-item">
+            <mat-card-content class="queue-item__grid">
+              <div class="queue-item__info">
+                <div class="queue-item__title">
+                  <mat-chip class="{{ item.tone }}" disableRipple>
+                    {{ describe(item.tender.status).label }}
+                  </mat-chip>
+                  <strong>{{ item.tender.name }}</strong>
+                </div>
+                <p class="queue-item__ref">
+                  {{ item.tender.reference }} • {{ item.tender.authority }}
+                </p>
+                <p class="queue-item__step">
+                  <mat-icon>info</mat-icon>
+                  {{ item.nextStep }}
+                </p>
+              </div>
+
+              <div class="queue-item__meta">
+                <div>
+                  <dt>Bidders</dt>
+                  <dd>{{ item.tender.biddersCount }}</dd>
+                </div>
+                <div>
+                  <dt>Closes</dt>
+                  <dd>{{ item.tender.closingDate }}</dd>
+                </div>
+              </div>
+
+              <div class="queue-item__action">
+                <button
+                  mat-flat-button
+                  color="primary"
+                  [routerLink]="item.route"
+                >
+                  <mat-icon>{{ item.actionIcon }}</mat-icon>
+                  {{ item.actionLabel }}
+                </button>
+              </div>
+            </mat-card-content>
+          </mat-card>
         }
       </div>
-    </article>
+    }
+  </section>
 
-    <article class="ite-dashboard-panel">
-      <div class="ite-dashboard-panel__header">
-        <h2>Recent Tenders</h2>
-        <span class="ite-text-muted">Latest bid activity snapshot</span>
+  <!-- Recent activity -->
+  <section class="recent" aria-label="Recent tenders">
+    <header class="section-header section-header--with-action">
+      <div>
+        <h2>Recent tenders</h2>
+        <p>Latest activity across your department.</p>
       </div>
+      <button mat-stroked-button (click)="navigateToTenders()">
+        View all
+        <mat-icon iconPositionEnd>chevron_right</mat-icon>
+      </button>
+    </header>
 
-      <div class="ite-tender-table">
-        <div class="ite-tender-table__head">
+    <mat-card appearance="outlined" class="recent__card">
+      <mat-card-content class="recent__table">
+        <div class="recent__head">
           <span>Reference</span>
+          <span>Tender</span>
           <span>Authority</span>
-          <span>Bids</span>
+          <span>Bidders</span>
           <span>Status</span>
         </div>
 
-        @for (tender of recentTenders; track tender.reference) {
-          <div class="ite-tender-table__row">
-            <span>{{ tender.reference }}</span>
+        @for (tender of tenders; track tender.id; let last = $last) {
+          <div
+            class="recent__row"
+            tabindex="0"
+            [routerLink]="describe(tender.status).actionRoute === 'upload' ? routes.upload() : routes.tenderBidders(tender.id)"
+            (keyup.enter)="null"
+          >
+            <span class="recent__ref">{{ tender.reference }}</span>
+            <span>{{ tender.name }}</span>
             <span>{{ tender.authority }}</span>
-            <span>{{ tender.bids }}</span>
-            <span class="ite-status-pill">{{ tender.status }}</span>
+            <span>{{ tender.biddersCount }}</span>
+            <mat-chip class="{{ describe(tender.status).tone }}" disableRipple>
+              {{ describe(tender.status).label }}
+            </mat-chip>
           </div>
+          @if (!last) {
+            <mat-divider></mat-divider>
+          }
         }
-      </div>
-    </article>
+      </mat-card-content>
+    </mat-card>
   </section>
 </main>

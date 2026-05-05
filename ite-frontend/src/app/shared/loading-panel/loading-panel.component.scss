@@ -1,0 +1,28 @@
+.loading-panel {
+  display: flex;
+  align-items: center;
+  gap: var(--ite-spacing-md);
+  padding: var(--ite-spacing-lg);
+  border-radius: var(--ite-radius-md);
+  border: 1px solid var(--mat-sys-outline-variant);
+  background: var(--mat-sys-surface);
+
+  &--loading {
+    color: var(--mat-sys-on-surface-variant);
+    justify-content: center;
+  }
+
+  &--error {
+    background: var(--mat-sys-error-container);
+    border-color: var(--mat-sys-error);
+    color: var(--mat-sys-on-error-container);
+
+    mat-icon {
+      color: var(--mat-sys-error);
+    }
+
+    strong {
+      display: block;
+    }
+  }
+}

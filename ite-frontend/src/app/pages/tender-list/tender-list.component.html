@@ -1,0 +1,96 @@
+<main class="ite-tender-list">
+  <app-breadcrumb [segments]="crumbs"></app-breadcrumb>
+
+  <header class="header">
+    <div>
+      <p class="eyebrow">Processed Tenders</p>
+      <h1>Select a tender to review its bidders</h1>
+      <p class="ite-text-muted">
+        Click any tender to see all submitted bidders ranked by AI confidence score.
+      </p>
+    </div>
+
+    <div class="header__stats">
+      <div>
+        <span class="ite-text-muted">Total tenders</span>
+        <strong>{{ tenders.length }}</strong>
+      </div>
+      <div>
+        <span class="ite-text-muted">Total bidders</span>
+        <strong>{{ totalBidders }}</strong>
+      </div>
+    </div>
+  </header>
+
+  @if (state$ | async; as s) {
+    @if (s.status !== 'success') {
+      <app-loading-panel [state]="s" loadingLabel="Loading tenders…" />
+    }
+  }
+
+  <div class="filter-bar">
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Search tender by name, reference, or authority</mat-label>
+      <input matInput [(ngModel)]="filter" placeholder="e.g., Highway, ITE/2026/029, Smart City" />
+      @if (filter) {
+        <button mat-icon-button matSuffix (click)="filter = ''" aria-label="Clear filter">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </mat-form-field>
+  </div>
+
+  <div class="tender-grid">
+    @for (tender of filtered; track tender.id) {
+      <article class="tender-card" (click)="openBidders(tender)" tabindex="0"
+               (keyup.enter)="openBidders(tender)">
+        <div class="tender-card__top">
+          <span class="ref-pill">{{ tender.reference }}</span>
+          <mat-chip class="{{ describe(tender.status).tone }}" disableRipple>
+            {{ describe(tender.status).label }}
+          </mat-chip>
+        </div>
+
+        <h2>{{ tender.name }}</h2>
+        <p class="authority">
+          <mat-icon>account_balance</mat-icon>
+          {{ tender.authority }}
+        </p>
+        <p class="desc ite-text-muted">{{ tender.description }}</p>
+
+        <div class="tender-card__meta">
+          <div>
+            <span class="ite-text-muted">Estimated value</span>
+            <strong>{{ tender.estimatedValue }}</strong>
+          </div>
+          <div>
+            <span class="ite-text-muted">Bidders</span>
+            <strong>{{ tender.biddersCount }}</strong>
+          </div>
+          <div>
+            <span class="ite-text-muted">Closes</span>
+            <strong>{{ tender.closingDate }}</strong>
+          </div>
+        </div>
+
+        <div class="tender-card__footer">
+          <span class="ite-text-muted">
+            <mat-icon>description</mat-icon>
+            {{ tender.documentName }} • {{ tender.documentSize }}
+          </span>
+          <button mat-button color="primary">
+            View Bidders
+            <mat-icon iconPositionEnd>chevron_right</mat-icon>
+          </button>
+        </div>
+      </article>
+    }
+
+    @if (filtered.length === 0) {
+      <div class="empty">
+        <mat-icon>search_off</mat-icon>
+        <p>No tenders match your search.</p>
+      </div>
+    }
+  </div>
+</main>

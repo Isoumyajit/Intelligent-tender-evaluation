@@ -1,0 +1,141 @@
+<main class="ite-bidder-list">
+  <app-breadcrumb [segments]="crumbs"></app-breadcrumb>
+
+  @if (state$ | async; as s) {
+    @if (s.status !== 'success') {
+      <app-loading-panel [state]="s" loadingLabel="Loading bidders…" />
+    } @else if (!tender) {
+      <div class="empty">
+        <mat-icon>error_outline</mat-icon>
+        <p>Tender not found.</p>
+        <button mat-stroked-button color="primary" [routerLink]="routes.tenders()">
+          Back to tender list
+        </button>
+      </div>
+    } @else {
+    <section class="header-grid">
+      <div class="header-main">
+        <p class="eyebrow">
+          {{ tender.reference }} • {{ tender.authority }}
+        </p>
+        <h1>{{ tender.name }}</h1>
+        <p class="subline">{{ tender.description }}</p>
+      </div>
+
+      <mat-chip-set class="header-stats" aria-label="Summary">
+        <mat-chip class="ite-status--neutral" disableRipple>
+          <mat-icon matChipAvatar>groups</mat-icon>
+          {{ bidders.length }} bidders
+        </mat-chip>
+        <mat-chip class="ite-status--partial" disableRipple>
+          <mat-icon matChipAvatar>insights</mat-icon>
+          {{ averageConfidence }}% avg. confidence
+        </mat-chip>
+        <mat-chip class="ite-status--pass" disableRipple>
+          <mat-icon matChipAvatar>verified</mat-icon>
+          {{ qualifiedCount }} qualified
+        </mat-chip>
+      </mat-chip-set>
+    </section>
+
+    <section class="list-section">
+      <header class="list-section__header">
+        <h2>Bidders ranked by AI confidence</h2>
+        <p class="subline">
+          Select a bidder to inspect which criteria passed or failed with
+          source-document evidence.
+        </p>
+      </header>
+
+      <div class="bidder-list">
+        @for (bidder of bidders; track bidder.id) {
+          <mat-card
+            appearance="outlined"
+            class="bidder-card"
+            tabindex="0"
+            (click)="openEvaluation(bidder)"
+            (keyup.enter)="openEvaluation(bidder)"
+          >
+            <mat-card-content class="bidder-card__grid">
+              <div class="bidder-card__rank">
+                <mat-chip highlighted class="rank-chip" disableRipple>
+                  #{{ bidder.rank }}
+                </mat-chip>
+              </div>
+
+              <div class="bidder-card__info">
+                <div class="bidder-card__title">
+                  <h3>{{ bidder.name }}</h3>
+                  <mat-chip
+                    class="{{ statusClassFor(bidder.overallStatus) }}"
+                    disableRipple
+                  >
+                    {{ bidder.overallStatus }}
+                  </mat-chip>
+                </div>
+                <p class="subline">
+                  {{ bidder.registrationNo }} • Submitted
+                  {{ bidder.submittedOn }}
+                </p>
+
+                <mat-divider class="bidder-card__divider"></mat-divider>
+
+                <dl class="bidder-card__metrics">
+                  <div>
+                    <dt>Technical</dt>
+                    <dd>{{ bidder.technicalScore }}</dd>
+                  </div>
+                  <div>
+                    <dt>Financial</dt>
+                    <dd>{{ bidder.financialScore }}</dd>
+                  </div>
+                  <div>
+                    <dt>Compliance</dt>
+                    <dd>{{ bidder.complianceScore }}</dd>
+                  </div>
+                  <div>
+                    <dt>Bid value</dt>
+                    <dd>{{ bidder.bidAmount }}</dd>
+                  </div>
+                  <div>
+                    <dt>Documents</dt>
+                    <dd>{{ bidder.documentsCount }} • {{ bidder.totalSize }}</dd>
+                  </div>
+                </dl>
+              </div>
+
+              <div class="bidder-card__confidence">
+                <span class="confidence-label">AI confidence</span>
+
+                <div class="confidence-meter">
+                  <div class="confidence-meter__value">
+                    <strong>{{ bidder.confidenceScore }}</strong>
+                    <span>%</span>
+                  </div>
+                  <mat-progress-bar
+                    mode="determinate"
+                    [value]="bidder.confidenceScore"
+                    [class]="confidenceStatusClass(bidder.confidenceScore)"
+                  ></mat-progress-bar>
+                </div>
+
+                <mat-chip
+                  class="{{ confidenceStatusClass(bidder.confidenceScore) }}"
+                  disableRipple
+                >
+                  {{ confidenceLabel(bidder.confidenceScore) }}
+                </mat-chip>
+
+                <button mat-flat-button color="primary" class="view-btn">
+                  View evaluation
+                  <mat-icon iconPositionEnd>chevron_right</mat-icon>
+                </button>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        }
+      </div>
+    </section>
+    }
+  }
+</main>

@@ -1,138 +1,199 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
-import { MatIconModule } from '@angular/material/icon';
+import { Component, OnInit, inject } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatIconModule } from '@angular/material/icon';
+import { Observable } from 'rxjs';
+import { TENDER_REPOSITORY } from '../../core/abstractions/tender-repository';
+import {
+  LoadState,
+  toLoadState,
+} from '../../core/models/load-state';
+import {
+  ProcessedTender,
+} from '../../core/models/evaluation.models';
+import {
+  TENDER_STATUS_DESCRIPTORS,
+  TenderStatusTone,
+  describeStatus,
+} from '../../core/registry/tender-status.registry';
+import { AppRoutes } from '../../core/routing/app-routes';
+import { LoadingPanelComponent } from '../../shared/loading-panel/loading-panel.component';
 
-interface PendingTender {
-  id: string;
-  name: string;
-  uploadedDate: string;
-  documentName: string;
-}
-
-interface DashboardMetric {
+interface QuickStat {
   label: string;
-  value: string;
-  subtitle: string;
-  icon: string;
-}
-
-interface TenderStatus {
-  title: string;
+  help: string;
   count: number;
-  trend: string;
+  icon: string;
+  routerLink: string[];
 }
 
-interface RecentTender {
-  reference: string;
-  authority: string;
-  bids: number;
-  status: string;
+interface ActionItem {
+  tender: ProcessedTender;
+  nextStep: string;
+  actionLabel: string;
+  actionIcon: string;
+  route: string[];
+  tone: TenderStatusTone;
+}
+
+interface WorkflowStep {
+  number: number;
+  title: string;
+  description: string;
+  icon: string;
 }
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MatButtonModule],
+  imports: [
+    CommonModule,
+    RouterLink,
+    MatIconModule,
+    MatButtonModule,
+    MatCardModule,
+    MatChipsModule,
+    MatDividerModule,
+    LoadingPanelComponent,
+  ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
-export class DashboardComponent {
-  constructor(private router: Router) {}
-  metrics: DashboardMetric[] = [
+export class DashboardComponent implements OnInit {
+  private readonly router = inject(Router);
+  private readonly tenderRepo = inject(TENDER_REPOSITORY);
+
+  officerName = 'Ravi Kumar';
+  officerTitle = 'Procurement Officer • Ministry of Public Works';
+  today = new Date();
+  greeting = '';
+  state$!: Observable<LoadState<ProcessedTender[]>>;
+
+  tenders: ProcessedTender[] = [];
+  quickStats: QuickStat[] = [];
+  actionQueue: ActionItem[] = [];
+
+  readonly workflowSteps: WorkflowStep[] = [
     {
-      label: 'Total Bids Received',
-      value: '124',
-      subtitle: 'Across all active tenders',
-      icon: 'gavel',
+      number: 1,
+      title: 'Upload tender document',
+      description: 'Add the PDF or Word file of the tender notice.',
+      icon: 'upload_file',
     },
     {
-      label: 'Active Evaluations',
-      value: '18',
-      subtitle: 'Currently under assessment',
-      icon: 'analytics',
+      number: 2,
+      title: 'Add bidder submissions',
+      description: 'Upload each bidder folder or a single ZIP archive.',
+      icon: 'group_add',
     },
     {
-      label: 'Completed Reviews',
-      value: '86',
-      subtitle: 'Closed in the last 90 days',
-      icon: 'task_alt',
+      number: 3,
+      title: 'AI checks the documents',
+      description: 'The system extracts values and checks each criterion.',
+      icon: 'auto_awesome',
     },
     {
-      label: 'Average Confidence',
-      value: '81%',
-      subtitle: 'Across shortlisted bids',
-      icon: 'insights',
+      number: 4,
+      title: 'You review and decide',
+      description: 'Open the report, read the evidence, take a call.',
+      icon: 'fact_check',
     },
   ];
 
-  tenderStatuses: TenderStatus[] = [
-    {
-      title: 'Pending Review',
-      count: 14,
-      trend: '+3 from last week',
-    },
-    {
-      title: 'In Technical Evaluation',
-      count: 9,
-      trend: '+2 from yesterday',
-    },
-    {
-      title: 'Financial Comparison',
-      count: 5,
-      trend: '2 closing today',
-    },
-    {
-      title: 'Award Recommended',
-      count: 3,
-      trend: '1 awaiting approval',
-    },
-  ];
+  ngOnInit() {
+    this.greeting = this.computeGreeting(this.today.getHours());
+    this.state$ = toLoadState(this.tenderRepo.list());
+    this.state$.subscribe((s) => {
+      if (s.status === 'success') {
+        this.tenders = s.data;
+        this.quickStats = this.computeQuickStats(s.data);
+        this.actionQueue = this.computeActionQueue(s.data);
+      }
+    });
+  }
 
-  recentTenders: RecentTender[] = [
-    {
-      reference: 'ITE/2026/041',
-      authority: 'Public Works Division',
-      bids: 22,
-      status: 'Technical Evaluation',
-    },
-    {
-      reference: 'ITE/2026/037',
-      authority: 'Smart City Mission',
-      bids: 17,
-      status: 'Financial Comparison',
-    },
-    {
-      reference: 'ITE/2026/029',
-      authority: 'Rural Infrastructure Board',
-      bids: 31,
-      status: 'Award Recommended',
-    },
-  ];
+  private computeGreeting(hour: number): string {
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    return 'Good evening';
+  }
 
-  pendingTenders: PendingTender[] = [
-    {
-      id: 'TEND-001',
-      name: 'Highway Maintenance Contract',
-      uploadedDate: '2026-04-20',
-      documentName: 'highway_maintenance_2026.pdf',
-    },
-    {
-      id: 'TEND-002',
-      name: 'IT Infrastructure Upgrade',
-      uploadedDate: '2026-04-19',
-      documentName: 'it_infra_upgrade.docx',
-    },
-    {
-      id: 'TEND-003',
-      name: 'Water Treatment Plant Expansion',
-      uploadedDate: '2026-04-18',
-      documentName: 'water_treatment_expansion.pdf',
-    },
-  ];
+  private computeQuickStats(tenders: ProcessedTender[]): QuickStat[] {
+    const bucketCount = (
+      bucket: ReturnType<typeof describeStatus>['bucket'],
+    ): number =>
+      tenders.filter((t) => describeStatus(t.status).bucket === bucket).length;
+
+    return [
+      {
+        label: 'Waiting for bidders',
+        help: 'Tender uploaded, bidders not added yet',
+        count: bucketCount('waiting-for-bidders'),
+        icon: 'hourglass_empty',
+        routerLink: AppRoutes.tenders(),
+      },
+      {
+        label: 'Being evaluated',
+        help: 'AI is checking submitted bidder documents',
+        count: bucketCount('being-evaluated'),
+        icon: 'autorenew',
+        routerLink: AppRoutes.tenders(),
+      },
+      {
+        label: 'Ready for your review',
+        help: 'Evaluation is done, needs your decision',
+        count: bucketCount('ready-for-review'),
+        icon: 'rate_review',
+        routerLink: AppRoutes.tenders(),
+      },
+      {
+        label: 'Closed this month',
+        help: 'Tenders fully processed',
+        count: bucketCount('closed') + 14,
+        icon: 'task_alt',
+        routerLink: AppRoutes.tenders(),
+      },
+    ];
+  }
+
+  private computeActionQueue(tenders: ProcessedTender[]): ActionItem[] {
+    return tenders.slice(0, 4).map((t) => {
+      const d = describeStatus(t.status);
+      return {
+        tender: t,
+        nextStep: d.nextStep,
+        actionLabel: d.actionLabel,
+        actionIcon: d.actionIcon,
+        route:
+          d.actionRoute === 'upload'
+            ? AppRoutes.upload()
+            : AppRoutes.tenderBidders(t.id),
+        tone: d.tone,
+      };
+    });
+  }
+
+  /** Exposed for template to render the registry-driven status legend. */
+  readonly descriptors = TENDER_STATUS_DESCRIPTORS;
+  readonly routes = AppRoutes;
+
+  describe(status: ProcessedTender['status']) {
+    return describeStatus(status);
+  }
 
   navigateToUpload() {
-    this.router.navigate(['/upload']);
+    this.router.navigate(AppRoutes.upload());
+  }
+
+  navigateToTenders() {
+    this.router.navigate(AppRoutes.tenders());
+  }
+
+  navigateToReady() {
+    this.router.navigate(AppRoutes.tenders());
   }
 }

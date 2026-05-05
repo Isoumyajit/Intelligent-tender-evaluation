@@ -1,12 +1,10 @@
 .ite-tender-form-main {
   display: flex;
   flex-direction: column;
-  padding: var(--ite-spacing-lg);
+  padding: clamp(16px, 2.5vw, 32px) 0;
 }
 
 .ite-uploads-wrapper {
-  max-width: 1200px;
-  margin: 0 auto;
   width: 100%;
 }
 

@@ -169,6 +169,85 @@ button {
   cursor: pointer;
 }
 
+/* Center-align the label of every Material button so text stays centered
+   regardless of button width (e.g. full-width steppers, .view-btn, etc.). */
+.mat-mdc-button,
+.mat-mdc-raised-button,
+.mat-mdc-stroked-button,
+.mat-mdc-flat-button,
+.mat-mdc-outlined-button,
+.mat-mdc-unelevated-button {
+  .mdc-button__label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* Shared Material status classes — drive mat-chip / mat-progress-bar
+   coloring via Material system tokens only (no hex). */
+.ite-status--pass {
+  --mdc-chip-elevated-container-color: var(--mat-sys-primary-container);
+  --mdc-chip-label-text-color: var(--mat-sys-on-primary-container);
+  --mdc-chip-elevated-selected-container-color: var(--mat-sys-primary-container);
+  --mdc-chip-selected-label-text-color: var(--mat-sys-on-primary-container);
+  --mdc-chip-with-icon-icon-color: var(--mat-sys-on-primary-container);
+  --mdc-chip-with-icon-selected-icon-color: var(--mat-sys-on-primary-container);
+  --mdc-chip-outline-color: transparent;
+  --mdc-linear-progress-active-indicator-color: var(--mat-sys-primary);
+  --mdc-linear-progress-track-color: color-mix(
+    in srgb,
+    var(--mat-sys-primary) 20%,
+    transparent
+  );
+}
+
+.ite-status--partial {
+  --mdc-chip-elevated-container-color: var(--mat-sys-tertiary-container);
+  --mdc-chip-label-text-color: var(--mat-sys-on-tertiary-container);
+  --mdc-chip-elevated-selected-container-color: var(
+    --mat-sys-tertiary-container
+  );
+  --mdc-chip-selected-label-text-color: var(--mat-sys-on-tertiary-container);
+  --mdc-chip-with-icon-icon-color: var(--mat-sys-on-tertiary-container);
+  --mdc-chip-with-icon-selected-icon-color: var(
+    --mat-sys-on-tertiary-container
+  );
+  --mdc-chip-outline-color: transparent;
+  --mdc-linear-progress-active-indicator-color: var(--mat-sys-tertiary);
+  --mdc-linear-progress-track-color: color-mix(
+    in srgb,
+    var(--mat-sys-tertiary) 20%,
+    transparent
+  );
+}
+
+.ite-status--fail {
+  --mdc-chip-elevated-container-color: var(--mat-sys-error-container);
+  --mdc-chip-label-text-color: var(--mat-sys-on-error-container);
+  --mdc-chip-elevated-selected-container-color: var(--mat-sys-error-container);
+  --mdc-chip-selected-label-text-color: var(--mat-sys-on-error-container);
+  --mdc-chip-with-icon-icon-color: var(--mat-sys-on-error-container);
+  --mdc-chip-with-icon-selected-icon-color: var(--mat-sys-on-error-container);
+  --mdc-chip-outline-color: transparent;
+  --mdc-linear-progress-active-indicator-color: var(--mat-sys-error);
+  --mdc-linear-progress-track-color: color-mix(
+    in srgb,
+    var(--mat-sys-error) 20%,
+    transparent
+  );
+}
+
+.ite-status--neutral {
+  --mdc-chip-elevated-container-color: var(--mat-sys-surface-container-high);
+  --mdc-chip-label-text-color: var(--mat-sys-on-surface);
+  --mdc-chip-with-icon-icon-color: var(--mat-sys-on-surface);
+  --mdc-chip-outline-color: transparent;
+}
+
 /* Accessibility */
 @media (prefers-reduced-motion: reduce) {
   *,

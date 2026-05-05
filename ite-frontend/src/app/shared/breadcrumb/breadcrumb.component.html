@@ -1,0 +1,16 @@
+<nav class="ite-breadcrumb" aria-label="Breadcrumb">
+  <ol>
+    @for (segment of segments; track segment.label; let i = $index; let last = $last) {
+      <li>
+        @if (segment.link && !last) {
+          <a [routerLink]="segment.link">{{ segment.label }}</a>
+        } @else {
+          <span [attr.aria-current]="last ? 'page' : null">{{ segment.label }}</span>
+        }
+        @if (!last) {
+          <mat-icon aria-hidden="true">chevron_right</mat-icon>
+        }
+      </li>
+    }
+  </ol>
+</nav>
