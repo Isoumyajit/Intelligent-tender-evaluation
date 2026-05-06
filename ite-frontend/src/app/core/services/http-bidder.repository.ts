@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import {
   AddBidderPayload,
@@ -14,11 +14,25 @@ import {
 } from '../models/evaluation.models';
 import { RefreshBus } from './refresh-bus';
 
-/**
- * HTTP-backed BidderRepository. After a successful write the repo fires
- * RefreshBus.tenders$ so every consumer piped through it re-reads
- * automatically — same contract the mock honoured.
- */
+/** Shape from GET /tenders/{id}/bid/ */
+interface BidListRow {
+  bid_id: string;
+  tender_id: string;
+  bidder_name: string;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Shape from POST /tenders/{id}/bid/ and GET /tenders/{id}/bid/{bid_id} */
+interface BidDetail extends BidListRow {
+  attachments: Array<{
+    attachment_ref_id: string;
+    file_name: string;
+    content_type: string;
+    created_at: string;
+  }>;
+}
+
 @Injectable({ providedIn: 'root' })
 export class HttpBidderRepository implements BidderRepository {
   private readonly http = inject(HttpClient);
@@ -26,38 +40,93 @@ export class HttpBidderRepository implements BidderRepository {
   private readonly base = environment.apiBaseUrl;
 
   listForTender(tenderId: string): Observable<BidderSummary[]> {
-    return this.http.get<BidderSummary[]>(
-      `${this.base}/tenders/${encodeURIComponent(tenderId)}/bidders`,
-    );
+    return this.http
+      .get<BidListRow[]>(
+        `${this.base}/tenders/${encodeURIComponent(tenderId)}/bid/`,
+      )
+      .pipe(map((rows) => rows.map((r) => this.adaptList(r))));
   }
 
+  /**
+   * The backend does not expose evaluation criteria/scores today, so the
+   * richer evaluation payload is not available. Return undefined and let
+   * the report page render its empty state.
+   */
   getEvaluation(
-    tenderId: string,
-    bidderId: string,
+    _tenderId: string,
+    _bidderId: string,
   ): Observable<BidderEvaluation | undefined> {
-    return this.http.get<BidderEvaluation>(
-      `${this.base}/tenders/${encodeURIComponent(tenderId)}/bidders/${encodeURIComponent(bidderId)}/evaluation`,
-    );
+    return of(undefined);
   }
 
+  /**
+   * The backend stores attachments against a bid but the detailed
+   * per-document view (mime, size, category, description) isn't exposed.
+   * Return an empty list until that endpoint exists.
+   */
   listDocuments(
-    tenderId: string,
-    bidderId: string,
+    _tenderId: string,
+    _bidderId: string,
   ): Observable<BidderDocument[]> {
-    return this.http.get<BidderDocument[]>(
-      `${this.base}/tenders/${encodeURIComponent(tenderId)}/bidders/${encodeURIComponent(bidderId)}/documents`,
-    );
+    return of([]);
   }
 
   addBidderToTender(
     tenderId: string,
     payload: AddBidderPayload,
   ): Observable<BidderSummary> {
+    const body = new FormData();
+    body.append('bidder_name', payload.bidderName);
+    for (const f of payload.files) {
+      body.append('documents', f, f.name);
+    }
+
     return this.http
-      .post<BidderSummary>(
-        `${this.base}/tenders/${encodeURIComponent(tenderId)}/bidders`,
-        payload,
+      .post<BidDetail>(
+        `${this.base}/tenders/${encodeURIComponent(tenderId)}/bid/`,
+        body,
       )
-      .pipe(tap(() => this.refresh.emitTendersChanged()));
+      .pipe(
+        map((raw) => this.adaptDetail(raw)),
+        tap(() => this.refresh.emitTendersChanged()),
+      );
+  }
+
+  private adaptList(raw: BidListRow): BidderSummary {
+    return {
+      id: raw.bid_id,
+      tenderId: raw.tender_id,
+      name: raw.bidder_name,
+      registrationNo: '—',
+      submittedOn: raw.created_at.split('T')[0] ?? '',
+      documentsCount: 0,
+      totalSize: '',
+      confidenceScore: 0,
+      rank: 0,
+      overallStatus: 'Under Review',
+      technicalScore: 0,
+      financialScore: 0,
+      complianceScore: 0,
+      bidAmount: '',
+    };
+  }
+
+  private adaptDetail(raw: BidDetail): BidderSummary {
+    return {
+      id: raw.bid_id,
+      tenderId: raw.tender_id,
+      name: raw.bidder_name,
+      registrationNo: '—',
+      submittedOn: raw.created_at.split('T')[0] ?? '',
+      documentsCount: raw.attachments.length,
+      totalSize: '',
+      confidenceScore: 0,
+      rank: 0,
+      overallStatus: 'Under Review',
+      technicalScore: 0,
+      financialScore: 0,
+      complianceScore: 0,
+      bidAmount: '',
+    };
   }
 }

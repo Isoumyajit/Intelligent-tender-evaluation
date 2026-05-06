@@ -7,8 +7,8 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
-import { Observable, merge, of } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { Observable, forkJoin, merge, of } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
 import { BIDDER_REPOSITORY } from '../../core/abstractions/bidder-repository';
 import { TENDER_REPOSITORY } from '../../core/abstractions/tender-repository';
 import {
@@ -34,6 +34,9 @@ interface QuickStat {
   count: number;
   icon: string;
   routerLink: string[];
+  /** Optional query param passed to the destination page so the tile
+   *  can seed a filter without the user touching chips on arrival. */
+  queryParams?: Record<string, string>;
 }
 
 interface ActionItem {
@@ -79,8 +82,22 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit() {
     this.greeting = this.computeGreeting(this.today.getHours());
+    // Backend doesn't expose bidder count on the tender list row, so we
+    // fan out /tenders/{id}/bid/ after the list returns and stitch the
+    // counts back in. Same pattern as the Evaluations + Tenders pages.
     const source$ = merge(of(null), this.refresh.tenders$).pipe(
       switchMap(() => this.tenderRepo.list()),
+      switchMap((tenders) =>
+        tenders.length === 0
+          ? of([] as ProcessedTender[])
+          : forkJoin(
+              tenders.map((t) =>
+                this.bidderRepo.listForTender(t.id).pipe(
+                  map((bidders) => ({ ...t, biddersCount: bidders.length })),
+                ),
+              ),
+            ),
+      ),
     );
     this.state$ = toLoadState(source$);
     this.state$.subscribe((s) => {
@@ -111,6 +128,7 @@ export class DashboardComponent implements OnInit {
         count: bucketCount('waiting-for-bidders'),
         icon: 'hourglass_empty',
         routerLink: AppRoutes.evaluations(),
+        queryParams: { bucket: 'waiting-for-bidders' },
       },
       {
         label: 'Being evaluated',
@@ -118,6 +136,7 @@ export class DashboardComponent implements OnInit {
         count: bucketCount('being-evaluated'),
         icon: 'autorenew',
         routerLink: AppRoutes.evaluations(),
+        queryParams: { bucket: 'being-evaluated' },
       },
       {
         label: 'Ready for your review',
@@ -125,11 +144,12 @@ export class DashboardComponent implements OnInit {
         count: bucketCount('ready-for-review'),
         icon: 'rate_review',
         routerLink: AppRoutes.evaluations(),
+        queryParams: { bucket: 'ready-for-review' },
       },
       {
-        label: 'Closed this month',
+        label: 'Closed',
         help: 'Tenders fully processed',
-        count: bucketCount('closed') + 14,
+        count: bucketCount('closed'),
         icon: 'task_alt',
         routerLink: AppRoutes.tenders(),
       },
@@ -179,14 +199,7 @@ export class DashboardComponent implements OnInit {
         .addBidderToTender(tender.id, {
           bidderName: result.bidderName ?? 'New bidder',
           uploadMode: result.uploadMode ?? 'folder',
-          fileCount: result.groups?.reduce(
-            (s: number, g: { fileCount?: number }) => s + (g.fileCount ?? 0),
-            0,
-          ),
-          totalSizeBytes: result.groups?.reduce(
-            (s: number, g: { totalSize?: number }) => s + (g.totalSize ?? 0),
-            0,
-          ),
+          files: result.files ?? [],
         })
         .subscribe();
     });

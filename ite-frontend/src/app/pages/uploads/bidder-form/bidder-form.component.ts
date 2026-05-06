@@ -63,6 +63,9 @@ export class BidderFormComponent implements OnInit, OnDestroy {
   inspectingZip = false;
   session: UploadSessionState | null = null;
   pendingZipFile: File | null = null;
+  // Raw files we'll hand to the backend multipart POST. The UploadService
+  // session only retains metadata, so we keep the real blobs here.
+  private collectedFiles: File[] = [];
 
   private stateSub?: Subscription;
   private autoStartTimer: ReturnType<typeof setTimeout> | null = null;
@@ -114,6 +117,7 @@ export class BidderFormComponent implements OnInit, OnDestroy {
     this.validation = null;
     this.zipPreview = null;
     this.pendingZipFile = null;
+    this.collectedFiles = [];
   }
 
   triggerFolderPicker(input: HTMLInputElement) {
@@ -146,8 +150,10 @@ export class BidderFormComponent implements OnInit, OnDestroy {
 
     if (!this.session) {
       this.uploads.prepareFolderSession(fileArray, folderName);
+      this.collectedFiles = [...fileArray];
     } else {
       this.uploads.addBidderGroupToSession(fileArray, folderName);
+      this.collectedFiles = [...this.collectedFiles, ...fileArray];
     }
 
     if (!this.form.get('bidderName')?.value) {
@@ -158,20 +164,15 @@ export class BidderFormComponent implements OnInit, OnDestroy {
     input.value = '';
   }
 
-  removeGroup(groupId: string) {
+  removeGroup(_groupId: string) {
     if (!this.session) {
       return;
     }
-    const remaining = this.session.groups.filter((g) => g.id !== groupId);
-    if (remaining.length === 0) {
-      this.uploads.reset();
-      this.validation = null;
-    } else {
-      // Rebuild session by resetting and re-preparing remaining groups is complex;
-      // for mock purposes we just hide it by resetting — user can re-add.
-      this.uploads.reset();
-      this.validation = null;
-    }
+    // Rebuilding per-group is complex with the mock session; drop the whole
+    // thing and let the user re-add.
+    this.uploads.reset();
+    this.validation = null;
+    this.collectedFiles = [];
   }
 
   onZipSelected(event: Event) {
@@ -206,6 +207,7 @@ export class BidderFormComponent implements OnInit, OnDestroy {
         this.zipPreview = preview;
         this.inspectingZip = false;
         this.uploads.prepareZipSession(file);
+        this.collectedFiles = [file];
         if (!this.form.get('bidderName')?.value && preview.bidderFolders.length > 0) {
           this.form.patchValue({
             bidderName: `Batch of ${preview.bidderFolders.length} bidders`,
@@ -231,6 +233,7 @@ export class BidderFormComponent implements OnInit, OnDestroy {
     this.zipPreview = null;
     this.uploads.reset();
     this.validation = null;
+    this.collectedFiles = [];
   }
 
   cancelUpload() {
@@ -261,11 +264,7 @@ export class BidderFormComponent implements OnInit, OnDestroy {
       tenderId: this.data.tenderId,
       bidderName: this.form.value.bidderName,
       uploadMode: this.uploadMode,
-      groups: this.session.groups.map((g) => ({
-        groupName: g.groupName,
-        fileCount: g.items.length,
-        totalSize: g.totalSize,
-      })),
+      files: this.collectedFiles,
     });
   }
 

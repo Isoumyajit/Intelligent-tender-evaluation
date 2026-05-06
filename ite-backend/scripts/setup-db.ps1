@@ -2,7 +2,7 @@ $ErrorActionPreference = "Stop"
 
 $ContainerName = "ite-postgres"
 $ImageName     = "ite-postgres-img"
-$HostPort      = 5432
+$HostPort      = 5433
 $DbUser        = "ite_user"
 $DbPassword    = "ite_password"
 $DbName        = "ite_db"

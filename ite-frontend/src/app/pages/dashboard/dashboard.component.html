@@ -115,6 +115,7 @@
           class="stat-card"
           tabindex="0"
           [routerLink]="stat.routerLink"
+          [queryParams]="stat.queryParams ?? null"
           (keyup.enter)="null"
         >
           <mat-card-content class="stat-card__content">
@@ -173,10 +174,6 @@
                 <div>
                   <dt>Bidders</dt>
                   <dd>{{ item.tender.biddersCount }}</dd>
-                </div>
-                <div>
-                  <dt>Closes</dt>
-                  <dd>{{ item.tender.closingDate }}</dd>
                 </div>
               </div>
 

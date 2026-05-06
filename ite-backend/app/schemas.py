@@ -1,36 +1,10 @@
-"""Legacy (non-/api) Pydantic schemas used by the original Postgres-backed
-`/tenders/*` upload + `/items/*` scaffold. The frontend-facing contract
-lives in app/api_models.py."""
+"""Pydantic schemas for the /tenders and /tenders/{id}/bid endpoints.
+Snake_case on the wire — the frontend adapts to this shape directly."""
 
-from datetime import date, datetime
+from datetime import datetime
 from uuid import UUID
 
 from pydantic import BaseModel
-
-
-# ── Item schemas ──────────────────────────────────────────────────────
-
-
-class ItemBase(BaseModel):
-    name: str
-    description: str | None = None
-
-
-class ItemCreate(ItemBase):
-    pass
-
-
-class ItemUpdate(BaseModel):
-    name: str | None = None
-    description: str | None = None
-
-
-class ItemResponse(ItemBase):
-    id: int
-    created_at: datetime
-    updated_at: datetime
-
-    model_config = {"from_attributes": True}
 
 
 # ── Attachment schemas ───────────────────────────────────────────────
@@ -50,27 +24,11 @@ class AttachmentResponse(BaseModel):
 
 class TenderUpdate(BaseModel):
     tender_name: str | None = None
-    reference: str | None = None
-    authority: str | None = None
-    description: str | None = None
-    status: str | None = None
-    closing_date: date | None = None
-    estimated_value: str | None = None
 
 
 class TenderResponse(BaseModel):
-    tender_id: str
+    tender_id: UUID
     tender_name: str
-    reference: str
-    authority: str
-    description: str
-    status: str
-    bidders_count: int
-    estimated_value: str
-    closing_date: date | None = None
-    uploaded_date: date | None = None
-    document_name: str
-    document_size: str
     tender_ref: UUID | None = None
     created_at: datetime
     updated_at: datetime
@@ -80,13 +38,8 @@ class TenderResponse(BaseModel):
 
 
 class TenderListResponse(BaseModel):
-    tender_id: str
+    tender_id: UUID
     tender_name: str
-    reference: str
-    authority: str
-    status: str
-    bidders_count: int
-    closing_date: date | None = None
     created_at: datetime
     updated_at: datetime
 

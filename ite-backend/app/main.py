@@ -7,9 +7,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.api_routes import router as api_router
-from app.database import verify_db_connection
-from app.routes import router
 from app.bid_routes import router as bid_router
 from app.process_tender_routes import router as process_tender_router
 from app.tender_routes import router as tender_router
@@ -46,7 +43,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(router)
 app.include_router(tender_router)
 app.include_router(bid_router)
 app.include_router(process_tender_router)

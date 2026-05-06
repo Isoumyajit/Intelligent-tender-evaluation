@@ -27,20 +27,10 @@ CREATE TABLE IF NOT EXISTS attachments (
     created_at         TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- ── tenders (widened to match ProcessedTender) ───────────────────────
+-- ── tenders ──────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS tenders (
-    tender_id        VARCHAR(64)  PRIMARY KEY,
+    tender_id        UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tender_name      VARCHAR(512) NOT NULL,
-    reference        VARCHAR(128) NOT NULL,
-    authority        VARCHAR(256) NOT NULL,
-    description      TEXT         NOT NULL DEFAULT '',
-    status           VARCHAR(64)  NOT NULL DEFAULT 'Pending Review',
-    estimated_value  VARCHAR(64)  NOT NULL DEFAULT '',
-    closing_date     DATE,
-    uploaded_date    DATE,
-    bidders_count    INTEGER      NOT NULL DEFAULT 0,
-    document_name    VARCHAR(512) NOT NULL DEFAULT '',
-    document_size    VARCHAR(32)  NOT NULL DEFAULT '',
     tender_ref       UUID REFERENCES attachments(attachment_ref_id) ON DELETE SET NULL,
     created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()

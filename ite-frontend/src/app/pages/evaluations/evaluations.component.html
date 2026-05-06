@@ -53,7 +53,6 @@
           <mat-label>Sort by</mat-label>
           <mat-select [(value)]="sortBy">
             <mat-option value="progress">Progress (high → low)</mat-option>
-            <mat-option value="closing">Closing date (soonest)</mat-option>
             <mat-option value="stage">Stage (alphabetical)</mat-option>
             <mat-option value="bidders">Bidder count (high → low)</mat-option>
           </mat-select>
@@ -89,46 +88,102 @@
                       class="{{ row.descriptor.tone }}"
                       disableRipple
                     >
-                      {{ row.descriptor.label }}
+                      {{ stageLabel(stageOf(row.tender)) }}
                     </mat-chip>
                     <strong>{{ row.tender.name }}</strong>
                   </div>
-                  <p class="row__ref">
-                    {{ row.tender.reference }} • {{ row.tender.authority }}
-                  </p>
-                  <p class="row__next">
-                    <mat-icon>info</mat-icon>
-                    {{ row.descriptor.nextStep }}
-                  </p>
+                  <p class="row__ref">{{ row.tender.reference }}</p>
                 </div>
 
                 <div class="row__progress">
-                  <div class="row__progress-head">
-                    <span class="row__progress-label">Progress</span>
-                    <span class="row__progress-value">
-                      {{ row.progress }}%
-                    </span>
-                  </div>
-                  <mat-progress-bar
-                    mode="determinate"
-                    [value]="row.progress"
-                    class="{{ row.descriptor.tone }}"
-                  ></mat-progress-bar>
+                  @if (stageOf(row.tender) === 'in-evaluation') {
+                    <div class="row__progress-head">
+                      <span class="row__progress-label">
+                        <mat-icon class="spin">autorenew</mat-icon>
+                        Evaluating…
+                      </span>
+                      <span class="row__progress-value">
+                        {{ (progressOf(row.tender) | async) ?? 0 }}%
+                      </span>
+                    </div>
+                    <mat-progress-bar
+                      mode="determinate"
+                      [value]="(progressOf(row.tender) | async) ?? 0"
+                    ></mat-progress-bar>
+                  }
                   <div class="row__progress-meta">
                     <span>{{ row.tender.biddersCount }} bidders</span>
-                    <span>• closes {{ row.tender.closingDate }}</span>
                   </div>
                 </div>
 
                 <div class="row__action">
-                  <button
-                    mat-flat-button
-                    color="primary"
-                    (click)="openAction(row); $event.stopPropagation()"
-                  >
-                    <mat-icon>{{ row.descriptor.actionIcon }}</mat-icon>
-                    {{ row.descriptor.actionLabel }}
-                  </button>
+                  @switch (stageOf(row.tender)) {
+                    @case ('fresh') {
+                      @if (row.tender.biddersCount > 0) {
+                        <button
+                          mat-flat-button
+                          color="primary"
+                          (click)="startEvaluation(row.tender, $event)"
+                        >
+                          <mat-icon>play_arrow</mat-icon>
+                          Start evaluation
+                        </button>
+                        <button
+                          mat-stroked-button
+                          (click)="openDetail(row, $event)"
+                        >
+                          <mat-icon>groups</mat-icon>
+                          View bidders
+                        </button>
+                      } @else {
+                        <button
+                          mat-flat-button
+                          color="primary"
+                          (click)="openAddBidder(row.tender, $event)"
+                        >
+                          <mat-icon>person_add</mat-icon>
+                          Add bidder
+                        </button>
+                      }
+                    }
+                    @case ('in-evaluation') {
+                      @if (row.tender.biddersCount > 0) {
+                        <button
+                          mat-stroked-button
+                          (click)="openDetail(row, $event)"
+                        >
+                          <mat-icon>groups</mat-icon>
+                          View bidders
+                        </button>
+                      }
+                    }
+                    @case ('evaluated') {
+                      <button
+                        mat-flat-button
+                        color="primary"
+                        (click)="reRunEvaluation(row.tender, $event)"
+                      >
+                        <mat-icon>replay</mat-icon>
+                        Re-run evaluation
+                      </button>
+                      <button
+                        mat-stroked-button
+                        (click)="openAddBidder(row.tender, $event)"
+                      >
+                        <mat-icon>person_add</mat-icon>
+                        Add bidder
+                      </button>
+                      @if (row.tender.biddersCount > 0) {
+                        <button
+                          mat-stroked-button
+                          (click)="openDetail(row, $event)"
+                        >
+                          <mat-icon>groups</mat-icon>
+                          View bidders
+                        </button>
+                      }
+                    }
+                  }
                 </div>
               </mat-card-content>
             </mat-card>

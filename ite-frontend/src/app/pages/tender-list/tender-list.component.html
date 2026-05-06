@@ -3,10 +3,11 @@
 
   <header class="header">
     <div>
-      <p class="eyebrow">Processed Tenders</p>
-      <h1>Select a tender to review its bidders</h1>
+      <p class="eyebrow">Tenders</p>
+      <h1>All tenders</h1>
       <p class="ite-text-muted">
-        Click any tender to see all submitted bidders ranked by AI confidence score.
+        Filter by stage and open any tender to manage bidders or review
+        evaluation.
       </p>
     </div>
 
@@ -39,6 +40,21 @@
       }
     </mat-form-field>
 
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="stage-select">
+      <mat-label>Stage</mat-label>
+      <mat-select [(value)]="stageFilter">
+        <mat-option value="all">All ({{ countFor('all') }})</mat-option>
+        <mat-option value="fresh">Fresh ({{ countFor('fresh') }})</mat-option>
+        <mat-option value="in-evaluation">
+          In evaluation ({{ countFor('in-evaluation') }})
+        </mat-option>
+        <mat-option value="evaluated">
+          Evaluated ({{ countFor('evaluated') }})
+        </mat-option>
+        <mat-option value="closed">Closed ({{ countFor('closed') }})</mat-option>
+      </mat-select>
+    </mat-form-field>
+
     <button
       mat-stroked-button
       color="primary"
@@ -52,8 +68,12 @@
 
   <div class="tender-grid">
     @for (tender of filtered; track tender.id) {
-      <article class="tender-card" (click)="openBidders(tender)" tabindex="0"
-               (keyup.enter)="openBidders(tender)">
+      <article
+        class="tender-card"
+        (click)="openBidders(tender)"
+        tabindex="0"
+        (keyup.enter)="openBidders(tender)"
+      >
         <div class="tender-card__top">
           <span class="ref-pill">{{ tender.reference }}</span>
           <mat-chip class="{{ describe(tender.status).tone }}" disableRipple>
@@ -66,32 +86,124 @@
           <mat-icon>account_balance</mat-icon>
           {{ tender.authority }}
         </p>
-        <p class="desc ite-text-muted">{{ tender.description }}</p>
 
         <div class="tender-card__meta">
-          <div>
-            <span class="ite-text-muted">Estimated value</span>
-            <strong>{{ tender.estimatedValue }}</strong>
-          </div>
           <div>
             <span class="ite-text-muted">Bidders</span>
             <strong>{{ tender.biddersCount }}</strong>
           </div>
           <div>
-            <span class="ite-text-muted">Closes</span>
-            <strong>{{ tender.closingDate }}</strong>
+            <span class="ite-text-muted">Uploaded</span>
+            <strong>{{ tender.uploadedDate || '—' }}</strong>
+          </div>
+          <div>
+            <span class="ite-text-muted">Stage</span>
+            <strong>{{ stageLabel(stageOf(tender)) }}</strong>
           </div>
         </div>
+
+        @if (stageOf(tender) === 'in-evaluation') {
+          <div class="tender-card__progress">
+            <div class="tender-card__progress-head">
+              <span>
+                <mat-icon class="spin">autorenew</mat-icon>
+                Evaluating documents…
+              </span>
+              <strong>{{ (progressOf(tender) | async) ?? 0 }}%</strong>
+            </div>
+            <mat-progress-bar
+              mode="determinate"
+              [value]="(progressOf(tender) | async) ?? 0"
+            ></mat-progress-bar>
+          </div>
+        }
 
         <div class="tender-card__footer">
           <span class="ite-text-muted">
             <mat-icon>description</mat-icon>
-            {{ tender.documentName }} • {{ tender.documentSize }}
+            {{ tender.documentName || 'Document attached' }}
           </span>
-          <button mat-button color="primary">
-            View Bidders
-            <mat-icon iconPositionEnd>chevron_right</mat-icon>
-          </button>
+
+          <div class="tender-card__actions">
+            @switch (stageOf(tender)) {
+              @case ('fresh') {
+                @if (tender.biddersCount > 0) {
+                  <button
+                    mat-stroked-button
+                    (click)="openBidders(tender, $event)"
+                  >
+                    <mat-icon>groups</mat-icon>
+                    View bidders
+                  </button>
+                  <button
+                    mat-flat-button
+                    color="primary"
+                    (click)="startEvaluation(tender, $event)"
+                  >
+                    <mat-icon>play_arrow</mat-icon>
+                    Start evaluation
+                  </button>
+                } @else {
+                  <button
+                    mat-flat-button
+                    color="primary"
+                    (click)="openAddBidder(tender, $event)"
+                  >
+                    <mat-icon>person_add</mat-icon>
+                    Add bidder
+                  </button>
+                }
+              }
+              @case ('in-evaluation') {
+                @if (tender.biddersCount > 0) {
+                  <button
+                    mat-stroked-button
+                    (click)="openBidders(tender, $event)"
+                  >
+                    <mat-icon>groups</mat-icon>
+                    View bidders
+                  </button>
+                }
+              }
+              @case ('evaluated') {
+                <button
+                  mat-stroked-button
+                  (click)="openAddBidder(tender, $event)"
+                >
+                  <mat-icon>person_add</mat-icon>
+                  Add bidder
+                </button>
+                @if (tender.biddersCount > 0) {
+                  <button
+                    mat-stroked-button
+                    (click)="openBidders(tender, $event)"
+                  >
+                    <mat-icon>groups</mat-icon>
+                    View bidders
+                  </button>
+                  <button
+                    mat-flat-button
+                    color="primary"
+                    (click)="reRunEvaluation(tender, $event)"
+                  >
+                    <mat-icon>replay</mat-icon>
+                    Re-run evaluation
+                  </button>
+                }
+              }
+              @case ('closed') {
+                @if (tender.biddersCount > 0) {
+                  <button
+                    mat-stroked-button
+                    (click)="openBidders(tender, $event)"
+                  >
+                    <mat-icon>groups</mat-icon>
+                    View bidders
+                  </button>
+                }
+              }
+            }
+          </div>
         </div>
       </article>
     }

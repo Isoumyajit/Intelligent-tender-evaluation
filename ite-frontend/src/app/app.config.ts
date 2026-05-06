@@ -23,8 +23,8 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideAnimations(),
     provideHttpClient(withInterceptors([apiErrorInterceptor])),
-    // Tender + bidder data come from the backend API. Endpoints live
-    // under /api and are proxied in dev via proxy.conf.json.
+    // Tender + bidder data come from the snake_case backend at
+    // environment.apiBaseUrl (CORS-enabled for the Angular dev server).
     { provide: TENDER_REPOSITORY, useExisting: HttpTenderRepository },
     { provide: BIDDER_REPOSITORY, useExisting: HttpBidderRepository },
     // Upload transport — swap to S3MultipartTransport / TusTransport / HttpPostTransport

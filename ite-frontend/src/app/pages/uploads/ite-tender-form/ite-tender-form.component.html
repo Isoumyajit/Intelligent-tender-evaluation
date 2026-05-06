@@ -87,10 +87,10 @@
               color="primary"
               type="button"
               (click)="onUploadTender()"
-              [disabled]="!form.valid || !uploadedFile"
+              [disabled]="!form.valid || !uploadedFile || isUploading"
             >
               <mat-icon>upload</mat-icon>
-              Upload Tender
+              {{ isUploading ? 'Uploading…' : 'Upload Tender' }}
             </button>
           </div>
         </form>
