@@ -1,10 +1,15 @@
-from datetime import datetime
+"""Legacy (non-/api) Pydantic schemas used by the original Postgres-backed
+`/tenders/*` upload + `/items/*` scaffold. The frontend-facing contract
+lives in app/api_models.py."""
+
+from datetime import date, datetime
 from uuid import UUID
 
 from pydantic import BaseModel
 
 
-# ── Item schemas ──
+# ── Item schemas ──────────────────────────────────────────────────────
+
 
 class ItemBase(BaseModel):
     name: str
@@ -28,7 +33,8 @@ class ItemResponse(ItemBase):
     model_config = {"from_attributes": True}
 
 
-# ── Attachment schemas ──
+# ── Attachment schemas ───────────────────────────────────────────────
+
 
 class AttachmentResponse(BaseModel):
     attachment_ref_id: UUID
@@ -39,27 +45,48 @@ class AttachmentResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
-# ── Tender schemas ──
+# ── Tender schemas (legacy upload path) ──────────────────────────────
+
 
 class TenderUpdate(BaseModel):
     tender_name: str | None = None
+    reference: str | None = None
+    authority: str | None = None
+    description: str | None = None
+    status: str | None = None
+    closing_date: date | None = None
+    estimated_value: str | None = None
 
 
 class TenderResponse(BaseModel):
-    tender_id: UUID
+    tender_id: str
     tender_name: str
-    tender_ref: UUID
+    reference: str
+    authority: str
+    description: str
+    status: str
+    bidders_count: int
+    estimated_value: str
+    closing_date: date | None = None
+    uploaded_date: date | None = None
+    document_name: str
+    document_size: str
+    tender_ref: UUID | None = None
     created_at: datetime
     updated_at: datetime
-    attachment: AttachmentResponse
+    attachment: AttachmentResponse | None = None
 
     model_config = {"from_attributes": True}
 
 
 class TenderListResponse(BaseModel):
-    tender_id: UUID
+    tender_id: str
     tender_name: str
-    tender_ref: UUID
+    reference: str
+    authority: str
+    status: str
+    bidders_count: int
+    closing_date: date | None = None
     created_at: datetime
     updated_at: datetime
 
