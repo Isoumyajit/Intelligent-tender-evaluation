@@ -91,3 +91,29 @@ class BidListResponse(BaseModel):
     updated_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+# ── Criteria schemas ──
+
+class EvaluationCondition(BaseModel):
+    name: str
+    predicate: str
+
+
+class CriteriaGroup(BaseModel):
+    criteria: str
+    evaluation_conditions: list[EvaluationCondition]
+
+
+# ── Process Tender schemas ──
+
+class ProcessTenderRequest(BaseModel):
+    tender_id: UUID
+    bidder_ids: list[UUID]
+
+
+class ProcessTenderResponse(BaseModel):
+    tender_id: UUID
+    tender_name: str
+    criteria: list[CriteriaGroup]
+    bidder_ids: list[UUID]

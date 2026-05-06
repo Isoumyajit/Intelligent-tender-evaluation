@@ -346,6 +346,32 @@
 					}
 				}
 			]
+		},
+		{
+			"name": "Process Tender",
+			"item": [
+				{
+					"name": "Process Tender",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tender_id\": \"{{tender_id}}\",\n  \"bidder_ids\": [\"{{bid_id}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/process-tender/",
+							"host": ["{{baseUrl}}"],
+							"path": ["process-tender", ""]
+						}
+					}
+				}
+			]
 		}
 	]
 }
