@@ -7,6 +7,7 @@ happens at the pydantic boundary.
 """
 
 from typing import Literal
+from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
@@ -36,7 +37,7 @@ TenderStatus = Literal[
 
 
 class ProcessedTender(CamelModel):
-    id: str
+    id: UUID
     reference: str
     name: str
     authority: str
@@ -56,8 +57,8 @@ BidderOverallStatus = Literal["Qualified", "Disqualified", "Under Review"]
 
 
 class BidderSummary(CamelModel):
-    id: str
-    tender_id: str
+    id: UUID
+    tender_id: UUID
     name: str
     registration_no: str
     submitted_on: str
@@ -110,9 +111,9 @@ BidderDocumentCategory = Literal[
 
 
 class BidderDocument(CamelModel):
-    id: str
-    tender_id: str
-    bidder_id: str
+    id: str  # synthesised prefix like "<bidderUuid>-DOC-1"; stays string for now
+    tender_id: UUID
+    bidder_id: UUID
     file_name: str
     mime_type: str
     size_bytes: int
@@ -130,3 +131,15 @@ class AddBidderPayload(CamelModel):
     upload_mode: Literal["folder", "zip"] = "folder"
     total_size_bytes: int | None = None
     file_count: int | None = None
+
+
+class AddTenderPayload(CamelModel):
+    """Payload the frontend sends when a clerk uploads a new tender.
+    Metadata only — the backend mints the ID. File-blob persistence
+    happens separately via the team's `/tenders/` multipart upload."""
+
+    name: str
+    document_name: str
+    document_size: str | None = None
+    authority: str | None = None
+    description: str | None = None

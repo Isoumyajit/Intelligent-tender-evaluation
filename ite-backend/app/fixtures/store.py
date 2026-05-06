@@ -71,6 +71,32 @@ class FixtureStore:
 
     # ── Writes ────────────────────────────────────────────────────────
 
+    def add_tender(self, payload: dict[str, Any]) -> dict[str, Any]:
+        """Mints a new tender, appends it to the fixture list, and returns
+        the full record. The ID follows `TEND-NEW-<n>` so it can't collide
+        with the seed data (`TEND-2026-0xx`)."""
+        next_n = 1 + sum(1 for t in self._tenders if t["id"].startswith("TEND-NEW-"))
+        new_id = f"TEND-NEW-{next_n:03d}"
+        today = date.today().isoformat()
+
+        tender: dict[str, Any] = {
+            "id": new_id,
+            "reference": f"ITE/{today[:4]}/NEW-{next_n:03d}",
+            "name": payload["name"],
+            "authority": payload.get("authority") or "—",
+            "uploaded_date": today,
+            "closing_date": today,
+            "status": "Pending Review",
+            "bidders_count": 0,
+            "document_name": payload.get("document_name") or "",
+            "document_size": payload.get("document_size") or "—",
+            "estimated_value": "—",
+            "description": payload.get("description") or "",
+        }
+        self._tenders.insert(0, tender)
+        self._bidders_by_tender.setdefault(new_id, [])
+        return tender
+
     def add_bidder(
         self, tender_id: str, payload: dict[str, Any]
     ) -> dict[str, Any] | None:

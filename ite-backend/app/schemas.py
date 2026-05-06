@@ -59,7 +59,7 @@ class TenderUpdate(BaseModel):
 
 
 class TenderResponse(BaseModel):
-    tender_id: str
+    tender_id: UUID
     tender_name: str
     reference: str
     authority: str
@@ -80,7 +80,7 @@ class TenderResponse(BaseModel):
 
 
 class TenderListResponse(BaseModel):
-    tender_id: str
+    tender_id: UUID
     tender_name: str
     reference: str
     authority: str

@@ -2,8 +2,8 @@
 the upload flow that persists the original document blob. The frontend-
 facing read model lives under /api — see app/api_routes.py."""
 
-import uuid
-from datetime import date
+from datetime import date, datetime
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from sqlalchemy import select
@@ -43,20 +43,19 @@ async def create_tender(
     db.add(attachment)
     await db.flush()
 
-    # Generate a human-readable id that matches the /api fixture convention
-    # ('TEND-<short uuid>'). The DB column is a plain String so either this
-    # or a UUID string would work — we just need a consistent key.
-    tender_id = f"TEND-{uuid.uuid4().hex[:10].upper()}"
+    # Primary key is a DB-minted UUID. `reference` carries the human-
+    # readable code the clerk sees — if the caller didn't supply one,
+    # fall back to a timestamp-based slug that's still URL-safe.
+    ref = reference or f"ITE/{datetime.utcnow():%Y/%H%M%S}"
 
     tender = Tender(
-        tender_id=tender_id,
         tender_name=tender_name,
-        reference=reference or tender_id,
+        reference=ref,
         authority=authority or "—",
         description=description,
         status="Pending Review",
         bidders_count=0,
-        estimated_value="",
+        estimated_value="—",
         uploaded_date=date.today(),
         document_name=attachment.file_name,
         document_size=_human_size(len(file_bytes)),
@@ -76,7 +75,7 @@ async def list_tenders(db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/{tender_id}", response_model=TenderResponse)
-async def get_tender(tender_id: str, db: AsyncSession = Depends(get_db)):
+async def get_tender(tender_id: UUID, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Tender).where(Tender.tender_id == tender_id))
     tender = result.scalar_one_or_none()
     if not tender:
@@ -86,7 +85,7 @@ async def get_tender(tender_id: str, db: AsyncSession = Depends(get_db)):
 
 @router.put("/{tender_id}", response_model=TenderResponse)
 async def update_tender(
-    tender_id: str,
+    tender_id: UUID,
     payload: TenderUpdate,
     db: AsyncSession = Depends(get_db),
 ):
@@ -105,7 +104,7 @@ async def update_tender(
 
 
 @router.delete("/{tender_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_tender(tender_id: str, db: AsyncSession = Depends(get_db)):
+async def delete_tender(tender_id: UUID, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Tender).where(Tender.tender_id == tender_id))
     tender = result.scalar_one_or_none()
     if not tender:
@@ -126,7 +125,7 @@ async def delete_tender(tender_id: str, db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/{tender_id}/document")
-async def download_tender_document(tender_id: str, db: AsyncSession = Depends(get_db)):
+async def download_tender_document(tender_id: UUID, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Tender).where(Tender.tender_id == tender_id))
     tender = result.scalar_one_or_none()
     if not tender:

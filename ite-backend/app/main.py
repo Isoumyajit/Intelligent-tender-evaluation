@@ -11,6 +11,7 @@ from app.api_routes import router as api_router
 from app.database import verify_db_connection
 from app.routes import router
 from app.bid_routes import router as bid_router
+from app.seed import seed_if_empty
 from app.tender_routes import router as tender_router
 
 logging.basicConfig(
@@ -25,6 +26,11 @@ async def lifespan(application: FastAPI):
     connected = await verify_db_connection()
     if not connected:
         logger.warning("Application starting WITHOUT a healthy database connection")
+    else:
+        try:
+            await seed_if_empty()
+        except Exception:
+            logger.exception("Seeding the database failed — continuing anyway")
     yield
 
 
