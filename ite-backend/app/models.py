@@ -1,13 +1,34 @@
+"""SQLAlchemy ORM — the persistence shape of the domain.
+
+Shapes here mirror the API models in app/api_models.py exactly, so the
+eventual migration away from in-memory fixtures is a routing change
+(swap the FixtureStore for a DB-backed repository), not a schema
+redesign.
+
+Columns use snake_case at the DB level; Pydantic's alias_generator on
+CamelModel handles the camelCase on the wire.
+"""
+
 import uuid
 from datetime import datetime
 
-from sqlalchemy import ForeignKey, LargeBinary, String, Text
+from sqlalchemy import (
+    Date,
+    ForeignKey,
+    Integer,
+    LargeBinary,
+    String,
+    Text,
+)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
 class Base(DeclarativeBase):
     pass
+
+
+# ── Legacy Item (untouched) ────────────────────────────────────────────
 
 
 class Item(Base):
@@ -17,7 +38,12 @@ class Item(Base):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(
+        default=datetime.utcnow, onupdate=datetime.utcnow
+    )
+
+
+# ── Attachment: storage for tender + document bytes ──────────────────────
 
 
 class Attachment(Base):
