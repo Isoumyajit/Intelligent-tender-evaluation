@@ -1,5 +1,5 @@
-import { Injectable, inject } from '@angular/core';
-import { RefreshBus } from './refresh-bus';
+import { Injectable } from '@angular/core';
+import { Observable, Subject } from 'rxjs';
 
 export type TenderStage =
   | 'fresh'
@@ -17,20 +17,28 @@ const STORAGE_KEY = 'ite.tender-stage.v1';
  *
  * When the backend gains a real status column, this service can be
  * deleted and the repo can read the backend value directly.
+ *
+ * NOTE: stage changes are local — they do NOT trigger a tender/bid
+ * refetch. Subscribe to `changes$` if you need to react to a stage flip
+ * without hitting the backend again.
  */
 @Injectable({ providedIn: 'root' })
 export class TenderStageStore {
-  private readonly refresh = inject(RefreshBus);
   private cache = this.load();
+  private readonly changes = new Subject<{ tenderId: string; stage: TenderStage }>();
+
+  readonly changes$: Observable<{ tenderId: string; stage: TenderStage }> =
+    this.changes.asObservable();
 
   get(tenderId: string): TenderStage {
     return this.cache[tenderId] ?? 'fresh';
   }
 
   set(tenderId: string, stage: TenderStage): void {
+    if (this.cache[tenderId] === stage) return;
     this.cache = { ...this.cache, [tenderId]: stage };
     this.persist();
-    this.refresh.emitTendersChanged();
+    this.changes.next({ tenderId, stage });
   }
 
   /** Tender IDs currently in the given stage. Useful at boot to resume

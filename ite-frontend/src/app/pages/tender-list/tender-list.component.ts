@@ -18,7 +18,6 @@ import { BIDDER_REPOSITORY } from '../../core/abstractions/bidder-repository';
 import { TENDER_REPOSITORY } from '../../core/abstractions/tender-repository';
 import { LoadState, toLoadState } from '../../core/models/load-state';
 import { ProcessedTender } from '../../core/models/evaluation.models';
-import { describeStatus } from '../../core/registry/tender-status.registry';
 import { AppRoutes } from '../../core/routing/app-routes';
 import { RefreshBus } from '../../core/services/refresh-bus';
 import { TenderEvaluationProgressService } from '../../core/services/tender-evaluation-progress.service';
@@ -187,10 +186,6 @@ export class TenderListComponent implements OnInit {
     this.router.navigate(AppRoutes.tenderBidders(tender.id));
   }
 
-  describe(status: ProcessedTender['status']) {
-    return describeStatus(status);
-  }
-
   stageLabel(stage: StageFilter): string {
     switch (stage) {
       case 'all':
@@ -203,6 +198,19 @@ export class TenderListComponent implements OnInit {
         return 'Evaluated';
       case 'closed':
         return 'Closed';
+    }
+  }
+
+  stageTone(stage: TenderStage): string {
+    switch (stage) {
+      case 'fresh':
+        return 'ite-status--partial';
+      case 'in-evaluation':
+        return 'ite-status--neutral';
+      case 'evaluated':
+        return 'ite-status--pass';
+      case 'closed':
+        return 'ite-status--closed';
     }
   }
 }

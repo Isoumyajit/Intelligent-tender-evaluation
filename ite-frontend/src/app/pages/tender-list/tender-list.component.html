@@ -69,15 +69,15 @@
   <div class="tender-grid">
     @for (tender of filtered; track tender.id) {
       <article
-        class="tender-card"
+        class="tender-card tender-card--{{ stageOf(tender) }}"
         (click)="openBidders(tender)"
         tabindex="0"
         (keyup.enter)="openBidders(tender)"
       >
         <div class="tender-card__top">
           <span class="ref-pill">{{ tender.reference }}</span>
-          <mat-chip class="{{ describe(tender.status).tone }}" disableRipple>
-            {{ describe(tender.status).label }}
+          <mat-chip class="{{ stageTone(stageOf(tender)) }}" disableRipple>
+            {{ stageLabel(stageOf(tender)) }}
           </mat-chip>
         </div>
 
@@ -96,32 +96,32 @@
             <span class="ite-text-muted">Uploaded</span>
             <strong>{{ tender.uploadedDate || '—' }}</strong>
           </div>
-          <div>
-            <span class="ite-text-muted">Stage</span>
-            <strong>{{ stageLabel(stageOf(tender)) }}</strong>
-          </div>
         </div>
 
         @if (stageOf(tender) === 'in-evaluation') {
-          <div class="tender-card__progress">
-            <div class="tender-card__progress-head">
-              <span>
-                <mat-icon class="spin">autorenew</mat-icon>
-                Evaluating documents…
-              </span>
-              <strong>{{ (progressOf(tender) | async) ?? 0 }}%</strong>
+          <div
+            class="tender-card__scan"
+            aria-label="AI evaluating documents"
+          >
+            <div class="tender-card__scan-doc">
+              <mat-icon>description</mat-icon>
+              <div class="tender-card__scan-beam" aria-hidden="true"></div>
             </div>
-            <mat-progress-bar
-              mode="determinate"
-              [value]="(progressOf(tender) | async) ?? 0"
-            ></mat-progress-bar>
+            <div class="tender-card__scan-body">
+              <strong>Evaluating documents…</strong>
+              <span class="tender-card__scan-dots" aria-hidden="true">
+                <span></span><span></span><span></span>
+              </span>
+            </div>
           </div>
         }
 
         <div class="tender-card__footer">
-          <span class="ite-text-muted">
+          <span class="tender-card__doc ite-text-muted">
             <mat-icon>description</mat-icon>
-            {{ tender.documentName || 'Document attached' }}
+            <span class="tender-card__doc-name">
+              {{ tender.documentName || 'Document attached' }}
+            </span>
           </span>
 
           <div class="tender-card__actions">
@@ -129,15 +129,23 @@
               @case ('fresh') {
                 @if (tender.biddersCount > 0) {
                   <button
-                    mat-stroked-button
+                    mat-icon-button
+                    matTooltip="View bidders"
                     (click)="openBidders(tender, $event)"
                   >
                     <mat-icon>groups</mat-icon>
-                    View bidders
+                  </button>
+                  <button
+                    mat-icon-button
+                    matTooltip="Add bidder"
+                    (click)="openAddBidder(tender, $event)"
+                  >
+                    <mat-icon>person_add</mat-icon>
                   </button>
                   <button
                     mat-flat-button
                     color="primary"
+                    class="tender-card__primary"
                     (click)="startEvaluation(tender, $event)"
                   >
                     <mat-icon>play_arrow</mat-icon>
@@ -147,6 +155,7 @@
                   <button
                     mat-flat-button
                     color="primary"
+                    class="tender-card__primary"
                     (click)="openAddBidder(tender, $event)"
                   >
                     <mat-icon>person_add</mat-icon>
@@ -158,6 +167,7 @@
                 @if (tender.biddersCount > 0) {
                   <button
                     mat-stroked-button
+                    class="tender-card__primary"
                     (click)="openBidders(tender, $event)"
                   >
                     <mat-icon>groups</mat-icon>
@@ -167,23 +177,24 @@
               }
               @case ('evaluated') {
                 <button
-                  mat-stroked-button
+                  mat-icon-button
+                  matTooltip="Add bidder"
                   (click)="openAddBidder(tender, $event)"
                 >
                   <mat-icon>person_add</mat-icon>
-                  Add bidder
                 </button>
                 @if (tender.biddersCount > 0) {
                   <button
-                    mat-stroked-button
+                    mat-icon-button
+                    matTooltip="View bidders"
                     (click)="openBidders(tender, $event)"
                   >
                     <mat-icon>groups</mat-icon>
-                    View bidders
                   </button>
                   <button
                     mat-flat-button
                     color="primary"
+                    class="tender-card__primary"
                     (click)="reRunEvaluation(tender, $event)"
                   >
                     <mat-icon>replay</mat-icon>
@@ -195,6 +206,7 @@
                 @if (tender.biddersCount > 0) {
                   <button
                     mat-stroked-button
+                    class="tender-card__primary"
                     (click)="openBidders(tender, $event)"
                   >
                     <mat-icon>groups</mat-icon>

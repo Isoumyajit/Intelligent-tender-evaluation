@@ -1,10 +1,6 @@
-"""Tender CRUD + document upload/download routes under /tenders.
-Postgres-backed. Consumed directly by the frontend."""
-
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
-from fastapi.responses import Response
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -87,13 +83,12 @@ async def delete_tender(tender_id: UUID, db: AsyncSession = Depends(get_db)):
     attachment_ref = tender.tender_ref
     await db.delete(tender)
 
-    if attachment_ref is not None:
-        att_result = await db.execute(
-            select(Attachment).where(Attachment.attachment_ref_id == attachment_ref)
-        )
-        attachment = att_result.scalar_one_or_none()
-        if attachment:
-            await db.delete(attachment)
+    att_result = await db.execute(
+        select(Attachment).where(Attachment.attachment_ref_id == attachment_ref)
+    )
+    attachment = att_result.scalar_one_or_none()
+    if attachment:
+        await db.delete(attachment)
 
     await db.commit()
 
@@ -104,8 +99,6 @@ async def download_tender_document(tender_id: UUID, db: AsyncSession = Depends(g
     tender = result.scalar_one_or_none()
     if not tender:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tender not found")
-    if tender.tender_ref is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Document not found")
 
     att_result = await db.execute(
         select(Attachment).where(Attachment.attachment_ref_id == tender.tender_ref)
@@ -113,6 +106,8 @@ async def download_tender_document(tender_id: UUID, db: AsyncSession = Depends(g
     attachment = att_result.scalar_one_or_none()
     if not attachment:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Document not found")
+
+    from fastapi.responses import Response
 
     return Response(
         content=attachment.data,

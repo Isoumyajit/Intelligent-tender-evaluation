@@ -1,13 +1,7 @@
-"""SQLAlchemy ORM — the persistence shape of the domain.
-
-Columns use snake_case at the DB level; response schemas stay snake_case
-on the wire.
-"""
-
 import uuid
 from datetime import datetime
 
-from sqlalchemy import ForeignKey, LargeBinary, String
+from sqlalchemy import ForeignKey, LargeBinary, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -16,7 +10,14 @@ class Base(DeclarativeBase):
     pass
 
 
-# ── Attachment: storage for tender + document bytes ──────────────────────
+class Item(Base):
+    __tablename__ = "items"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
 class Attachment(Base):
@@ -37,78 +38,17 @@ class Attachment(Base):
 class Tender(Base):
     __tablename__ = "tenders"
 
-    # Human-readable id (e.g. 'TEND-2026-041') to match fixtures; the real
-    # system can still assign UUIDs here — the column takes any short string.
-    tender_id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    tender_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
     tender_name: Mapped[str] = mapped_column(String(512), nullable=False)
-    reference: Mapped[str] = mapped_column(String(128), nullable=False, index=True)
-    authority: Mapped[str] = mapped_column(String(256), nullable=False)
-    description: Mapped[str] = mapped_column(Text, default="", nullable=False)
-
-    status: Mapped[str] = mapped_column(String(64), nullable=False, default="Pending Review")
-    estimated_value: Mapped[str] = mapped_column(String(64), default="", nullable=False)
-    closing_date: Mapped[str | None] = mapped_column(Date, nullable=True)
-    uploaded_date: Mapped[str | None] = mapped_column(Date, nullable=True)
-    bidders_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-
-    # Original document metadata + pointer to the blob row.
-    document_name: Mapped[str] = mapped_column(String(512), default="", nullable=False)
-    document_size: Mapped[str] = mapped_column(String(32), default="", nullable=False)
-    tender_ref: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey("attachments.attachment_ref_id", ondelete="SET NULL"),
-        nullable=True,
+    tender_ref: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("attachments.attachment_ref_id", ondelete="CASCADE"), nullable=False
     )
-
-    created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(
-        default=datetime.utcnow, onupdate=datetime.utcnow
-    )
-
-    attachment: Mapped[Attachment | None] = relationship(
-        back_populates="tender", lazy="selectin"
-    )
-    bidders: Mapped[list["Bidder"]] = relationship(
-        back_populates="tender",
-        cascade="all, delete-orphan",
-        lazy="selectin",
-    )
-
-
-# ── Bidder ──────────────────────────────────────────────────────────────
-
-
-class Bidder(Base):
-    __tablename__ = "bidders"
-
-    bidder_id: Mapped[str] = mapped_column(String(64), primary_key=True)
-    tender_id: Mapped[str] = mapped_column(
-        String(64),
-        ForeignKey("tenders.tender_id", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
-    )
-    name: Mapped[str] = mapped_column(String(256), nullable=False)
-    registration_no: Mapped[str] = mapped_column(String(128), default="", nullable=False)
-    submitted_on: Mapped[str | None] = mapped_column(Date, nullable=True)
-
-    documents_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-    total_size: Mapped[str] = mapped_column(String(32), default="—", nullable=False)
-
-    confidence_score: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-    rank: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-    overall_status: Mapped[str] = mapped_column(
-        String(32), default="Under Review", nullable=False
-    )
-    technical_score: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-    financial_score: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-    compliance_score: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-    bid_amount: Mapped[str] = mapped_column(String(32), default="—", nullable=False)
-
     created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    attachment: Mapped[Attachment | None] = relationship(back_populates="tender", lazy="selectin")
+    attachment: Mapped[Attachment] = relationship(back_populates="tender", lazy="selectin")
     bids: Mapped[list["Bid"]] = relationship(back_populates="tender", lazy="selectin")
 
 

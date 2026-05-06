@@ -1,14 +1,34 @@
-"""Pydantic schemas for the /tenders and /tenders/{id}/bid endpoints.
-Snake_case on the wire — the frontend adapts to this shape directly."""
-
 from datetime import datetime
 from uuid import UUID
 
 from pydantic import BaseModel
 
 
-# ── Attachment schemas ───────────────────────────────────────────────
+# ── Item schemas ──
 
+class ItemBase(BaseModel):
+    name: str
+    description: str | None = None
+
+
+class ItemCreate(ItemBase):
+    pass
+
+
+class ItemUpdate(BaseModel):
+    name: str | None = None
+    description: str | None = None
+
+
+class ItemResponse(ItemBase):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+# ── Attachment schemas ──
 
 class AttachmentResponse(BaseModel):
     attachment_ref_id: UUID
@@ -19,8 +39,7 @@ class AttachmentResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
-# ── Tender schemas (legacy upload path) ──────────────────────────────
-
+# ── Tender schemas ──
 
 class TenderUpdate(BaseModel):
     tender_name: str | None = None
@@ -29,10 +48,10 @@ class TenderUpdate(BaseModel):
 class TenderResponse(BaseModel):
     tender_id: UUID
     tender_name: str
-    tender_ref: UUID | None = None
+    tender_ref: UUID
     created_at: datetime
     updated_at: datetime
-    attachment: AttachmentResponse | None = None
+    attachment: AttachmentResponse
 
     model_config = {"from_attributes": True}
 
@@ -40,6 +59,7 @@ class TenderResponse(BaseModel):
 class TenderListResponse(BaseModel):
     tender_id: UUID
     tender_name: str
+    tender_ref: UUID
     created_at: datetime
     updated_at: datetime
 

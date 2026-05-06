@@ -4,7 +4,6 @@ import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { Observable, forkJoin, merge, of } from 'rxjs';
@@ -20,13 +19,11 @@ import {
 } from '../../core/models/evaluation.models';
 import {
   TENDER_STATUS_DESCRIPTORS,
-  TenderStatusTone,
   describeStatus,
 } from '../../core/registry/tender-status.registry';
 import { AppRoutes } from '../../core/routing/app-routes';
 import { RefreshBus } from '../../core/services/refresh-bus';
 import { LoadingPanelComponent } from '../../shared/loading-panel/loading-panel.component';
-import { BidderFormComponent } from '../uploads/bidder-form/bidder-form.component';
 
 interface QuickStat {
   label: string;
@@ -37,14 +34,6 @@ interface QuickStat {
   /** Optional query param passed to the destination page so the tile
    *  can seed a filter without the user touching chips on arrival. */
   queryParams?: Record<string, string>;
-}
-
-interface ActionItem {
-  tender: ProcessedTender;
-  nextStep: string;
-  actionLabel: string;
-  actionIcon: string;
-  tone: TenderStatusTone;
 }
 
 @Component({
@@ -68,7 +57,6 @@ export class DashboardComponent implements OnInit {
   private readonly tenderRepo = inject(TENDER_REPOSITORY);
   private readonly bidderRepo = inject(BIDDER_REPOSITORY);
   private readonly refresh = inject(RefreshBus);
-  private readonly dialog = inject(MatDialog);
 
   officerName = 'Ravi Kumar';
   officerTitle = 'Procurement Officer • Ministry of Public Works';
@@ -78,7 +66,6 @@ export class DashboardComponent implements OnInit {
 
   tenders: ProcessedTender[] = [];
   quickStats: QuickStat[] = [];
-  actionQueue: ActionItem[] = [];
 
   ngOnInit() {
     this.greeting = this.computeGreeting(this.today.getHours());
@@ -104,7 +91,6 @@ export class DashboardComponent implements OnInit {
       if (s.status === 'success') {
         this.tenders = s.data;
         this.quickStats = this.computeQuickStats(s.data);
-        this.actionQueue = this.computeActionQueue(s.data);
       }
     });
   }
@@ -154,55 +140,6 @@ export class DashboardComponent implements OnInit {
         routerLink: AppRoutes.tenders(),
       },
     ];
-  }
-
-  private computeActionQueue(tenders: ProcessedTender[]): ActionItem[] {
-    return tenders.slice(0, 4).map((t) => {
-      const d = describeStatus(t.status);
-      return {
-        tender: t,
-        nextStep: d.nextStep,
-        actionLabel: d.actionLabel,
-        actionIcon: d.actionIcon,
-        tone: d.tone,
-      };
-    });
-  }
-
-  runAction(item: ActionItem): void {
-    const d = describeStatus(item.tender.status);
-    switch (d.actionRoute) {
-      case 'add-bidder-dialog':
-        this.openAddBidderDialog(item.tender);
-        return;
-      case 'upload':
-        this.router.navigate(AppRoutes.upload());
-        return;
-      case 'tender-bidders':
-      default:
-        this.router.navigate(AppRoutes.tenderBidders(item.tender.id));
-    }
-  }
-
-  private openAddBidderDialog(tender: ProcessedTender): void {
-    const ref = this.dialog.open(BidderFormComponent, {
-      width: '960px',
-      maxWidth: '92vw',
-      minHeight: '68vh',
-      maxHeight: '92vh',
-      panelClass: 'ite-bidder-dialog',
-      data: { tenderId: tender.id, tenderName: tender.name },
-    });
-    ref.afterClosed().subscribe((result) => {
-      if (!result) return;
-      this.bidderRepo
-        .addBidderToTender(tender.id, {
-          bidderName: result.bidderName ?? 'New bidder',
-          uploadMode: result.uploadMode ?? 'folder',
-          files: result.files ?? [],
-        })
-        .subscribe();
-    });
   }
 
   /** Exposed for template to render the registry-driven status legend. */

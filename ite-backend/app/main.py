@@ -7,6 +7,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy.exc import SQLAlchemyError
 
+from app.database import verify_db_connection
+from app.routes import router
 from app.bid_routes import router as bid_router
 from app.process_tender_routes import router as process_tender_router
 from app.tender_routes import router as tender_router
@@ -28,8 +30,6 @@ async def lifespan(application: FastAPI):
 
 app = FastAPI(title="ITE API", version="0.1.0", lifespan=lifespan)
 
-# CORS so the Angular dev server (default 4200, also our 4250) can hit us
-# directly when the proxy isn't in play.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -43,6 +43,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(router)
 app.include_router(tender_router)
 app.include_router(bid_router)
 app.include_router(process_tender_router)
