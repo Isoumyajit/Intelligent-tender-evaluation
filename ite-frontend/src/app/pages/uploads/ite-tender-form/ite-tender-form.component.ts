@@ -17,6 +17,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BIDDER_REPOSITORY } from '../../../core/abstractions/bidder-repository';
+import { TENDER_REPOSITORY } from '../../../core/abstractions/tender-repository';
 import {
   FileSizePipe,
   formatFileSize,
@@ -65,6 +66,7 @@ export class IteTenderFormComponent implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
   private readonly bidderRepo = inject(BIDDER_REPOSITORY);
+  private readonly tenderRepo = inject(TENDER_REPOSITORY);
   private readonly refresh = inject(RefreshBus);
 
   readonly routes = AppRoutes;
@@ -116,25 +118,52 @@ export class IteTenderFormComponent implements OnInit {
   onUploadTender() {
     if (!this.form.valid || !this.uploadedFile) return;
 
-    // TODO: once TenderRepository gains a create() method the upload will
-    // go through it; for now we synthesize a session-local record so the
-    // right-panel has something to show.
-    this.lastUploaded = {
-      id: `SESSION-${Date.now().toString(36)}`,
-      name: this.form.get('tenderName')?.value,
-      fileName: this.uploadedFile.name,
-      fileSize: formatFileSize(this.uploadedFile.size),
-      uploadedDate: new Date().toISOString().split('T')[0],
-      biddersAdded: false,
-    };
+    const name = this.form.get('tenderName')?.value as string;
+    const file = this.uploadedFile;
+    const humanSize = formatFileSize(file.size);
 
-    this.form.reset();
-    this.uploadedFile = null;
-    this.snackBar.open(
-      `Tender "${this.lastUploaded.name}" uploaded. Add bidders to start evaluation.`,
-      'Dismiss',
-      { duration: 4000, horizontalPosition: 'end', verticalPosition: 'bottom' },
-    );
+    this.tenderRepo
+      .create({
+        name,
+        documentName: file.name,
+        documentSize: humanSize,
+      })
+      .subscribe({
+        next: (tender) => {
+          // Store the server-minted id so the Add-bidders dialog targets
+          // a tender the backend actually knows about.
+          this.lastUploaded = {
+            id: tender.id,
+            name: tender.name,
+            fileName: tender.documentName || file.name,
+            fileSize: tender.documentSize || humanSize,
+            uploadedDate: tender.uploadedDate,
+            biddersAdded: false,
+          };
+          this.form.reset();
+          this.uploadedFile = null;
+          this.snackBar.open(
+            `Tender "${tender.name}" uploaded. Add bidders to start evaluation.`,
+            'Dismiss',
+            {
+              duration: 4000,
+              horizontalPosition: 'end',
+              verticalPosition: 'bottom',
+            },
+          );
+        },
+        error: (err) => {
+          this.snackBar.open(
+            `Upload failed: ${err?.message ?? 'unknown error'}`,
+            'Dismiss',
+            {
+              duration: 5000,
+              horizontalPosition: 'end',
+              verticalPosition: 'bottom',
+            },
+          );
+        },
+      });
   }
 
   openBidderDialog(): void {

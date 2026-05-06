@@ -12,10 +12,10 @@ import { DOCUMENT_RENDERER } from './core/abstractions/document-renderer';
 import { TENDER_REPOSITORY } from './core/abstractions/tender-repository';
 import { UPLOAD_TRANSPORT } from './core/abstractions/upload-transport';
 import { apiErrorInterceptor } from './core/http/api-error.interceptor';
-import { MockBidderRepository } from './core/services/mock-bidder.repository';
+import { HttpBidderRepository } from './core/services/http-bidder.repository';
+import { HttpTenderRepository } from './core/services/http-tender.repository';
 import { MockChunkTransport } from './core/services/mock-chunk-transport';
 import { MockImageRenderer } from './core/services/mock-image-renderer';
-import { MockTenderRepository } from './core/services/mock-tender.repository';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -23,13 +23,16 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideAnimations(),
     provideHttpClient(withInterceptors([apiErrorInterceptor])),
-    // Repository bindings — swap to HttpTenderRepository / HttpBidderRepository
-    // once the real backend is live, with no component-level edits.
-    { provide: TENDER_REPOSITORY, useExisting: MockTenderRepository },
-    { provide: BIDDER_REPOSITORY, useExisting: MockBidderRepository },
-    // Upload transport — swap to S3MultipartTransport / TusTransport / HttpPostTransport.
+    // Tender + bidder data come from the backend API. Endpoints live
+    // under /api and are proxied in dev via proxy.conf.json.
+    { provide: TENDER_REPOSITORY, useExisting: HttpTenderRepository },
+    { provide: BIDDER_REPOSITORY, useExisting: HttpBidderRepository },
+    // Upload transport — swap to S3MultipartTransport / TusTransport / HttpPostTransport
+    // when a real resumable upload endpoint exists.
     { provide: UPLOAD_TRANSPORT, useExisting: MockChunkTransport },
-    // Document renderer — swap to ServerImageRenderer / PdfJsRenderer when real docs arrive.
+    // Document renderer — still mock until the backend exposes page-image
+    // endpoints. The DocumentViewer doesn't care which implementation it
+    // gets, so swapping is one line.
     { provide: DOCUMENT_RENDERER, useExisting: MockImageRenderer },
   ],
 };

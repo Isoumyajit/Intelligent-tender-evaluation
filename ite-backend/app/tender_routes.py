@@ -1,3 +1,8 @@
+"""Legacy upload/download routes under /tenders. Postgres-backed; used by
+the upload flow that persists the original document blob. The frontend-
+facing read model lives under /api — see app/api_routes.py."""
+
+from datetime import date, datetime
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
@@ -11,10 +16,21 @@ from app.schemas import TenderListResponse, TenderResponse, TenderUpdate
 router = APIRouter(prefix="/tenders", tags=["tenders"])
 
 
+def _human_size(n: int) -> str:
+    if n < 1024 * 1024:
+        return f"{n / 1024:.1f} KB"
+    if n < 1024 * 1024 * 1024:
+        return f"{n / (1024 * 1024):.1f} MB"
+    return f"{n / (1024 * 1024 * 1024):.2f} GB"
+
+
 @router.post("/", response_model=TenderResponse, status_code=status.HTTP_201_CREATED)
 async def create_tender(
     tender_name: str = Form(...),
     document: UploadFile = File(...),
+    authority: str = Form(""),
+    reference: str = Form(""),
+    description: str = Form(""),
     db: AsyncSession = Depends(get_db),
 ):
     file_bytes = await document.read()
@@ -27,8 +43,22 @@ async def create_tender(
     db.add(attachment)
     await db.flush()
 
+    # Primary key is a DB-minted UUID. `reference` carries the human-
+    # readable code the clerk sees — if the caller didn't supply one,
+    # fall back to a timestamp-based slug that's still URL-safe.
+    ref = reference or f"ITE/{datetime.utcnow():%Y/%H%M%S}"
+
     tender = Tender(
         tender_name=tender_name,
+        reference=ref,
+        authority=authority or "—",
+        description=description,
+        status="Pending Review",
+        bidders_count=0,
+        estimated_value="—",
+        uploaded_date=date.today(),
+        document_name=attachment.file_name,
+        document_size=_human_size(len(file_bytes)),
         tender_ref=attachment.attachment_ref_id,
     )
     db.add(tender)
@@ -83,12 +113,13 @@ async def delete_tender(tender_id: UUID, db: AsyncSession = Depends(get_db)):
     attachment_ref = tender.tender_ref
     await db.delete(tender)
 
-    att_result = await db.execute(
-        select(Attachment).where(Attachment.attachment_ref_id == attachment_ref)
-    )
-    attachment = att_result.scalar_one_or_none()
-    if attachment:
-        await db.delete(attachment)
+    if attachment_ref is not None:
+        att_result = await db.execute(
+            select(Attachment).where(Attachment.attachment_ref_id == attachment_ref)
+        )
+        attachment = att_result.scalar_one_or_none()
+        if attachment:
+            await db.delete(attachment)
 
     await db.commit()
 
@@ -99,6 +130,8 @@ async def download_tender_document(tender_id: UUID, db: AsyncSession = Depends(g
     tender = result.scalar_one_or_none()
     if not tender:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tender not found")
+    if tender.tender_ref is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Document not found")
 
     att_result = await db.execute(
         select(Attachment).where(Attachment.attachment_ref_id == tender.tender_ref)

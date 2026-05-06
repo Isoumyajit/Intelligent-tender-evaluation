@@ -3,12 +3,15 @@ import traceback
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy.exc import SQLAlchemyError
 
+from app.api_routes import router as api_router
 from app.database import verify_db_connection
 from app.routes import router
 from app.bid_routes import router as bid_router
+from app.seed import seed_if_empty
 from app.tender_routes import router as tender_router
 
 logging.basicConfig(
@@ -23,13 +26,34 @@ async def lifespan(application: FastAPI):
     connected = await verify_db_connection()
     if not connected:
         logger.warning("Application starting WITHOUT a healthy database connection")
+    else:
+        try:
+            await seed_if_empty()
+        except Exception:
+            logger.exception("Seeding the database failed — continuing anyway")
     yield
 
 
 app = FastAPI(title="ITE API", version="0.1.0", lifespan=lifespan)
 
+# CORS so the Angular dev server (default 4200, also our 4250) can hit us
+# directly when the proxy isn't in play.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:4200",
+        "http://localhost:4250",
+        "http://127.0.0.1:4200",
+        "http://127.0.0.1:4250",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.include_router(router)
 app.include_router(tender_router)
+app.include_router(api_router)
 app.include_router(bid_router)
 
 
