@@ -18,7 +18,7 @@ python -m venv venv
 pip install -r requirements.txt
 ```
 
-If you want to use the LLM features (criteria extraction, document classification, evidence evaluation), you need a Sarvam AI API key. Open the `.env` file in the project root and set your key. The database URL is already configured with defaults that match the Docker setup, so you don't need to change that.
+If you want to use the LLM features (criteria extraction, document classification, evidence evaluation), you need a Sarvam AI API key. Follow the [Sarvam AI Quickstart](https://docs.sarvam.ai/api-reference-docs/getting-started/quickstart) to create an API key from the Sarvam dashboard. Then open the `.env` file in the project root and set your key. The database URL is already configured with defaults that match the Docker setup, so you don't need to change that.
 
 ```env
 SARVAM_API_KEY=your_sarvam_api_key_here
