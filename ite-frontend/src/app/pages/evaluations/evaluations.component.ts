@@ -130,6 +130,14 @@ export class EvaluationsComponent implements OnInit {
           progress: progressForStatus(t.status),
         }));
     });
+
+    this.progressSvc.errors$.subscribe(({ message }) => {
+      this.snack.open(message, 'Dismiss', {
+        duration: 6000,
+        horizontalPosition: 'end',
+        verticalPosition: 'bottom',
+      });
+    });
   }
 
   get filteredSorted(): EvaluationRow[] {

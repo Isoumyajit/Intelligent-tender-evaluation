@@ -1,7 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { catchError, distinctUntilChanged, map, tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, Subject, of, timer } from 'rxjs';
+import {
+  catchError,
+  distinctUntilChanged,
+  map,
+  switchMap,
+  takeWhile,
+  tap,
+} from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { BIDDER_REPOSITORY } from '../abstractions/bidder-repository';
 import { TenderStageStore } from './tender-stage.store';
@@ -11,26 +18,21 @@ interface ProcessTenderRequest {
   bidder_ids: string[];
 }
 
-interface ProcessTenderResponse {
-  tender_id: string;
-  tender_name: string;
-  criteria: unknown[];
-  bidder_ids: string[];
+interface ProcessTenderStartResponse {
+  job_id: string;
 }
 
-/**
- * Broadcasts the live evaluation progress (0–100) for each tender that
- * is currently in-flight. This service is the single seam between the UI
- * and "how evaluation progress is actually measured".
- *
- * start(id) calls the real backend POST /process-tender/ to kick off
- * evaluation. The backend's response is synchronous today (criteria
- * extraction only), so we animate a local progress bar from 0→100 as a
- * stand-in until the backend exposes a streaming progress endpoint.
- * When that happens, replace the setInterval inside start() with an SSE
- * subscription or a polling loop — the progress$() contract doesn't
- * change, so pages are unaffected.
- */
+interface JobStatusResponse {
+  job_id: string;
+  tender_id: string;
+  tender_name: string;
+  status: string;
+  criteria: unknown[];
+  bidders: unknown[];
+  created_at: string;
+  updated_at: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class TenderEvaluationProgressService {
   private readonly stages = inject(TenderStageStore);
@@ -38,25 +40,24 @@ export class TenderEvaluationProgressService {
   private readonly http = inject(HttpClient);
   private readonly base = environment.apiBaseUrl;
 
-  private readonly progresses$ = new BehaviorSubject<Record<string, number>>({});
-  private readonly timers = new Map<string, ReturnType<typeof setInterval>>();
-  private readonly tickMs = 400;
-  private readonly tickDelta = 2;
+  private readonly progresses$ = new BehaviorSubject<Record<string, number>>(
+    {},
+  );
+
+  private readonly _errors$ = new Subject<{
+    tenderId: string;
+    message: string;
+  }>();
+  readonly errors$ = this._errors$.asObservable();
 
   constructor() {
-    // Resume anything that was mid-evaluation when the page was reloaded.
-    // Best-effort: without a backend progress endpoint we just re-run the
-    // visual counter. Real backend progress would subscribe here instead.
     this.stages.tendersInStage('in-evaluation').forEach((id) => {
       this.setProgress(id, 0);
-      this.startLocalTicker(id);
+      this.stages.set(id, 'fresh');
     });
   }
 
-  /** Fetch bidders for the tender, fire POST /process-tender/, then drive
-   *  the visual progress bar until 100 and flip stage to 'evaluated'. */
   start(tenderId: string): void {
-    this.stopInternal(tenderId);
     this.setProgress(tenderId, 0);
     this.stages.set(tenderId, 'in-evaluation');
 
@@ -66,17 +67,19 @@ export class TenderEvaluationProgressService {
         map((bidders) => bidders.map((b) => b.id)),
         tap((bidderIds) => {
           if (bidderIds.length === 0) {
-            // Guard is mirrored in callers, but keep defensive here.
             this.stages.set(tenderId, 'fresh');
-            this.stopInternal(tenderId);
             return;
           }
-          this.postProcess(tenderId, bidderIds);
+          this.postAndPoll(tenderId, bidderIds);
         }),
-        catchError((err) => {
+        catchError(() => {
           this.stages.set(tenderId, 'fresh');
-          this.stopInternal(tenderId);
-          throw err;
+          this.setProgress(tenderId, 0);
+          this._errors$.next({
+            tenderId,
+            message: 'Could not start evaluation. Please try again.',
+          });
+          return of(null);
         }),
       )
       .subscribe();
@@ -94,53 +97,80 @@ export class TenderEvaluationProgressService {
   }
 
   stop(tenderId: string): void {
-    this.stopInternal(tenderId);
     const { [tenderId]: _, ...rest } = this.progresses$.value;
     this.progresses$.next(rest);
   }
 
-  private postProcess(tenderId: string, bidderIds: string[]): void {
+  private postAndPoll(tenderId: string, bidderIds: string[]): void {
     const body: ProcessTenderRequest = {
       tender_id: tenderId,
       bidder_ids: bidderIds,
     };
-    this.startLocalTicker(tenderId);
+
+    this.setProgress(tenderId, 10);
+
     this.http
-      .post<ProcessTenderResponse>(`${this.base}/process-tender/`, body)
+      .post<ProcessTenderStartResponse>(
+        `${this.base}/process-tender/`,
+        body,
+      )
       .pipe(
-        catchError((err) => {
-          this.stopInternal(tenderId);
+        catchError(() => {
           this.stages.set(tenderId, 'fresh');
           this.setProgress(tenderId, 0);
-          throw err;
+          this._errors$.next({
+            tenderId,
+            message: 'Failed to start evaluation. Please try again.',
+          });
+          return of(null);
         }),
       )
-      .subscribe(() => {
-        // Backend returned — let the visual ticker finish to 100 if it
-        // hasn't already, then flip to evaluated. The ticker itself
-        // handles the flip when it hits 100, so nothing extra here.
+      .subscribe((res) => {
+        if (!res) return;
+        this.setProgress(tenderId, 20);
+        this.pollJobStatus(tenderId, res.job_id);
       });
   }
 
-  private startLocalTicker(tenderId: string): void {
-    const timer = setInterval(() => {
-      const current = this.progresses$.value[tenderId] ?? 0;
-      const next = Math.min(100, current + this.tickDelta);
-      this.setProgress(tenderId, next);
-      if (next >= 100) {
-        this.stopInternal(tenderId);
-        this.stages.set(tenderId, 'evaluated');
-      }
-    }, this.tickMs);
-    this.timers.set(tenderId, timer);
-  }
+  private pollJobStatus(tenderId: string, jobId: string): void {
+    const pollInterval = 3000;
+    let tick = 0;
 
-  private stopInternal(tenderId: string): void {
-    const t = this.timers.get(tenderId);
-    if (t) {
-      clearInterval(t);
-      this.timers.delete(tenderId);
-    }
+    timer(0, pollInterval)
+      .pipe(
+        switchMap(() =>
+          this.http
+            .get<JobStatusResponse>(
+              `${this.base}/process-tender/${encodeURIComponent(jobId)}`,
+            )
+            .pipe(catchError(() => of(null))),
+        ),
+        tap(() => {
+          tick++;
+          const progress = Math.min(90, 20 + tick * 10);
+          this.setProgress(tenderId, progress);
+        }),
+        takeWhile((res) => {
+          if (!res) return true;
+          if (res.status === 'completed') {
+            this.setProgress(tenderId, 100);
+            this.stages.set(tenderId, 'evaluated');
+            return false;
+          }
+          if (res.status === 'failed') {
+            this.setProgress(tenderId, 0);
+            this.stages.set(tenderId, 'fresh');
+            this._errors$.next({
+              tenderId,
+              message:
+                'Evaluation failed. Please check the tender and try again.',
+            });
+            return false;
+          }
+          return true;
+        }),
+      )
+      .subscribe();
   }
 
   private setProgress(tenderId: string, value: number): void {

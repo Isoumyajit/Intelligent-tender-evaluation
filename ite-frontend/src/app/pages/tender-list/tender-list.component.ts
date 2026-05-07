@@ -90,6 +90,20 @@ export class TenderListComponent implements OnInit {
     this.state$.subscribe((s) => {
       if (s.status === 'success') this.tenders = s.data;
     });
+
+    this.stages.changes$.subscribe(() => {
+      this.state$?.subscribe((s) => {
+        if (s.status === 'success') this.tenders = [...s.data];
+      });
+    });
+
+    this.progress.errors$.subscribe(({ message }) => {
+      this.snack.open(message, 'Dismiss', {
+        duration: 6000,
+        horizontalPosition: 'end',
+        verticalPosition: 'bottom',
+      });
+    });
   }
 
   get totalBidders(): number {
