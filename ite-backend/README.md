@@ -1,47 +1,41 @@
-# ITE API
+# ITE Backend — Intelligent Tender Evaluation
 
-A Python FastAPI application connected to PostgreSQL.
+## How to Run
 
-## Prerequisites
+Make sure you have Python 3.11 or later and Docker Desktop installed and running on your machine.
 
-- **Docker Desktop** (running)
-- **Python 3.11+**
-
-## Quick Start
-
-### 1. Start the database
+Open a PowerShell terminal in the project root (`ite-backend`) and run the setup script. This will build a Docker image, start a PostgreSQL container on port 5432, create all the database tables, and seed initial data. You should see a "PostgreSQL is UP and connectable!" message when it's done.
 
 ```powershell
 .\scripts\setup-db.ps1
 ```
 
-This builds the Docker image, starts a PostgreSQL container, and verifies connectivity.
+Create a Python virtual environment and activate it, then install all dependencies.
 
-### 2. Install Python dependencies
-
-```bash
+```powershell
+python -m venv venv
+.\venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 ```
 
-### 3. Run the API
+If you want to use the LLM features (criteria extraction, document classification, evidence evaluation), you need a Sarvam AI API key. Open the `.env` file in the project root and set your key. The database URL is already configured with defaults that match the Docker setup, so you don't need to change that.
 
-```bash
+```env
+SARVAM_API_KEY=your_sarvam_api_key_here
+```
+
+Start the server. The API will be available at http://localhost:8000.
+
+```powershell
 uvicorn app.main:app --reload
 ```
 
-The API is available at `http://localhost:8000`. Interactive docs at `http://localhost:8000/docs`.
+Open http://localhost:8000/docs in your browser to see the Swagger UI with all available endpoints, or verify the database connection at http://localhost:8000/health.
 
-## API Endpoints
+If you want to test with Postman, import the `ITE-API.postman_collection.json` file from the project root into Postman. It has all endpoints pre-configured.
 
-| Method   | Path            | Description       |
-|----------|-----------------|-------------------|
-| `GET`    | `/health`       | Health check      |
-| `GET`    | `/items/`       | List all items    |
-| `GET`    | `/items/{id}`   | Get item by ID    |
-| `POST`   | `/items/`       | Create a new item |
-| `PUT`    | `/items/{id}`   | Update an item    |
-| `DELETE` | `/items/{id}`   | Delete an item    |
+When you are done and want to clean up, run the teardown script to stop and remove the Docker container and image.
 
-## Configuration
-
-Set `DATABASE_URL` in `.env` or as an environment variable to override the default connection string.
+```powershell
+.\scripts\teardown-db.ps1
+```
