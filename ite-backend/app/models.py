@@ -29,6 +29,8 @@ class Attachment(Base):
     file_name: Mapped[str] = mapped_column(String(512), nullable=False)
     content_type: Mapped[str] = mapped_column(String(255), nullable=False)
     data: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
+    ocr_status: Mapped[str] = mapped_column(String(32), nullable=False, default="pending")
+    ocr_text: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
 
     tender: Mapped["Tender | None"] = relationship(back_populates="attachment")

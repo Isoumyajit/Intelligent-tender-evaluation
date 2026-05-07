@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, UploadFile, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -8,6 +8,7 @@ from app.database import get_db
 from app.models import Attachment, Tender
 from app.schemas import TenderListResponse, TenderResponse, TenderUpdate
 from app.services.audit_service import log_audit
+from app.services.ocr_service import run_ocr
 
 router = APIRouter(prefix="/tenders", tags=["tenders"])
 
@@ -16,6 +17,7 @@ router = APIRouter(prefix="/tenders", tags=["tenders"])
 async def create_tender(
     tender_name: str = Form(...),
     document: UploadFile = File(...),
+    background_tasks: BackgroundTasks = BackgroundTasks(),
     db: AsyncSession = Depends(get_db),
 ):
     file_bytes = await document.read()
@@ -44,6 +46,8 @@ async def create_tender(
 
     await db.commit()
     await db.refresh(tender)
+
+    background_tasks.add_task(run_ocr, attachment.attachment_ref_id)
 
     return tender
 

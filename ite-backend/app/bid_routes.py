@@ -1,7 +1,7 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, UploadFile, status
 from fastapi.responses import Response
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,6 +10,7 @@ from app.database import get_db
 from app.models import Attachment, Bid, BidAttachment, Tender
 from app.schemas import BidListResponse, BidResponse, BidUpdate
 from app.services.audit_service import log_audit
+from app.services.ocr_service import run_ocr
 
 router = APIRouter(prefix="/tenders/{tender_id}/bid", tags=["bids"])
 
@@ -27,6 +28,7 @@ async def create_bid(
     tender_id: UUID,
     bidder_name: Annotated[str, Form()],
     documents: Annotated[list[UploadFile], File(description="Upload one or more files")],
+    background_tasks: BackgroundTasks = BackgroundTasks(),
     db: AsyncSession = Depends(get_db),
 ):
     await _get_tender_or_404(tender_id, db)
@@ -65,6 +67,9 @@ async def create_bid(
 
     await db.commit()
     await db.refresh(bid)
+
+    for attachment in attachments:
+        background_tasks.add_task(run_ocr, attachment.attachment_ref_id)
 
     return _bid_to_response(bid)
 
@@ -136,6 +141,7 @@ async def add_bid_document(
     tender_id: UUID,
     bid_id: UUID,
     document: Annotated[UploadFile, File(description="Upload a file to add to the bid")],
+    background_tasks: BackgroundTasks = BackgroundTasks(),
     db: AsyncSession = Depends(get_db),
 ):
     bid = await _get_bid_or_404(tender_id, bid_id, db)
@@ -157,6 +163,9 @@ async def add_bid_document(
 
     await db.commit()
     await db.refresh(bid)
+
+    background_tasks.add_task(run_ocr, attachment.attachment_ref_id)
+
     return _bid_to_response(bid)
 
 

@@ -17,6 +17,8 @@ CREATE TABLE IF NOT EXISTS attachments (
     file_name          VARCHAR(512) NOT NULL,
     content_type       VARCHAR(255) NOT NULL,
     data               BYTEA NOT NULL,
+    ocr_status         VARCHAR(32) NOT NULL DEFAULT 'pending',
+    ocr_text           TEXT,
     created_at         TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
