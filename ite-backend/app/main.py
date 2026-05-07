@@ -3,6 +3,7 @@ import traceback
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -28,6 +29,19 @@ async def lifespan(application: FastAPI):
 
 
 app = FastAPI(title="ITE API", version="0.1.0", lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:4200",
+        "http://localhost:4250",
+        "http://127.0.0.1:4200",
+        "http://127.0.0.1:4250",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(router)
 app.include_router(tender_router)

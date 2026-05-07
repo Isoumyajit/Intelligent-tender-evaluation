@@ -307,6 +307,13 @@ button {
   --mdc-chip-outline-color: transparent;
 }
 
+.ite-status--closed {
+  --mdc-chip-elevated-container-color: color-mix(in srgb, #888 18%, transparent);
+  --mdc-chip-label-text-color: var(--mat-sys-on-surface-variant);
+  --mdc-chip-with-icon-icon-color: var(--mat-sys-on-surface-variant);
+  --mdc-chip-outline-color: transparent;
+}
+
 /* Accessibility */
 @media (prefers-reduced-motion: reduce) {
   *,

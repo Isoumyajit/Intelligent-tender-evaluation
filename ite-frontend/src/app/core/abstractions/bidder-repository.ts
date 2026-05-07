@@ -8,16 +8,13 @@ import {
 
 /**
  * Payload the UI sends when a new bidder has been added to a tender.
- * The fields are the user-facing inputs the dialog collects; the backend
- * is expected to fill in ranks, scores, and criterion evaluation.
+ * The files list is posted as a multipart body to the backend; the
+ * backend stores them as attachments against the bid row.
  */
 export interface AddBidderPayload {
   bidderName: string;
   uploadMode: 'folder' | 'zip';
-  /** Size of the submission in bytes (sum of files). Optional for now. */
-  totalSizeBytes?: number;
-  /** Count of files submitted. Optional for now. */
-  fileCount?: number;
+  files: File[];
 }
 
 export interface BidderRepository {

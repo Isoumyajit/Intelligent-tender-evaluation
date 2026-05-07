@@ -17,12 +17,9 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BIDDER_REPOSITORY } from '../../../core/abstractions/bidder-repository';
-import {
-  FileSizePipe,
-  formatFileSize,
-} from '../../../core/pipes/file-size.pipe';
+import { TENDER_REPOSITORY } from '../../../core/abstractions/tender-repository';
+import { FileSizePipe } from '../../../core/pipes/file-size.pipe';
 import { AppRoutes } from '../../../core/routing/app-routes';
-import { RefreshBus } from '../../../core/services/refresh-bus';
 import { BidderFormComponent } from '../bidder-form/bidder-form.component';
 
 /** Session-local snapshot of the tender the user just uploaded. The upload
@@ -65,7 +62,7 @@ export class IteTenderFormComponent implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
   private readonly bidderRepo = inject(BIDDER_REPOSITORY);
-  private readonly refresh = inject(RefreshBus);
+  private readonly tenderRepo = inject(TENDER_REPOSITORY);
 
   readonly routes = AppRoutes;
 
@@ -73,6 +70,7 @@ export class IteTenderFormComponent implements OnInit {
   uploadedFile: File | null = null;
   isDragOver = false;
   lastUploaded: SessionTender | null = null;
+  isUploading = false;
 
   constructor(private fb: FormBuilder) {}
 
@@ -114,27 +112,42 @@ export class IteTenderFormComponent implements OnInit {
   }
 
   onUploadTender() {
-    if (!this.form.valid || !this.uploadedFile) return;
+    if (!this.form.valid || !this.uploadedFile || this.isUploading) return;
 
-    // TODO: once TenderRepository gains a create() method the upload will
-    // go through it; for now we synthesize a session-local record so the
-    // right-panel has something to show.
-    this.lastUploaded = {
-      id: `SESSION-${Date.now().toString(36)}`,
-      name: this.form.get('tenderName')?.value,
-      fileName: this.uploadedFile.name,
-      fileSize: formatFileSize(this.uploadedFile.size),
-      uploadedDate: new Date().toISOString().split('T')[0],
-      biddersAdded: false,
-    };
+    const tenderName: string = this.form.get('tenderName')?.value;
+    const file = this.uploadedFile;
+    this.isUploading = true;
 
-    this.form.reset();
-    this.uploadedFile = null;
-    this.snackBar.open(
-      `Tender "${this.lastUploaded.name}" uploaded. Add bidders to start evaluation.`,
-      'Dismiss',
-      { duration: 4000, horizontalPosition: 'end', verticalPosition: 'bottom' },
-    );
+    this.tenderRepo.createWithDocument(tenderName, file).subscribe({
+      next: (created) => {
+        // Backend mints the real TEND-* id; persist it so the follow-up
+        // "Add bidders" dialog targets a row that actually exists.
+        this.lastUploaded = {
+          id: created.id,
+          name: created.name,
+          fileName: created.documentName,
+          fileSize: created.documentSize,
+          uploadedDate: created.uploadedDate,
+          biddersAdded: false,
+        };
+        this.form.reset();
+        this.uploadedFile = null;
+        this.isUploading = false;
+        this.snackBar.open(
+          `Tender "${created.name}" saved. Add bidders to start evaluation.`,
+          'Dismiss',
+          { duration: 4000, horizontalPosition: 'end', verticalPosition: 'bottom' },
+        );
+      },
+      error: () => {
+        this.isUploading = false;
+        this.snackBar.open(
+          'Upload failed. Please try again.',
+          'Dismiss',
+          { duration: 4000, horizontalPosition: 'end', verticalPosition: 'bottom' },
+        );
+      },
+    });
   }
 
   openBidderDialog(): void {
@@ -156,14 +169,7 @@ export class IteTenderFormComponent implements OnInit {
         .addBidderToTender(tender.id, {
           bidderName: result.bidderName ?? 'New bidder',
           uploadMode: result.uploadMode ?? 'folder',
-          fileCount: result.groups?.reduce(
-            (s: number, g: { fileCount?: number }) => s + (g.fileCount ?? 0),
-            0,
-          ),
-          totalSizeBytes: result.groups?.reduce(
-            (s: number, g: { totalSize?: number }) => s + (g.totalSize ?? 0),
-            0,
-          ),
+          files: result.files ?? [],
         })
         .subscribe(() => {
           if (this.lastUploaded && this.lastUploaded.id === tender.id) {

@@ -175,9 +175,9 @@
 
   &__grid {
     display: grid;
-    grid-template-columns: minmax(0, 1.4fr) minmax(260px, 1fr) auto;
+    grid-template-columns: minmax(0, 1.4fr) minmax(240px, 1fr) minmax(180px, auto);
     gap: var(--ite-spacing-lg);
-    align-items: center;
+    align-items: start;
     padding: var(--ite-spacing-md) var(--ite-spacing-lg) !important;
   }
 
@@ -198,12 +198,6 @@
       font-size: 1.02rem;
       color: var(--mat-sys-on-surface);
     }
-  }
-
-  &__ref {
-    margin: 0;
-    font-size: 0.85rem;
-    color: var(--mat-sys-on-surface-variant);
   }
 
   &__next {
@@ -260,7 +254,24 @@
 
   &__action {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    gap: var(--ite-spacing-xs);
+    align-items: stretch;
+    justify-self: end;
+    min-width: 180px;
+  }
+
+  &__action button {
+    justify-content: center;
+  }
+
+  &__ref {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--mat-sys-on-surface-variant);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 
@@ -278,5 +289,24 @@
 
   .row__action button {
     width: 100%;
+  }
+}
+
+.row__progress-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.spin {
+  animation: ite-spin 1.2s linear infinite;
+  font-size: 1rem;
+  width: 1rem;
+  height: 1rem;
+}
+
+@keyframes ite-spin {
+  to {
+    transform: rotate(360deg);
   }
 }

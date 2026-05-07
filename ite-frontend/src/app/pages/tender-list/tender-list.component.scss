@@ -57,6 +57,11 @@
   flex: 1 1 320px;
 }
 
+.stage-select {
+  width: 220px;
+  flex-shrink: 0;
+}
+
 .filter-bar__live {
   flex-shrink: 0;
 }
@@ -85,6 +90,22 @@
     box-shadow: var(--ite-shadow-md);
     transform: translateY(-2px);
     outline: none;
+  }
+
+  &--closed {
+    opacity: 0.72;
+    background: var(--mat-sys-surface-container-low, #f6f6fa);
+
+    &:hover,
+    &:focus-visible {
+      opacity: 0.85;
+      transform: none;
+      border-color: var(--ite-border);
+    }
+
+    h2 {
+      color: var(--mat-sys-on-surface-variant);
+    }
   }
 
   h2 {
@@ -148,23 +169,179 @@
 
   &__footer {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: var(--ite-spacing-sm);
+    flex-direction: column;
+    gap: var(--ite-spacing-sm);
+    margin-top: auto;
+    padding-top: var(--ite-spacing-sm);
+  }
 
-    > span {
+  &__doc {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.82rem;
+    min-width: 0;
+
+    mat-icon {
+      font-size: 0.95rem;
+      width: 0.95rem;
+      height: 0.95rem;
+      flex-shrink: 0;
+    }
+  }
+
+  &__doc-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+
+  &__actions {
+    display: flex;
+    gap: var(--ite-spacing-xs);
+    align-items: center;
+    justify-content: flex-end;
+    min-height: 40px;
+
+    // Match icon-button height to flat-button so they line up visually.
+    .mat-mdc-icon-button {
+      width: 40px;
+      height: 40px;
+      padding: 0;
       display: inline-flex;
       align-items: center;
-      gap: 0.3rem;
-      font-size: 0.82rem;
+      justify-content: center;
+      flex-shrink: 0;
+    }
 
-      mat-icon {
-        font-size: 0.95rem;
-        width: 0.95rem;
-        height: 0.95rem;
+    .mat-mdc-icon-button .mat-icon {
+      margin: 0;
+    }
+  }
+
+  &__primary {
+    flex: 1 1 auto;
+    min-width: 0;
+    justify-content: center;
+  }
+
+  &__scan {
+    margin-top: var(--ite-spacing-sm);
+    display: flex;
+    align-items: center;
+    gap: var(--ite-spacing-md);
+    padding: var(--ite-spacing-sm) var(--ite-spacing-md);
+    border-radius: var(--ite-radius-md);
+    background: color-mix(in srgb, var(--ite-primary) 6%, transparent);
+    border: 1px solid color-mix(in srgb, var(--ite-primary) 18%, transparent);
+  }
+
+  &__scan-doc {
+    position: relative;
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    background: var(--ite-surface);
+    border: 1px solid color-mix(in srgb, var(--ite-primary) 30%, transparent);
+    overflow: hidden;
+    flex-shrink: 0;
+
+    mat-icon {
+      position: absolute;
+      inset: 0;
+      margin: auto;
+      color: var(--ite-primary);
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
+    }
+  }
+
+  &__scan-beam {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--ite-primary),
+      transparent
+    );
+    box-shadow: 0 0 8px color-mix(in srgb, var(--ite-primary) 60%, transparent);
+    animation: ite-scan 1.6s ease-in-out infinite;
+  }
+
+  &__scan-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+
+    strong {
+      font-size: 0.88rem;
+      color: var(--mat-sys-on-surface);
+    }
+  }
+
+  &__scan-dots {
+    display: inline-flex;
+    gap: 4px;
+
+    span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--ite-primary);
+      opacity: 0.3;
+      animation: ite-dot-pulse 1.2s ease-in-out infinite;
+
+      &:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      &:nth-child(3) {
+        animation-delay: 0.4s;
       }
     }
+  }
+}
+
+@keyframes ite-scan {
+  0% {
+    top: 0;
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0.3;
+  }
+}
+
+@keyframes ite-dot-pulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.spin {
+  animation: ite-spin 1.2s linear infinite;
+  font-size: 1rem;
+  width: 1rem;
+  height: 1rem;
+}
+
+@keyframes ite-spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
