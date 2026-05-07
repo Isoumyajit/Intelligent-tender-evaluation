@@ -1,75 +1,78 @@
 # ITE Frontend
 
-Intelligent Tender Evaluation frontend — an Angular 19 single-page application built with Angular Material and SCSS.
+Angular 19 single-page application for the Intelligent Tender Evaluation platform. Provides a modern UI for tender management, bidder evaluation review, document viewing, and audit trail inspection.
+
+## Tech Stack
+
+- **Angular** 19
+- **Angular Material** 19
+- **TypeScript** 5.7
+- **SCSS** for styling
+- **RxJS** 7.8
 
 ## Prerequisites
 
-- **Node.js** >= 18.x (LTS recommended)
-- **npm** >= 9.x (ships with Node)
+| Tool    | Version | Check Command        |
+|---------|---------|----------------------|
+| Node.js | 18.x+  | `node --version`     |
+| npm     | 9.x+   | `npm --version`      |
 
-> The Angular CLI is installed as a local dev dependency — no global install required.
+### Install Node.js
 
-## Getting Started
+**macOS:**
+```bash
+brew install node
+```
 
-### 1. Install dependencies
+**Windows:**
+Download from https://nodejs.org/ (LTS version). The installer includes npm.
+
+**Linux (Ubuntu/Debian):**
+```bash
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt install -y nodejs
+```
+
+## Setup
+
+### 1. Install Dependencies
 
 ```bash
 cd ite-frontend
 npm install
 ```
 
-### 2. Configure the API base URL
+### 2. Configure Environment
 
-The app reads its API base URL from TypeScript environment files in `src/environments/`.
+The API base URL is configured in `src/environments/environment.ts`:
 
-| File | Default `apiBaseUrl` | Used when |
-|------|---------------------|-----------|
-| `environment.ts` | `http://localhost:8000` | Development (`ng serve`) |
-| `environment.prod.ts` | *(empty)* | Production build (`ng build`) |
+```typescript
+export const environment = {
+  production: false,
+  apiBaseUrl: 'http://localhost:8000',
+};
+```
 
-For local development the default points to `http://localhost:8000` — make sure the backend is running on that port (or update the URL to match your setup).
+No changes needed if the backend runs on the default port 8000.
 
-For production, set `apiBaseUrl` in `environment.prod.ts` to the deployed backend URL before building, or serve the frontend behind a reverse proxy that routes `/api` to the backend.
-
-### 3. Start the development server
+### 3. Start Development Server
 
 ```bash
 npm start
 ```
 
-This runs `ng serve` under the hood. Open your browser at **http://localhost:4200/** — the app will live-reload on file changes.
+The app runs at **http://localhost:4200** and auto-reloads on code changes.
+
+> **Prerequisite:** The backend must be running on port 8000 before using the frontend.
 
 ## Available Scripts
 
-| Command | Description |
-|---------|-------------|
-| `npm start` | Start the dev server on port 4200 |
-| `npm run build` | Production build → `dist/ite-frontend/` |
-| `npm run watch` | Incremental dev build (watches for changes) |
-| `npm test` | Run unit tests with Karma + Jasmine |
-
-## Production Build
-
-```bash
-npm run build
-```
-
-Build artifacts are written to `dist/ite-frontend/`. The browser-ready bundle is in `dist/ite-frontend/browser/` — serve this directory with any static file server.
-
-## Deployment (Vercel)
-
-A `vercel.json` is included with:
-
-- Build command: `npm run build`
-- Output directory: `dist/ite-frontend/browser`
-- SPA fallback rewrite to `index.html`
-- Cache and security headers
-
-To deploy, connect the repo to Vercel or run:
-
-```bash
-npx vercel
-```
+| Command           | Description                              |
+|-------------------|------------------------------------------|
+| `npm start`       | Start dev server on port 4200            |
+| `npm run build`   | Production build to `dist/ite-frontend/` |
+| `npm run watch`   | Dev build with file watching             |
+| `npm test`        | Run unit tests via Karma                 |
 
 ## Project Structure
 
@@ -77,35 +80,79 @@ npx vercel
 ite-frontend/
 ├── src/
 │   ├── app/
-│   │   ├── core/           # Services, models, HTTP interceptors, pipes
-│   │   ├── pages/          # Feature route modules (dashboard, evaluations, uploads, etc.)
-│   │   ├── shared/         # Reusable components (header, footer, dialogs, document viewer)
-│   │   ├── app.component.* # Root component
-│   │   ├── app.config.ts   # App configuration (providers)
-│   │   └── app.routes.ts   # Route definitions
-│   ├── environments/       # Environment-specific config (dev / prod)
-│   ├── styles.scss          # Global styles
-│   ├── index.html
-│   └── main.ts             # Bootstrap entry point
-├── angular.json            # Angular CLI workspace config
-├── tsconfig.json           # TypeScript base config
-├── vercel.json             # Vercel deployment config
-└── package.json
+│   │   ├── core/
+│   │   │   ├── abstractions/       # Repository & renderer interfaces
+│   │   │   ├── models/             # TypeScript interfaces & types
+│   │   │   ├── services/           # HTTP repositories, state stores
+│   │   │   ├── routing/            # Route definitions & helpers
+│   │   │   ├── registry/           # Status descriptors & config
+│   │   │   ├── evaluation/         # Scoring utilities
+│   │   │   └── pipes/              # Custom Angular pipes
+│   │   ├── pages/
+│   │   │   ├── dashboard/          # Landing page with quick stats
+│   │   │   ├── uploads/            # Tender upload + bidder form
+│   │   │   ├── evaluations/        # Evaluation pipeline tracker
+│   │   │   ├── tender-list/        # Processed tenders list
+│   │   │   ├── bidder-list/        # Bidder cards + actions
+│   │   │   ├── bidder-documents/   # Bidder document browser
+│   │   │   ├── evaluation-report/  # Per-bidder evaluation report
+│   │   │   └── audit-logs/         # Global audit log viewer
+│   │   ├── shared/
+│   │   │   ├── document-viewer/    # Embedded document viewer
+│   │   │   ├── evidence-panel/     # Criterion evidence side panel
+│   │   │   ├── header/             # App header with navigation
+│   │   │   ├── footer/             # App footer
+│   │   │   ├── breadcrumb/         # Breadcrumb navigation
+│   │   │   ├── loading-panel/      # Loading state component
+│   │   │   └── confirm-dialog/     # Confirmation dialog
+│   │   ├── app.component.ts        # Root component
+│   │   ├── app.config.ts           # DI providers & config
+│   │   └── app.routes.ts           # Route table
+│   ├── environments/
+│   │   ├── environment.ts          # Dev config (apiBaseUrl)
+│   │   └── environment.prod.ts     # Production config
+│   ├── styles.scss                 # Global styles & theme
+│   └── main.ts                     # Bootstrap entry point
+├── public/                         # Static assets
+├── angular.json                    # Angular CLI config
+├── package.json                    # Dependencies & scripts
+└── tsconfig.json                   # TypeScript config
 ```
 
-## Running Tests
+## Key Features
+
+- **Dashboard** with quick stats (waiting for bidders, being evaluated, ready for review)
+- **Tender Upload** with drag-and-drop, inline bidder submission
+- **Evaluation Pipeline** tracking with real-time progress
+- **Evaluation Report** with category tabs, per-criterion status, collapsible tender requirements
+- **Evidence Panel** with multi-document tabs, page navigation, and document viewer
+- **Document Viewer** supporting PDF (per-page), DOCX, images, and plain text
+- **Audit Trail** with timeline view and CSV export
+- **Officer Actions**: approve/disqualify bidders, override individual criteria
+
+## Production Build
 
 ```bash
-npm test
+npm run build
 ```
 
-This launches Karma with Jasmine in a Chrome browser. Test files follow the `*.spec.ts` naming convention and live alongside the source files they test.
+Output is in `dist/ite-frontend/browser/`. Serve with any static file server (Nginx, Vercel, etc.).
 
-## Tech Stack
+For production, update `src/environments/environment.prod.ts` with your backend URL:
 
-- **Angular** 19 (standalone components)
-- **Angular Material** / CDK
-- **RxJS** 7.8
-- **TypeScript** 5.7
-- **SCSS** for styling
-- **Karma + Jasmine** for unit tests
+```typescript
+export const environment = {
+  production: true,
+  apiBaseUrl: 'https://your-api-domain.com',
+};
+```
+
+## Common Issues
+
+| Issue | Fix |
+|-------|-----|
+| `npm install` fails | Delete `node_modules/` and `package-lock.json`, retry |
+| API calls fail | Ensure backend is running on port 8000 |
+| Port 4200 in use | `npx kill-port 4200` or use `ng serve --port 4250` |
+| SCSS compilation errors | Check Node.js version is 18+ |
+| Blank page after build | Check browser console for CORS errors; verify backend CORS config |
