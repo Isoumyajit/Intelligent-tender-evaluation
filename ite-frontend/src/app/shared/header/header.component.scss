@@ -24,7 +24,14 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--ite-spacing-lg);
-  padding: var(--ite-spacing-md) 0;
+  padding: 8px 0;
+}
+
+.ite-brand-title {
+  margin: 0;
+  font-size: 1.05rem;
+  color: var(--ite-primary);
+  font-weight: 700;
 }
 
 .ite-brand-block {
@@ -58,6 +65,12 @@
     margin: 0;
     font-size: 0.78rem;
     color: var(--ite-text-secondary);
+  }
+
+  .ite-team {
+    font-size: 0.78rem;
+    color: var(--ite-text-secondary);
+    font-weight: 400;
   }
 }
 

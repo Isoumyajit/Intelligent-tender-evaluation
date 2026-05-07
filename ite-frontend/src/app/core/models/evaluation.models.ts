@@ -6,7 +6,7 @@ export type TenderStatus =
   | 'On Hold'
   | 'Closed';
 
-export type CriterionStatus = 'passed' | 'failed' | 'partial';
+export type CriterionStatus = 'passed' | 'failed' | 'partial' | 'missing-document';
 
 export type CriterionCategory =
   | 'Eligibility'
@@ -36,6 +36,7 @@ export interface ProcessedTender {
 
 export interface DocumentEvidence {
   documentName: string;
+  fileName?: string;
   pageOrSection: string;
   excerpt: string;
   extractedValue?: string;
@@ -47,6 +48,7 @@ export interface EvaluationCriterion {
   category: CriterionCategory;
   title: string;
   requirement: string;
+  isMandatory?: boolean;
   status: CriterionStatus;
   weight: number;
   score: number;
@@ -70,6 +72,7 @@ export interface BidderSummary {
   confidenceScore: number;
   rank: number;
   overallStatus: BidderOverallStatus;
+  approvalStatus?: string;
   technicalScore: number;
   financialScore: number;
   complianceScore: number;

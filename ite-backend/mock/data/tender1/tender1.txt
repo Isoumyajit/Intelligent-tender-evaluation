@@ -26,3 +26,11 @@ date of Start of Bid and Bid Submission end Date)
 (f) 
 Affidavit on Correctness of Information submitted with the bid duly Notarized with 
 indicating Name of the work and e-NIT No. (As per Annexure-A). 
+
+The following documents are optional and preferred but not mandatory:
+(g) 
+ISO 9001:2015 Quality Management certification is desirable. Bidders with valid 
+ISO certification will receive preferential scoring.
+(h)
+Previous work experience certificate from a Government department is preferred 
+but not required. Submission of at least 3 completed project references is optional.

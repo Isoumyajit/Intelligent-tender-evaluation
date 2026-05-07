@@ -163,8 +163,8 @@
             <span>{{ tender.name }}</span>
             <span>{{ tender.authority }}</span>
             <span>{{ tender.biddersCount }}</span>
-            <mat-chip class="{{ describe(tender.status).tone }}" disableRipple>
-              {{ describe(tender.status).label }}
+            <mat-chip class="{{ stageTone(stageOf(tender)) }}" disableRipple>
+              {{ stageLabel(stageOf(tender)) }}
             </mat-chip>
           </div>
           @if (!last) {

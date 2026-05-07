@@ -4,7 +4,9 @@ import {
   EventEmitter,
   HostListener,
   Input,
+  OnChanges,
   Output,
+  SimpleChanges,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
@@ -12,6 +14,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import {
   CriterionStatus,
+  DocumentEvidence,
   EvaluationCriterion,
 } from '../../core/models/evaluation.models';
 import { DocumentViewerComponent } from '../document-viewer/document-viewer.component';
@@ -42,25 +45,59 @@ import { DocumentViewerComponent } from '../document-viewer/document-viewer.comp
   templateUrl: './evidence-panel.component.html',
   styleUrl: './evidence-panel.component.scss',
 })
-export class EvidencePanelComponent {
+export class EvidencePanelComponent implements OnChanges {
   @Input() criterion: EvaluationCriterion | null = null;
   @Output() closed = new EventEmitter<void>();
 
+  selectedDocIndex = 0;
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['criterion']) {
+      this.selectedDocIndex = 0;
+    }
+  }
+
+  get selectedEvidence() {
+    return this.criterion?.evidence[this.selectedDocIndex] ?? null;
+  }
+
+  selectDoc(index: number): void {
+    this.selectedDocIndex = index;
+  }
+
+  docDisplayName(ev: DocumentEvidence): string {
+    return ev.fileName || ev.documentName.split('/').pop() || ev.documentName;
+  }
+
   statusClass(status: CriterionStatus): string {
     if (status === 'passed') return 'ite-status--pass';
-    if (status === 'failed') return 'ite-status--fail';
+    if (status === 'failed' || status === 'missing-document') return 'ite-status--fail';
     return 'ite-status--partial';
+  }
+
+  reasonClass(status: CriterionStatus): string {
+    if (status === 'passed') return 'evidence-panel__reason--pass';
+    if (status === 'failed' || status === 'missing-document') return 'evidence-panel__reason--fail';
+    return 'evidence-panel__reason--review';
+  }
+
+  reasonIcon(status: CriterionStatus): string {
+    if (status === 'passed') return 'check_circle';
+    if (status === 'failed' || status === 'missing-document') return 'error';
+    return 'info';
   }
 
   statusLabel(status: CriterionStatus): string {
     if (status === 'passed') return 'Passed';
     if (status === 'failed') return 'Not matched';
-    return 'Partial match';
+    if (status === 'missing-document') return 'Document not submitted';
+    return 'Review required';
   }
 
   statusIcon(status: CriterionStatus): string {
     if (status === 'passed') return 'check_circle';
     if (status === 'failed') return 'cancel';
+    if (status === 'missing-document') return 'file_present';
     return 'error';
   }
 

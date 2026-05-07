@@ -9,33 +9,16 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { BIDDER_REPOSITORY } from '../../../core/abstractions/bidder-repository';
 import { TENDER_REPOSITORY } from '../../../core/abstractions/tender-repository';
+import { ProcessedTender } from '../../../core/models/evaluation.models';
 import { FileSizePipe } from '../../../core/pipes/file-size.pipe';
 import { AppRoutes } from '../../../core/routing/app-routes';
-import { BidderFormComponent } from '../bidder-form/bidder-form.component';
-
-/** Session-local snapshot of the tender the user just uploaded. The upload
- *  page no longer keeps a full list — processed/pending tenders live on the
- *  Evaluations page (for in-flight work) and Processed Tenders (for the
- *  archive). Only the most recent upload shows here, so the officer can
- *  add bidders in the same session without switching pages. */
-interface SessionTender {
-  /** Server-side id once the real backend returns one. Session-only for now. */
-  id: string;
-  name: string;
-  fileName: string;
-  fileSize: string;
-  uploadedDate: string;
-  biddersAdded: boolean;
-}
 
 @Component({
   selector: 'app-ite-tender-form',
@@ -50,7 +33,6 @@ interface SessionTender {
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
-    MatDialogModule,
     MatSnackBarModule,
     FileSizePipe,
   ],
@@ -60,8 +42,6 @@ interface SessionTender {
 export class IteTenderFormComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
-  private readonly dialog = inject(MatDialog);
-  private readonly bidderRepo = inject(BIDDER_REPOSITORY);
   private readonly tenderRepo = inject(TENDER_REPOSITORY);
 
   readonly routes = AppRoutes;
@@ -69,7 +49,7 @@ export class IteTenderFormComponent implements OnInit {
   form!: FormGroup;
   uploadedFile: File | null = null;
   isDragOver = false;
-  lastUploaded: SessionTender | null = null;
+  lastUploaded: ProcessedTender | null = null;
   isUploading = false;
 
   constructor(private fb: FormBuilder) {}
@@ -120,21 +100,12 @@ export class IteTenderFormComponent implements OnInit {
 
     this.tenderRepo.createWithDocument(tenderName, file).subscribe({
       next: (created) => {
-        // Backend mints the real TEND-* id; persist it so the follow-up
-        // "Add bidders" dialog targets a row that actually exists.
-        this.lastUploaded = {
-          id: created.id,
-          name: created.name,
-          fileName: created.documentName,
-          fileSize: created.documentSize,
-          uploadedDate: created.uploadedDate,
-          biddersAdded: false,
-        };
+        this.lastUploaded = created;
         this.form.reset();
         this.uploadedFile = null;
         this.isUploading = false;
         this.snackBar.open(
-          `Tender "${created.name}" saved. Add bidders to start evaluation.`,
+          `Tender "${created.name}" saved. Open tender view to add bidders.`,
           'Dismiss',
           { duration: 4000, horizontalPosition: 'end', verticalPosition: 'bottom' },
         );
@@ -150,41 +121,17 @@ export class IteTenderFormComponent implements OnInit {
     });
   }
 
-  openBidderDialog(): void {
-    if (!this.lastUploaded) return;
-    const tender = this.lastUploaded;
-
-    const ref = this.dialog.open(BidderFormComponent, {
-      width: '960px',
-      maxWidth: '92vw',
-      minHeight: '68vh',
-      maxHeight: '92vh',
-      panelClass: 'ite-bidder-dialog',
-      data: { tenderId: tender.id, tenderName: tender.name },
-    });
-
-    ref.afterClosed().subscribe((result) => {
-      if (!result) return;
-      this.bidderRepo
-        .addBidderToTender(tender.id, {
-          bidderName: result.bidderName ?? 'New bidder',
-          uploadMode: result.uploadMode ?? 'folder',
-          files: result.files ?? [],
-        })
-        .subscribe(() => {
-          if (this.lastUploaded && this.lastUploaded.id === tender.id) {
-            this.lastUploaded = { ...this.lastUploaded, biddersAdded: true };
-          }
-        });
-    });
-  }
-
   goToEvaluations(): void {
     this.router.navigate(AppRoutes.evaluations());
   }
 
   goToTenders(): void {
     this.router.navigate(AppRoutes.tenders());
+  }
+
+  goToUploadedTender(): void {
+    if (!this.lastUploaded) return;
+    this.router.navigate(AppRoutes.uploadTenderBidders(this.lastUploaded.id));
   }
 
   private setFile(file: File) {

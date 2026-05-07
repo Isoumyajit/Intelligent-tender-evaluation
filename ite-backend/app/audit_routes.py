@@ -1,7 +1,8 @@
 from enum import Enum
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, status
+from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,6 +11,13 @@ from app.models import AuditLog
 from app.schemas import AuditLogResponse
 
 router = APIRouter(prefix="/audits", tags=["audits"])
+
+
+class AuditLogRequest(BaseModel):
+    tender_id: UUID
+    bidder_id: UUID | None = None
+    event: str
+    audit_desc: str
 
 
 class SortOrder(str, Enum):
@@ -35,3 +43,20 @@ async def list_audits(
 
     result = await db.execute(stmt)
     return result.scalars().all()
+
+
+@router.post("/", response_model=AuditLogResponse, status_code=status.HTTP_201_CREATED)
+async def create_audit(
+    payload: AuditLogRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    log = AuditLog(
+        tender_id=payload.tender_id,
+        bidder_id=payload.bidder_id,
+        event=payload.event,
+        audit_desc=payload.audit_desc,
+    )
+    db.add(log)
+    await db.commit()
+    await db.refresh(log)
+    return log

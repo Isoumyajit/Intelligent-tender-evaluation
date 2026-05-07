@@ -65,6 +65,8 @@ class Bid(Base):
         UUID(as_uuid=True), ForeignKey("tenders.tender_id", ondelete="CASCADE"), nullable=False
     )
     bidder_name: Mapped[str] = mapped_column(String(512), nullable=False)
+    approval_status: Mapped[str] = mapped_column(String(32), nullable=False, default="pending")
+    approval_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -181,4 +183,22 @@ class AuditLog(Base):
     )
     event: Mapped[str] = mapped_column(String(64), nullable=False)
     audit_desc: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+
+
+class EvaluationOverride(Base):
+    __tablename__ = "evaluation_overrides"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    tender_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("tenders.tender_id", ondelete="CASCADE"), nullable=False
+    )
+    bid_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("bids.bid_id", ondelete="CASCADE"), nullable=False
+    )
+    condition_name: Mapped[str] = mapped_column(String(512), nullable=False)
+    override_status: Mapped[str] = mapped_column(String(32), nullable=False)
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)

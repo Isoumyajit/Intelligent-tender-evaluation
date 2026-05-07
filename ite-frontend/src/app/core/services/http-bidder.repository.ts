@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { Observable, forkJoin, of } from 'rxjs';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import {
   AddBidderPayload,
@@ -44,31 +44,56 @@ export class HttpBidderRepository implements BidderRepository {
       .get<BidListRow[]>(
         `${this.base}/tenders/${encodeURIComponent(tenderId)}/bid/`,
       )
-      .pipe(map((rows) => rows.map((r) => this.adaptList(r))));
+      .pipe(
+        switchMap((rows) => {
+          if (rows.length === 0) return of([]);
+          return forkJoin(
+            rows.map((r) =>
+              this.http
+                .get<BidderSummary>(
+                  `${this.base}/tenders/${encodeURIComponent(tenderId)}/bid/${encodeURIComponent(r.bid_id)}/evaluation`,
+                )
+                .pipe(catchError(() => of(this.adaptList(r)))),
+            ),
+          );
+        }),
+      );
   }
 
-  /**
-   * The backend does not expose evaluation criteria/scores today, so the
-   * richer evaluation payload is not available. Return undefined and let
-   * the report page render its empty state.
-   */
   getEvaluation(
-    _tenderId: string,
-    _bidderId: string,
+    tenderId: string,
+    bidderId: string,
   ): Observable<BidderEvaluation | undefined> {
-    return of(undefined);
+    return this.http
+      .get<BidderEvaluation>(
+        `${this.base}/tenders/${encodeURIComponent(tenderId)}/bid/${encodeURIComponent(bidderId)}/evaluation`,
+      )
+      .pipe(catchError(() => of(undefined)));
   }
 
-  /**
-   * The backend stores attachments against a bid but the detailed
-   * per-document view (mime, size, category, description) isn't exposed.
-   * Return an empty list until that endpoint exists.
-   */
   listDocuments(
-    _tenderId: string,
-    _bidderId: string,
+    tenderId: string,
+    bidderId: string,
   ): Observable<BidderDocument[]> {
-    return of([]);
+    return this.http
+      .get<BidDetail>(
+        `${this.base}/tenders/${encodeURIComponent(tenderId)}/bid/${encodeURIComponent(bidderId)}`,
+      )
+      .pipe(
+        map((detail) =>
+          (detail.attachments ?? []).map((att) => ({
+            id: att.attachment_ref_id,
+            tenderId,
+            bidderId,
+            fileName: att.file_name,
+            mimeType: att.content_type,
+            sizeBytes: 0,
+            uploadedOn: att.created_at.split('T')[0] ?? '',
+            category: 'Other' as const,
+          })),
+        ),
+        catchError(() => of([])),
+      );
   }
 
   addBidderToTender(

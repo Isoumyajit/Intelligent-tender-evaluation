@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -12,7 +13,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { Observable, forkJoin, merge, of } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { catchError, map, switchMap } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
 import { BIDDER_REPOSITORY } from '../../core/abstractions/bidder-repository';
 import { TENDER_REPOSITORY } from '../../core/abstractions/tender-repository';
 import { ProcessedTender } from '../../core/models/evaluation.models';
@@ -44,10 +46,18 @@ type BucketFilter = 'all' | TenderStatusDescriptor['bucket'];
 type SortKey = 'progress' | 'stage' | 'bidders';
 
 interface EvaluationRow {
-  tender: ProcessedTender;
+  tender: EvaluationTender;
   descriptor: TenderStatusDescriptor;
   progress: number;
 }
+
+interface LatestTenderJob {
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+}
+
+type EvaluationTender = ProcessedTender & {
+  latestJobStatus?: LatestTenderJob['status'] | null;
+};
 
 @Component({
   selector: 'app-evaluations',
@@ -77,17 +87,19 @@ export class EvaluationsComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly tenderRepo = inject(TENDER_REPOSITORY);
   private readonly bidderRepo = inject(BIDDER_REPOSITORY);
+  private readonly http = inject(HttpClient);
   private readonly refresh = inject(RefreshBus);
   private readonly dialog = inject(MatDialog);
   private readonly stages = inject(TenderStageStore);
   private readonly progressSvc = inject(TenderEvaluationProgressService);
   private readonly snack = inject(MatSnackBar);
+  private readonly base = environment.apiBaseUrl;
 
   readonly routes = AppRoutes;
   readonly crumbs: BreadcrumbSegment[] = [{ label: 'Evaluations in progress' }];
 
   rows: EvaluationRow[] = [];
-  state$!: Observable<LoadState<ProcessedTender[]>>;
+  state$!: Observable<LoadState<EvaluationTender[]>>;
 
   activeFilter: BucketFilter = 'all';
   sortBy: SortKey = 'progress';
@@ -112,8 +124,15 @@ export class EvaluationsComponent implements OnInit {
           ? of([] as ProcessedTender[])
           : forkJoin(
               tenders.map((t) =>
-                this.bidderRepo.listForTender(t.id).pipe(
-                  map((bidders) => ({ ...t, biddersCount: bidders.length })),
+                forkJoin({
+                  bidders: this.bidderRepo.listForTender(t.id),
+                  latestJob: this.latestJobForTender(t.id),
+                }).pipe(
+                  map(({ bidders, latestJob }) => ({
+                    ...t,
+                    biddersCount: bidders.length,
+                    latestJobStatus: latestJob?.status ?? null,
+                  })),
                 ),
               ),
             ),
@@ -123,12 +142,28 @@ export class EvaluationsComponent implements OnInit {
     this.state$.subscribe((s) => {
       if (s.status !== 'success') return;
       this.rows = s.data
-        .filter((t) => isInProgress(t.status))
-        .map((t) => ({
-          tender: t,
-          descriptor: describeStatus(t.status),
-          progress: progressForStatus(t.status),
-        }));
+        .filter((t) => isInProgress(t.status) && this.stages.get(t.id) !== 'closed')
+        .map((t) => {
+          const stage = this.stageOf(t);
+          let desc = { ...describeStatus('Pending Review'), label: 'Fresh' };
+          if (stage === 'in-evaluation') {
+            desc = { ...desc, bucket: 'being-evaluated', label: 'Being evaluated', tone: 'ite-status--neutral' };
+          } else if (stage === 'evaluated') {
+            desc = { ...desc, bucket: 'ready-for-review', label: 'Evaluated', tone: 'ite-status--pass' };
+          } else if (t.biddersCount > 0) {
+            desc = { ...desc, bucket: 'ready-to-evaluate', label: 'Ready to evaluate', tone: 'ite-status--pass' };
+          }
+          return {
+            tender: t,
+            descriptor: desc,
+            progress:
+              stage === 'in-evaluation'
+                ? (this.progressSvc.snapshot(t.id) || 10)
+                : stage === 'evaluated'
+                  ? 100
+                  : progressForStatus('Pending Review'),
+          };
+        });
     });
 
     this.progressSvc.errors$.subscribe(({ message }) => {
@@ -186,6 +221,7 @@ export class EvaluationsComponent implements OnInit {
     return (
       value === 'all' ||
       value === 'waiting-for-bidders' ||
+      value === 'ready-to-evaluate' ||
       value === 'being-evaluated' ||
       value === 'ready-for-review'
     );
@@ -193,11 +229,22 @@ export class EvaluationsComponent implements OnInit {
 
   openDetail(row: EvaluationRow, event?: Event): void {
     event?.stopPropagation();
-    this.router.navigate(AppRoutes.tenderBidders(row.tender.id));
+    this.router.navigate(AppRoutes.uploadTenderBidders(row.tender.id));
   }
 
-  stageOf(tender: ProcessedTender): TenderStage {
-    return this.stages.get(tender.id);
+  stageOf(tender: EvaluationTender): TenderStage {
+    if (tender.latestJobStatus === 'pending' || tender.latestJobStatus === 'processing') {
+      return 'in-evaluation';
+    }
+    if (tender.latestJobStatus === 'completed') {
+      return 'evaluated';
+    }
+    const localStage = this.stages.get(tender.id);
+    if (localStage === 'closed') return 'closed';
+    if (localStage === 'in-evaluation' && this.progressSvc.snapshot(tender.id) > 0) {
+      return 'in-evaluation';
+    }
+    return 'fresh';
   }
 
   stageLabel(stage: TenderStage): string {
@@ -277,6 +324,14 @@ export class EvaluationsComponent implements OnInit {
     });
   }
 
+  private latestJobForTender(tenderId: string): Observable<LatestTenderJob | null> {
+    return this.http
+      .get<LatestTenderJob>(
+        `${this.base}/process-tender/tender/${encodeURIComponent(tenderId)}/latest`,
+      )
+      .pipe(catchError(() => of(null)));
+  }
+
   // Exposed so the template can render the three bucket chips in fixed order.
   readonly buckets = IN_PROGRESS_BUCKETS;
 
@@ -284,6 +339,8 @@ export class EvaluationsComponent implements OnInit {
     switch (bucket) {
       case 'waiting-for-bidders':
         return 'Waiting for bidders';
+      case 'ready-to-evaluate':
+        return 'Ready to evaluate';
       case 'being-evaluated':
         return 'Being evaluated';
       case 'ready-for-review':
@@ -297,6 +354,8 @@ export class EvaluationsComponent implements OnInit {
     switch (bucket) {
       case 'waiting-for-bidders':
         return 'ite-status--partial';
+      case 'ready-to-evaluate':
+        return 'ite-status--pass';
       case 'being-evaluated':
         return 'ite-status--neutral';
       case 'ready-for-review':

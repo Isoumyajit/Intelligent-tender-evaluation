@@ -70,9 +70,10 @@
     @for (tender of filtered; track tender.id) {
       <article
         class="tender-card tender-card--{{ stageOf(tender) }}"
-        (click)="openBidders(tender)"
+        (click)="stageOf(tender) !== 'in-evaluation' && openBidders(tender)"
         tabindex="0"
-        (keyup.enter)="openBidders(tender)"
+        (keyup.enter)="stageOf(tender) !== 'in-evaluation' && openBidders(tender)"
+        [class.tender-card--busy]="stageOf(tender) === 'in-evaluation'"
       >
         <div class="tender-card__top">
           <span class="ref-pill">{{ tender.reference }}</span>
@@ -164,16 +165,14 @@
                 }
               }
               @case ('in-evaluation') {
-                @if (tender.biddersCount > 0) {
-                  <button
-                    mat-stroked-button
-                    class="tender-card__primary"
-                    (click)="openBidders(tender, $event)"
-                  >
-                    <mat-icon>groups</mat-icon>
-                    View bidders
-                  </button>
-                }
+                <button
+                  mat-stroked-button
+                  class="tender-card__primary"
+                  disabled
+                >
+                  <mat-icon>hourglass_top</mat-icon>
+                  Evaluation in progress…
+                </button>
               }
               @case ('evaluated') {
                 <button

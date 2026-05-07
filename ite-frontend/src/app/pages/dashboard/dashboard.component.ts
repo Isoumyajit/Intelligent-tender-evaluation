@@ -23,6 +23,7 @@ import {
 } from '../../core/registry/tender-status.registry';
 import { AppRoutes } from '../../core/routing/app-routes';
 import { RefreshBus } from '../../core/services/refresh-bus';
+import { TenderStage, TenderStageStore } from '../../core/services/tender-stage.store';
 import { LoadingPanelComponent } from '../../shared/loading-panel/loading-panel.component';
 
 interface QuickStat {
@@ -57,6 +58,7 @@ export class DashboardComponent implements OnInit {
   private readonly tenderRepo = inject(TENDER_REPOSITORY);
   private readonly bidderRepo = inject(BIDDER_REPOSITORY);
   private readonly refresh = inject(RefreshBus);
+  private readonly stages = inject(TenderStageStore);
 
   officerName = 'Ravi Kumar';
   officerTitle = 'Procurement Officer • Ministry of Public Works';
@@ -107,11 +109,17 @@ export class DashboardComponent implements OnInit {
     ): number =>
       tenders.filter((t) => describeStatus(t.status).bucket === bucket).length;
 
+    const waitingCount = tenders.filter(
+      (t) =>
+        describeStatus(t.status).bucket === 'waiting-for-bidders' &&
+        t.biddersCount === 0,
+    ).length;
+
     return [
       {
         label: 'Waiting for bidders',
         help: 'Tender uploaded, bidders not added yet',
-        count: bucketCount('waiting-for-bidders'),
+        count: waitingCount,
         icon: 'hourglass_empty',
         routerLink: AppRoutes.evaluations(),
         queryParams: { bucket: 'waiting-for-bidders' },
@@ -125,12 +133,14 @@ export class DashboardComponent implements OnInit {
         queryParams: { bucket: 'being-evaluated' },
       },
       {
-        label: 'Ready for your review',
-        help: 'Evaluation is done, needs your decision',
-        count: bucketCount('ready-for-review'),
-        icon: 'rate_review',
+        label: 'Ready to evaluate',
+        help: 'Bidder submissions added, evaluation not started',
+        count: tenders.filter(
+          (t) => describeStatus(t.status).bucket === 'waiting-for-bidders' && t.biddersCount > 0
+        ).length,
+        icon: 'play_arrow',
         routerLink: AppRoutes.evaluations(),
-        queryParams: { bucket: 'ready-for-review' },
+        queryParams: { bucket: 'ready-to-evaluate' },
       },
       {
         label: 'Closed',
@@ -160,5 +170,27 @@ export class DashboardComponent implements OnInit {
 
   navigateToReady() {
     this.router.navigate(AppRoutes.tenders());
+  }
+
+  stageOf(tender: ProcessedTender): TenderStage {
+    return this.stages.get(tender.id);
+  }
+
+  stageLabel(stage: TenderStage): string {
+    switch (stage) {
+      case 'fresh': return 'Pending Review';
+      case 'in-evaluation': return 'Being Evaluated';
+      case 'evaluated': return 'Evaluated';
+      case 'closed': return 'Closed';
+    }
+  }
+
+  stageTone(stage: TenderStage): string {
+    switch (stage) {
+      case 'fresh': return 'ite-status--partial';
+      case 'in-evaluation': return 'ite-status--neutral';
+      case 'evaluated': return 'ite-status--pass';
+      case 'closed': return 'ite-status--neutral';
+    }
   }
 }

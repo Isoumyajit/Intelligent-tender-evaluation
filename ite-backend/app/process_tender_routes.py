@@ -141,6 +141,54 @@ async def process_tender(
     return ProcessTenderResponse(job_id=job.job_id)
 
 
+@router.get("/tender/{tender_id}/latest", response_model=JobResponse)
+async def get_latest_tender_job(
+    tender_id: UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Job)
+        .where(Job.tender_id == tender_id)
+        .order_by(Job.updated_at.desc())
+        .limit(1)
+    )
+    job = result.scalar_one_or_none()
+    if not job:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Job not found")
+
+    criteria_groups = [
+        CriteriaGroup(
+            criteria=tc.criteria,
+            criteria_desc=tc.criteria_desc,
+            evaluation_conditions=[
+                EvaluationCondition(name=ec.name, predicate=ec.predicate, mandatory=ec.mandatory)
+                for ec in tc.evaluation_conditions
+            ],
+        )
+        for tc in job.tender_criteria
+    ]
+
+    bidders = [
+        JobBidderResponse(
+            bid_id=jb.bid_id,
+            bidder_name=jb.bid.bidder_name,
+            status=jb.status,
+        )
+        for jb in job.job_bidders
+    ]
+
+    return JobResponse(
+        job_id=job.job_id,
+        tender_id=job.tender_id,
+        tender_name=job.tender.tender_name,
+        status=job.status,
+        criteria=criteria_groups,
+        bidders=bidders,
+        created_at=job.created_at,
+        updated_at=job.updated_at,
+    )
+
+
 @router.get("/{job_id}", response_model=JobResponse)
 async def get_job_result(
     job_id: UUID,

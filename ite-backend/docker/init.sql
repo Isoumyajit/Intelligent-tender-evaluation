@@ -31,11 +31,13 @@ CREATE TABLE IF NOT EXISTS tenders (
 );
 
 CREATE TABLE IF NOT EXISTS bids (
-    bid_id      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    tender_id   UUID NOT NULL REFERENCES tenders(tender_id) ON DELETE CASCADE,
-    bidder_name VARCHAR(512) NOT NULL,
-    created_at  TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at  TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    bid_id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tender_id       UUID NOT NULL REFERENCES tenders(tender_id) ON DELETE CASCADE,
+    bidder_name     VARCHAR(512) NOT NULL,
+    approval_status VARCHAR(32) NOT NULL DEFAULT 'pending',
+    approval_reason TEXT,
+    created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS bid_attachments (
@@ -83,4 +85,15 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     event       VARCHAR(64) NOT NULL,
     audit_desc  TEXT NOT NULL,
     created_at  TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS evaluation_overrides (
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tender_id       UUID NOT NULL REFERENCES tenders(tender_id) ON DELETE CASCADE,
+    bid_id          UUID NOT NULL REFERENCES bids(bid_id) ON DELETE CASCADE,
+    condition_name  VARCHAR(512) NOT NULL,
+    override_status VARCHAR(32) NOT NULL,
+    notes           TEXT,
+    created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    UNIQUE(tender_id, bid_id, condition_name)
 );

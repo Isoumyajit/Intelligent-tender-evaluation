@@ -96,15 +96,15 @@
         </form>
       </section>
 
-      <!-- Right: next-step panel for the latest upload -->
+      <!-- Right: next-step panel -->
       <section class="ite-next-step">
         @if (!lastUploaded) {
           <div class="ite-next-step__empty">
             <mat-icon>east</mat-icon>
             <h3>What happens next</h3>
             <p class="ite-text-muted">
-              Once you upload a tender, its next step appears here so you can
-              add bidder submissions right away.
+              After upload, this panel will let you continue into an upload
+              setup view for that tender.
             </p>
             <div class="ite-next-step__shortcuts">
               <button
@@ -127,7 +127,9 @@
               <mat-icon>check_circle</mat-icon>
               <div>
                 <h3>Tender uploaded</h3>
-                <p class="ite-text-muted">Now add bidder submissions.</p>
+                <p class="ite-text-muted">
+                  Continue setup to upload bidder submissions for this tender.
+                </p>
               </div>
             </header>
 
@@ -141,12 +143,8 @@
                   <dt>Document</dt>
                   <dd>
                     <mat-icon>description</mat-icon>
-                    {{ lastUploaded.fileName }}
+                    {{ lastUploaded.documentName || 'Uploaded document' }}
                   </dd>
-                </div>
-                <div>
-                  <dt>Size</dt>
-                  <dd>{{ lastUploaded.fileSize }}</dd>
                 </div>
                 <div>
                   <dt>Uploaded</dt>
@@ -154,12 +152,6 @@
                 </div>
               </dl>
 
-              @if (lastUploaded.biddersAdded) {
-                <p class="ite-next-step__success">
-                  <mat-icon>verified</mat-icon>
-                  Bidders added. Evaluation is in progress.
-                </p>
-              }
             </div>
 
             <footer class="ite-next-step__actions">
@@ -167,18 +159,10 @@
                 mat-flat-button
                 color="primary"
                 type="button"
-                (click)="openBidderDialog()"
+                (click)="goToUploadedTender()"
               >
-                <mat-icon>person_add</mat-icon>
-                {{ lastUploaded.biddersAdded ? 'Add another bidder' : 'Add bidders now' }}
-              </button>
-              <button
-                mat-stroked-button
-                type="button"
-                (click)="goToEvaluations()"
-              >
-                <mat-icon>timelapse</mat-icon>
-                Track evaluation
+                <mat-icon>arrow_forward</mat-icon>
+                Go inside tender
               </button>
             </footer>
           </div>

@@ -26,22 +26,45 @@
         </p>
 
         <div class="header-main__actions">
+          @if (bidder.approvalStatus === 'approved') {
+            <mat-chip class="ite-status--pass" disableRipple>
+              <mat-icon matChipAvatar>verified</mat-icon>
+              Approved
+            </mat-chip>
+          } @else if (bidder.approvalStatus === 'disqualified') {
+            <mat-chip class="ite-status--fail" disableRipple>
+              <mat-icon matChipAvatar>block</mat-icon>
+              Disqualified
+            </mat-chip>
+          } @else if (!isClosed) {
+            <button
+              mat-flat-button
+              color="primary"
+              (click)="approveBidder()"
+            >
+              <mat-icon>verified</mat-icon>
+              Approve bidder
+            </button>
+            <button
+              mat-stroked-button
+              color="warn"
+              (click)="disqualifyBidder()"
+            >
+              <mat-icon>block</mat-icon>
+              Disqualify
+            </button>
+          }
           <button
             mat-stroked-button
-            color="primary"
-            [routerLink]="routes.bidderDocuments(tender.id, bidder.id)"
+            (click)="exportReport()"
           >
-            <mat-icon>folder_open</mat-icon>
-            View all documents
+            <mat-icon>download</mat-icon>
+            Export report
           </button>
           <button mat-stroked-button
                   [routerLink]="routes.tenderBidders(tender.id)">
             <mat-icon>arrow_back</mat-icon>
-            All bidders for this tender
-          </button>
-          <button mat-stroked-button [routerLink]="routes.tenders()">
-            <mat-icon>format_list_bulleted</mat-icon>
-            Back to tender list
+            All bidders
           </button>
         </div>
       </div>
@@ -70,12 +93,18 @@
             </mat-chip>
             <mat-chip class="ite-status--partial" disableRipple>
               <mat-icon matChipAvatar>error</mat-icon>
-              {{ partialCount }} Partial
+              {{ partialCount }} Review Required
             </mat-chip>
             <mat-chip class="ite-status--fail" disableRipple>
               <mat-icon matChipAvatar>cancel</mat-icon>
               {{ failedCount }} Failed
             </mat-chip>
+            @if (missingDocCount > 0) {
+              <mat-chip class="ite-status--fail" disableRipple>
+                <mat-icon matChipAvatar>file_present</mat-icon>
+                {{ missingDocCount }} Missing Doc
+              </mat-chip>
+            }
           </mat-chip-set>
 
           <mat-divider></mat-divider>
@@ -123,29 +152,13 @@
             </ng-template>
 
             <div class="tab-body">
-              <mat-card appearance="outlined" class="category-summary">
-                <mat-card-content class="category-summary__grid">
-                  <div>
-                    <span class="category-summary__label">Criteria</span>
-                    <strong>{{ group.criteria.length }}</strong>
-                  </div>
-                  <div>
-                    <span class="category-summary__label">Score</span>
-                    <strong>{{ group.scoreTotal }} / {{ group.weightTotal }}</strong>
-                  </div>
-                  <div>
-                    <span class="category-summary__label">Pass rate</span>
-                    <strong>{{ group.passRate }}%</strong>
-                  </div>
-                </mat-card-content>
-              </mat-card>
-
               <ul class="criterion-list" role="list">
                 @for (criterion of group.criteria; track criterion.id) {
                   <li>
                     <button
                       type="button"
                       class="criterion-row criterion-row--{{ criterion.status }}"
+                      [class.criterion-row--selected]="selectedCriterion?.id === criterion.id"
                       (click)="openEvidence(criterion)"
                     >
                       <mat-icon
@@ -155,8 +168,14 @@
                       </mat-icon>
 
                       <div class="criterion-row__text">
-                        <strong>{{ criterion.title }}</strong>
-                        <small>{{ criterion.requirement }}</small>
+                        <strong>
+                          {{ criterion.title }}
+                          @if (criterion.isMandatory === false) {
+                            <span class="optional-badge">Optional</span>
+                          } @else {
+                            <span class="mandatory-badge">Mandatory</span>
+                          }
+                        </strong>
                       </div>
 
                       <div class="criterion-row__meta">
@@ -166,9 +185,16 @@
                         >
                           {{ statusLabel(criterion.status) }}
                         </mat-chip>
-                        <span class="criterion-row__score">
-                          {{ criterion.score }}/{{ criterion.weight }}
-                        </span>
+                        @if (!isClosed && (criterion.status === 'partial' || criterion.status === 'failed' || criterion.status === 'missing-document')) {
+                          <button
+                            mat-icon-button
+                            matTooltip="Override this criterion"
+                            class="criterion-row__override"
+                            (click)="overrideCriterion(criterion, $event)"
+                          >
+                            <mat-icon>edit_note</mat-icon>
+                          </button>
+                        }
                         <mat-icon class="criterion-row__chevron">
                           chevron_right
                         </mat-icon>

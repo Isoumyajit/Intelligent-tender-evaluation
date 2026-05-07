@@ -1,7 +1,13 @@
 @if (isLoading) {
   <div class="loading-panel loading-panel--loading">
-    <mat-spinner diameter="28"></mat-spinner>
-    <span>{{ loadingLabel }}</span>
+    <div class="loader-animation">
+      <div class="loader-ring"></div>
+      <mat-icon class="loader-icon">description</mat-icon>
+    </div>
+    <div class="loader-text">
+      <strong>{{ loadingLabel }}</strong>
+      <span class="loader-dots"><span></span><span></span><span></span></span>
+    </div>
   </div>
 } @else if (isError) {
   <div class="loading-panel loading-panel--error">

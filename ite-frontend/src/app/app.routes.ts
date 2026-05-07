@@ -22,6 +22,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: RoutePaths.UPLOAD_TENDER_BIDDERS,
+    loadComponent: () =>
+      import('./pages/bidder-list/bidder-list.component').then(
+        (m) => m.BidderListComponent,
+      ),
+  },
+  {
     path: RoutePaths.EVALUATIONS,
     loadComponent: () =>
       import('./pages/evaluations/evaluations.component').then(
@@ -54,6 +61,20 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/evaluation-report/evaluation-report.component').then(
         (m) => m.EvaluationReportComponent,
+      ),
+  },
+  {
+    path: RoutePaths.UPLOAD_BIDDER_EVALUATION,
+    loadComponent: () =>
+      import('./pages/evaluation-report/evaluation-report.component').then(
+        (m) => m.EvaluationReportComponent,
+      ),
+  },
+  {
+    path: RoutePaths.AUDIT_LOGS,
+    loadComponent: () =>
+      import('./pages/audit-logs/audit-logs.component').then(
+        (m) => m.AuditLogsComponent,
       ),
   },
   {

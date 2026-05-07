@@ -1,15 +1,19 @@
 .loading-panel {
   display: flex;
   align-items: center;
-  gap: var(--ite-spacing-md);
-  padding: var(--ite-spacing-lg);
+  gap: var(--ite-spacing-lg);
+  padding: var(--ite-spacing-xl) var(--ite-spacing-lg);
   border-radius: var(--ite-radius-md);
   border: 1px solid var(--mat-sys-outline-variant);
   background: var(--mat-sys-surface);
 
   &--loading {
-    color: var(--mat-sys-on-surface-variant);
     justify-content: center;
+    flex-direction: column;
+    gap: var(--ite-spacing-md);
+    padding: 48px 24px;
+    background: linear-gradient(135deg, var(--mat-sys-surface) 0%, color-mix(in srgb, var(--ite-primary) 3%, var(--mat-sys-surface)) 100%);
+    border: 1px dashed color-mix(in srgb, var(--ite-primary) 25%, transparent);
   }
 
   &--error {
@@ -24,5 +28,93 @@
     strong {
       display: block;
     }
+  }
+}
+
+.loader-animation {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loader-ring {
+  position: absolute;
+  inset: 0;
+  border: 3px solid color-mix(in srgb, var(--ite-primary) 15%, transparent);
+  border-top-color: var(--ite-primary);
+  border-radius: 50%;
+  animation: loader-spin 1.2s linear infinite;
+}
+
+.loader-icon {
+  color: var(--ite-primary);
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+  animation: loader-breathe 2s ease-in-out infinite;
+}
+
+.loader-text {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  strong {
+    font-size: 0.95rem;
+    color: var(--mat-sys-on-surface);
+    letter-spacing: 0.01em;
+  }
+}
+
+.loader-dots {
+  display: inline-flex;
+  gap: 3px;
+  margin-left: 2px;
+
+  span {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--ite-primary);
+    opacity: 0.3;
+    animation: loader-dot 1.4s ease-in-out infinite;
+
+    &:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+    &:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+  }
+}
+
+@keyframes loader-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes loader-breathe {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(0.95);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes loader-dot {
+  0%, 100% {
+    opacity: 0.2;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
   }
 }

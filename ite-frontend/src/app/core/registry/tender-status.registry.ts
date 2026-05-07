@@ -31,6 +31,7 @@ export interface TenderStatusDescriptor {
   /** Bucket used by dashboard "Your work today" quick stats. */
   bucket:
     | 'waiting-for-bidders'
+    | 'ready-to-evaluate'
     | 'being-evaluated'
     | 'ready-for-review'
     | 'closed'
@@ -147,7 +148,7 @@ export function progressForStatus(status: TenderStatus): number {
  */
 export const IN_PROGRESS_BUCKETS: ReadonlyArray<
   TenderStatusDescriptor['bucket']
-> = ['waiting-for-bidders', 'being-evaluated', 'ready-for-review'];
+> = ['waiting-for-bidders', 'ready-to-evaluate', 'being-evaluated', 'ready-for-review'];
 
 export function isInProgress(status: TenderStatus): boolean {
   return IN_PROGRESS_BUCKETS.includes(describeStatus(status).bucket);

@@ -25,7 +25,12 @@
         <mat-icon matChipAvatar>{{ statusIcon(criterion.status) }}</mat-icon>
         {{ statusLabel(criterion.status) }}
       </mat-chip>
-      <span class="score">{{ criterion.score }}/{{ criterion.weight }}</span>
+      @if (criterion.notes) {
+        <span class="evidence-panel__reason {{ reasonClass(criterion.status) }}">
+          <mat-icon>{{ reasonIcon(criterion.status) }}</mat-icon>
+          {{ criterion.notes }}
+        </span>
+      }
     </div>
 
     <mat-divider></mat-divider>
@@ -41,44 +46,60 @@
           </span>
         </div>
       } @else {
-        @let primary = criterion.evidence[0];
-        <section class="viewer-section">
-          <header class="viewer-section__meta">
-            <div class="viewer-section__ref">
-              <mat-icon>description</mat-icon>
-              <div>
-                <strong>{{ primary.documentName }}</strong>
-                <span>{{ primary.pageOrSection }}</span>
-              </div>
-            </div>
-            <span class="viewer-section__confidence">
-              {{ primary.confidence }}% extraction confidence
+        @if (criterion.evidence.length > 1) {
+          <div class="doc-selector">
+            <span class="doc-selector__label">
+              {{ criterion.evidence.length }} documents submitted
             </span>
-          </header>
-
-          <div class="viewer-section__stage">
-            <app-document-viewer
-              [documentId]="primary.documentName"
-              [initialPage]="1"
-              (closed)="close()"
-            ></app-document-viewer>
+            <div class="doc-selector__tabs">
+              @for (ev of criterion.evidence; track ev.documentName; let i = $index) {
+                <button
+                  type="button"
+                  class="doc-tab"
+                  [class.doc-tab--active]="i === selectedDocIndex"
+                  (click)="selectDoc(i)"
+                >
+                  <mat-icon>description</mat-icon>
+                  <span class="doc-tab__name">{{ docDisplayName(ev) }}</span>
+                  <span class="doc-tab__conf">{{ ev.confidence }}%</span>
+                </button>
+              }
+            </div>
           </div>
+        }
 
-          @if (primary.extractedValue) {
-            <footer class="viewer-section__extracted">
-              <span class="label">Extracted value</span>
-              <mat-chip class="{{ statusClass(criterion.status) }}" disableRipple>
-                {{ primary.extractedValue }}
-              </mat-chip>
-            </footer>
-          }
-        </section>
+        @if (selectedEvidence; as active) {
+          <section class="viewer-section">
+            <header class="viewer-section__meta">
+              <div class="viewer-section__ref">
+                <mat-icon>description</mat-icon>
+                <div>
+                  <strong>{{ docDisplayName(active) }}</strong>
+                  <span>{{ active.pageOrSection }}</span>
+                </div>
+              </div>
+              <span class="viewer-section__confidence">
+                {{ active.confidence }}% extraction confidence
+              </span>
+            </header>
 
-        @if (criterion.notes) {
-          <div class="note-card">
-            <mat-icon>sticky_note_2</mat-icon>
-            <span>{{ criterion.notes }}</span>
-          </div>
+            <div class="viewer-section__stage">
+              <app-document-viewer
+                [documentId]="active.documentName"
+                [initialPage]="1"
+                (closed)="close()"
+              ></app-document-viewer>
+            </div>
+
+            @if (active.extractedValue) {
+              <footer class="viewer-section__extracted">
+                <span class="label">Extracted value</span>
+                <mat-chip class="{{ statusClass(criterion.status) }}" disableRipple>
+                  {{ active.extractedValue }}
+                </mat-chip>
+              </footer>
+            }
+          </section>
         }
       }
     </div>

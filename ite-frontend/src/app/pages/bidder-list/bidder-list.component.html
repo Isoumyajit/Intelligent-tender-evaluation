@@ -22,29 +22,62 @@
         <p class="subline">{{ tender.description }}</p>
       </div>
 
-      <mat-chip-set class="header-stats" aria-label="Summary">
-        <mat-chip class="ite-status--neutral" disableRipple>
-          <mat-icon matChipAvatar>groups</mat-icon>
-          {{ bidders.length }} bidders
-        </mat-chip>
-        <mat-chip class="ite-status--partial" disableRipple>
-          <mat-icon matChipAvatar>insights</mat-icon>
-          {{ averageConfidence }}% avg. confidence
-        </mat-chip>
-        <mat-chip class="ite-status--pass" disableRipple>
-          <mat-icon matChipAvatar>verified</mat-icon>
-          {{ qualifiedCount }} qualified
-        </mat-chip>
-      </mat-chip-set>
+      <div class="header-right">
+        <mat-chip-set class="header-stats" aria-label="Summary">
+          <mat-chip class="ite-status--neutral" disableRipple>
+            <mat-icon matChipAvatar>groups</mat-icon>
+            {{ bidders.length }} bidders
+          </mat-chip>
+          @if (hasEvaluation) {
+            <mat-chip class="ite-status--partial" disableRipple>
+              <mat-icon matChipAvatar>insights</mat-icon>
+              {{ averageConfidence }}% avg. confidence
+            </mat-chip>
+            <mat-chip class="ite-status--pass" disableRipple>
+              <mat-icon matChipAvatar>verified</mat-icon>
+              {{ qualifiedCount }} qualified
+            </mat-chip>
+          }
+        </mat-chip-set>
+        @if (!isClosed && bidders.length > 0 && !hasEvaluation) {
+          <button
+            mat-flat-button
+            color="primary"
+            (click)="openAddBidder()"
+          >
+            <mat-icon>person_add</mat-icon>
+            Add bidder
+          </button>
+        }
+      </div>
     </section>
 
     <section class="list-section">
       <header class="list-section__header">
-        <h2>Bidders ranked by AI confidence</h2>
-        <p class="subline">
-          Select a bidder to inspect which criteria passed or failed with
-          source-document evidence.
-        </p>
+        <div>
+          @if (hasEvaluation) {
+            <h2>Bidders ranked by AI confidence</h2>
+            <p class="subline">
+              Select a bidder to inspect which criteria passed or failed with
+              source-document evidence.
+            </p>
+          } @else {
+            <h2>Bidders submitted</h2>
+            <p class="subline">
+              Run an evaluation to see AI-scored criteria for each bidder.
+            </p>
+          }
+        </div>
+        @if (hasEvaluation) {
+          <button
+            mat-flat-button
+            color="primary"
+            (click)="exportAllBidders()"
+          >
+            <mat-icon>download</mat-icon>
+            Export all evaluations
+          </button>
+        }
       </header>
 
       <div class="bidder-list">
@@ -52,6 +85,7 @@
           <mat-card
             appearance="outlined"
             class="bidder-card"
+            [class.bidder-card--disqualified]="bidder.approvalStatus === 'disqualified' || (hasEvaluation && bidder.overallStatus === 'Disqualified' && bidder.approvalStatus !== 'approved')"
             tabindex="0"
             (click)="openEvaluation(bidder)"
             (keyup.enter)="openEvaluation(bidder)"
@@ -78,72 +112,224 @@
                   {{ bidder.submittedOn }}
                 </p>
 
-                <mat-divider class="bidder-card__divider"></mat-divider>
+                @if (hasEvaluation) {
+                  <mat-divider class="bidder-card__divider"></mat-divider>
 
-                <dl class="bidder-card__metrics">
-                  <div>
-                    <dt>Technical</dt>
-                    <dd>{{ bidder.technicalScore }}</dd>
-                  </div>
-                  <div>
-                    <dt>Financial</dt>
-                    <dd>{{ bidder.financialScore }}</dd>
-                  </div>
-                  <div>
-                    <dt>Compliance</dt>
-                    <dd>{{ bidder.complianceScore }}</dd>
-                  </div>
-                  <div>
-                    <dt>Bid value</dt>
-                    <dd>{{ bidder.bidAmount }}</dd>
-                  </div>
-                  <div>
-                    <dt>Documents</dt>
-                    <dd>
-                      <a
-                        class="docs-link"
-                        [routerLink]="routes.bidderDocuments(bidder.tenderId, bidder.id)"
-                        (click)="$event.stopPropagation()"
-                      >
-                        <mat-icon>folder_open</mat-icon>
-                        {{ bidder.documentsCount }} files • {{ bidder.totalSize }}
-                      </a>
-                    </dd>
-                  </div>
-                </dl>
+                  <dl class="bidder-card__metrics">
+                    <div>
+                      <dt>Technical</dt>
+                      <dd>{{ bidder.technicalScore }}</dd>
+                    </div>
+                    <div>
+                      <dt>Financial</dt>
+                      <dd>{{ bidder.financialScore }}</dd>
+                    </div>
+                    <div>
+                      <dt>Compliance</dt>
+                      <dd>{{ bidder.complianceScore }}</dd>
+                    </div>
+                    <div>
+                      <dt>Bid value</dt>
+                      <dd>{{ bidder.bidAmount }}</dd>
+                    </div>
+                    <div>
+                      <dt>Documents</dt>
+                      <dd>
+                        <a
+                          class="docs-link"
+                          [routerLink]="routes.bidderDocuments(bidder.tenderId, bidder.id)"
+                          (click)="$event.stopPropagation()"
+                        >
+                          <mat-icon>folder_open</mat-icon>
+                          {{ bidder.documentsCount }} files • {{ bidder.totalSize }}
+                        </a>
+                      </dd>
+                    </div>
+                  </dl>
+                }
               </div>
 
-              <div class="bidder-card__confidence">
-                <span class="confidence-label">AI confidence</span>
+              @if (hasEvaluation) {
+                <div class="bidder-card__confidence">
+                  <span class="confidence-label">AI confidence</span>
 
-                <div class="confidence-meter">
-                  <div class="confidence-meter__value">
-                    <strong>{{ bidder.confidenceScore }}</strong>
-                    <span>%</span>
+                  <div class="confidence-meter">
+                    <div class="confidence-meter__value">
+                      <strong>{{ bidder.confidenceScore }}</strong>
+                      <span>%</span>
+                    </div>
+                    <mat-progress-bar
+                      mode="determinate"
+                      [value]="bidder.confidenceScore"
+                      [class]="confidenceStatusClass(bidder.confidenceScore)"
+                    ></mat-progress-bar>
                   </div>
-                  <mat-progress-bar
-                    mode="determinate"
-                    [value]="bidder.confidenceScore"
-                    [class]="confidenceStatusClass(bidder.confidenceScore)"
-                  ></mat-progress-bar>
+
+                  <mat-chip
+                    class="{{ confidenceStatusClass(bidder.confidenceScore) }}"
+                    disableRipple
+                  >
+                    {{ confidenceLabel(bidder.confidenceScore) }}
+                  </mat-chip>
+
+                  <button mat-flat-button color="primary" class="view-btn">
+                    View evaluation
+                    <mat-icon iconPositionEnd>chevron_right</mat-icon>
+                  </button>
+
+                  @if (isClosed) {
+                    <mat-chip class="{{ bidder.approvalStatus === 'approved' ? 'ite-status--pass' : 'ite-status--fail' }}" disableRipple>
+                      <mat-icon matChipAvatar>{{ bidder.approvalStatus === 'approved' ? 'verified' : 'block' }}</mat-icon>
+                      {{ bidder.approvalStatus === 'approved' ? 'Approved' : 'Not Approved' }}
+                    </mat-chip>
+                  } @else {
+                    <div class="bidder-card__actions">
+                      @if (bidder.approvalStatus === 'approved') {
+                        <mat-chip class="ite-status--pass" disableRipple>
+                          <mat-icon matChipAvatar>verified</mat-icon>
+                          Approved
+                        </mat-chip>
+                      } @else if (bidder.approvalStatus === 'disqualified') {
+                        <mat-chip class="ite-status--fail" disableRipple>
+                          <mat-icon matChipAvatar>block</mat-icon>
+                          Disqualified by officer
+                        </mat-chip>
+                      } @else {
+                        <button
+                          mat-stroked-button
+                          class="approve-btn"
+                          (click)="approveBidder(bidder, $event)"
+                        >
+                          <mat-icon>verified</mat-icon>
+                          Approve
+                        </button>
+                        <button
+                          mat-stroked-button
+                          class="disqualify-btn"
+                          (click)="disqualifyBidder(bidder, $event)"
+                        >
+                          <mat-icon>block</mat-icon>
+                          Disqualify
+                        </button>
+                      }
+                    </div>
+                  }
                 </div>
-
-                <mat-chip
-                  class="{{ confidenceStatusClass(bidder.confidenceScore) }}"
-                  disableRipple
+              }
+            </mat-card-content>
+          </mat-card>
+        } @empty {
+          <mat-card appearance="outlined" class="no-bidders-card">
+            <mat-card-content>
+              <mat-icon>person_add</mat-icon>
+              <h3>Add bidder submissions</h3>
+              <p class="subline">
+                This tender is ready. Upload one or more bidder document sets to
+                begin evaluation.
+              </p>
+              @if (!isClosed) {
+                <button
+                  mat-flat-button
+                  color="primary"
+                  type="button"
+                  (click)="openAddBidder()"
                 >
-                  {{ confidenceLabel(bidder.confidenceScore) }}
-                </mat-chip>
-
-                <button mat-flat-button color="primary" class="view-btn">
-                  View evaluation
-                  <mat-icon iconPositionEnd>chevron_right</mat-icon>
+                  <mat-icon>person_add</mat-icon>
+                  Add bidder
                 </button>
-              </div>
+              }
             </mat-card-content>
           </mat-card>
         }
       </div>
+
+      @if (!hasEvaluation) {
+        <div class="close-tender-section">
+          <span class="close-tender-hint">
+            @if (bidders.length === 0) {
+              Add bidder submissions before starting evaluation.
+            } @else {
+              Run an evaluation first to see bidder scores and approve/disqualify.
+            }
+          </span>
+        </div>
+      } @else if (isClosed) {
+        <div class="close-tender-section close-tender-section--closed">
+          <mat-icon>lock</mat-icon>
+          <strong>This tender has been closed and signed off.</strong>
+          <span class="close-tender-hint">
+            No further changes can be made. All decisions are logged in the audit trail.
+          </span>
+        </div>
+      } @else {
+        <div class="close-tender-section">
+          <button
+            mat-flat-button
+            color="warn"
+            (click)="closeTender()"
+          >
+            <mat-icon>lock</mat-icon>
+            Close tender &amp; sign off
+          </button>
+          <span class="close-tender-hint">
+            Approve at least one bidder, then close the tender to finalize.
+          </span>
+        </div>
+      }
+
+      @if (showAuditTrail) {
+        <section class="audit-section" id="audit-trail">
+          <button
+            type="button"
+            class="audit-toggle"
+            (click)="auditExpanded = !auditExpanded"
+          >
+            <div class="audit-toggle__left">
+              <mat-icon class="audit-toggle__icon">{{ auditExpanded ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }}</mat-icon>
+              <mat-icon class="audit-toggle__shield">shield</mat-icon>
+              <div>
+                <strong>Audit Trail</strong>
+                <span class="audit-toggle__count">{{ auditLogs.length }} recorded events</span>
+              </div>
+            </div>
+            @if (auditExpanded && auditLogs.length > 0) {
+              <button mat-stroked-button class="audit-export-btn" (click)="exportAudit(); $event.stopPropagation()">
+                <mat-icon>download</mat-icon>
+                Export CSV
+              </button>
+            }
+          </button>
+
+          @if (auditExpanded) {
+            @if (auditLogs.length === 0) {
+              <div class="audit-empty">
+                <mat-icon>verified_user</mat-icon>
+                <p>No audit events recorded yet. Actions will be logged automatically.</p>
+              </div>
+            } @else {
+              <div class="audit-timeline">
+                @for (log of auditLogs; track log.audit_id; let i = $index) {
+                  <div class="audit-entry">
+                    <div class="audit-entry__line">
+                      <div class="audit-entry__dot {{ auditEventClass(log.event) }}"></div>
+                      @if (i < auditLogs.length - 1) {
+                        <div class="audit-entry__connector"></div>
+                      }
+                    </div>
+                    <div class="audit-entry__content">
+                      <div class="audit-entry__header">
+                        <span class="audit-entry__event {{ auditEventClass(log.event) }}">{{ formatEvent(log.event) }}</span>
+                        <span class="audit-entry__time">{{ log.created_at | date:'MMM d, y, h:mm:ss a' }}</span>
+                      </div>
+                      <p class="audit-entry__desc">{{ log.audit_desc }}</p>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          }
+        </section>
+      }
     </section>
     }
   }

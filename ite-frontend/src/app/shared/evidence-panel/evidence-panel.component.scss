@@ -55,14 +55,49 @@
   &__status {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: var(--ite-spacing-md);
     padding: var(--ite-spacing-sm) var(--ite-spacing-lg) var(--ite-spacing-md);
+    flex-wrap: wrap;
 
     .score {
       font-size: 0.95rem;
       font-weight: 700;
       color: var(--mat-sys-on-surface);
+    }
+  }
+
+  &__reason {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 0.45rem;
+    font-size: 0.82rem;
+    color: var(--ite-text-secondary);
+    line-height: 1.4;
+    flex: 1 1 100%;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--ite-radius-sm);
+
+    mat-icon {
+      flex: 0 0 auto;
+      font-size: 1rem;
+      width: 1rem;
+      height: 1rem;
+      margin-top: 0.08rem;
+    }
+
+    &--pass {
+      color: color-mix(in srgb, var(--mat-sys-primary) 28%, #124225);
+      background: color-mix(in srgb, var(--mat-sys-primary-container) 65%, white);
+    }
+
+    &--review {
+      color: color-mix(in srgb, var(--mat-sys-secondary) 30%, #5b4a00);
+      background: color-mix(in srgb, var(--mat-sys-secondary-container) 72%, white);
+    }
+
+    &--fail {
+      color: var(--mat-sys-on-error-container);
+      background: var(--mat-sys-error-container);
     }
   }
 
@@ -75,6 +110,82 @@
     flex-direction: column;
     gap: var(--ite-spacing-md);
     background: var(--mat-sys-surface-container-low);
+  }
+}
+
+/* Document selector strip when multiple docs are present. */
+
+.doc-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+
+  &__label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 700;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  &__tabs {
+    display: flex;
+    gap: 0.35rem;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+}
+
+.doc-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.65rem;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--ite-radius-sm);
+  background: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease, border-color 0.15s ease;
+
+  mat-icon {
+    font-size: 0.95rem;
+    width: 0.95rem;
+    height: 0.95rem;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  &__name {
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__conf {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  &:hover {
+    background: var(--mat-sys-surface-container-low);
+  }
+
+  &--active {
+    background: color-mix(in srgb, var(--mat-sys-primary) 12%, var(--mat-sys-surface));
+    border-color: var(--mat-sys-primary);
+
+    mat-icon {
+      color: var(--mat-sys-primary);
+    }
+
+    .doc-tab__name {
+      color: var(--mat-sys-primary);
+      font-weight: 600;
+    }
   }
 }
 

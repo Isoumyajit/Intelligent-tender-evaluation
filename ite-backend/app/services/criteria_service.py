@@ -78,5 +78,11 @@ async def extract_criteria(pages: list[str]) -> list[CriteriaGroup]:
 
     criteria_groups = [CriteriaGroup(**item) for item in parsed]
     logger.info("Extracted %d criteria groups from tender document", len(criteria_groups))
+    for group in criteria_groups:
+        for cond in group.evaluation_conditions:
+            logger.info(
+                "LLM criterion: [%s] %s (mandatory=%s) — %s",
+                group.criteria, cond.name, cond.mandatory, cond.predicate,
+            )
 
     return criteria_groups

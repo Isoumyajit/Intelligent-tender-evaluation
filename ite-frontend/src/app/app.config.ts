@@ -15,7 +15,7 @@ import { apiErrorInterceptor } from './core/http/api-error.interceptor';
 import { HttpBidderRepository } from './core/services/http-bidder.repository';
 import { HttpTenderRepository } from './core/services/http-tender.repository';
 import { MockChunkTransport } from './core/services/mock-chunk-transport';
-import { MockImageRenderer } from './core/services/mock-image-renderer';
+import { ServerDocumentRenderer } from './core/services/server-document-renderer';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -33,6 +33,6 @@ export const appConfig: ApplicationConfig = {
     // Document renderer — still mock until the backend exposes page-image
     // endpoints. The DocumentViewer doesn't care which implementation it
     // gets, so swapping is one line.
-    { provide: DOCUMENT_RENDERER, useExisting: MockImageRenderer },
+    { provide: DOCUMENT_RENDERER, useExisting: ServerDocumentRenderer },
   ],
 };

@@ -24,7 +24,7 @@ class LLMResponse:
 def _get_client() -> SarvamAI:
     if not settings.sarvam_api_key:
         raise RuntimeError("SARVAM_API_KEY is not configured")
-    return SarvamAI(api_subscription_key=settings.sarvam_api_key)
+    return SarvamAI(api_subscription_key=settings.sarvam_api_key, timeout=120)
 
 
 async def chat_completion(
@@ -51,8 +51,11 @@ async def chat_completion(
     response = client.chat.completions(**kwargs)
 
     choice = response.choices[0]
+    content = choice.message.content
+    if content is None:
+        content = getattr(choice.message, "reasoning_content", None) or ""
     result = LLMResponse(
-        content=choice.message.content,
+        content=content,
         model=response.model,
         finish_reason=choice.finish_reason,
     )
