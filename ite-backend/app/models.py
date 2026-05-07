@@ -50,6 +50,7 @@ class Tender(Base):
 
     attachment: Mapped[Attachment] = relationship(back_populates="tender", lazy="selectin")
     bids: Mapped[list["Bid"]] = relationship(back_populates="tender", lazy="selectin")
+    jobs: Mapped[list["Job"]] = relationship(back_populates="tender", lazy="selectin")
 
 
 class Bid(Base):
@@ -86,3 +87,78 @@ class BidAttachment(Base):
 
     bid: Mapped[Bid] = relationship(back_populates="bid_attachments")
     attachment: Mapped[Attachment] = relationship(back_populates="bid_attachments", lazy="selectin")
+
+
+class Job(Base):
+    __tablename__ = "jobs"
+
+    job_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    tender_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("tenders.tender_id", ondelete="CASCADE"), nullable=False
+    )
+    status: Mapped[str] = mapped_column(String(32), nullable=False, default="pending")
+    created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    tender: Mapped[Tender] = relationship(back_populates="jobs")
+    job_bidders: Mapped[list["JobBidder"]] = relationship(
+        back_populates="job", lazy="selectin", cascade="all, delete-orphan"
+    )
+    tender_criteria: Mapped[list["TenderCriteria"]] = relationship(
+        back_populates="job", lazy="selectin", cascade="all, delete-orphan"
+    )
+
+
+class JobBidder(Base):
+    __tablename__ = "job_bidders"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    job_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("jobs.job_id", ondelete="CASCADE"), nullable=False
+    )
+    bid_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("bids.bid_id", ondelete="CASCADE"), nullable=False
+    )
+    status: Mapped[str] = mapped_column(String(32), nullable=False, default="pending")
+
+    job: Mapped[Job] = relationship(back_populates="job_bidders")
+    bid: Mapped[Bid] = relationship()
+
+
+class TenderCriteria(Base):
+    __tablename__ = "tender_criteria"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    job_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("jobs.job_id", ondelete="CASCADE"), nullable=False
+    )
+    criteria: Mapped[str] = mapped_column(String(255), nullable=False)
+    criteria_desc: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+
+    job: Mapped[Job] = relationship(back_populates="tender_criteria")
+    evaluation_conditions: Mapped[list["TenderEvaluationCondition"]] = relationship(
+        back_populates="tender_criteria", lazy="selectin", cascade="all, delete-orphan"
+    )
+
+
+class TenderEvaluationCondition(Base):
+    __tablename__ = "tender_evaluation_conditions"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    tender_criteria_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("tender_criteria.id", ondelete="CASCADE"), nullable=False
+    )
+    name: Mapped[str] = mapped_column(String(512), nullable=False)
+    predicate: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+
+    tender_criteria: Mapped[TenderCriteria] = relationship(back_populates="evaluation_conditions")

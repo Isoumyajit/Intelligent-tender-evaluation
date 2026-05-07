@@ -19,6 +19,10 @@
 		{
 			"key": "attachment_ref_id",
 			"value": ""
+		},
+		{
+			"key": "job_id",
+			"value": ""
 		}
 	],
 	"item": [
@@ -368,6 +372,17 @@
 							"raw": "{{baseUrl}}/process-tender/",
 							"host": ["{{baseUrl}}"],
 							"path": ["process-tender", ""]
+						}
+					}
+				},
+				{
+					"name": "Get Job Result",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/process-tender/{{job_id}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["process-tender", "{{job_id}}"]
 						}
 					}
 				}

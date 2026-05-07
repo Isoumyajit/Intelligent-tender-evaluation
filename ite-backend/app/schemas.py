@@ -113,7 +113,15 @@ class ProcessTenderRequest(BaseModel):
 
 
 class ProcessTenderResponse(BaseModel):
+    job_id: UUID
+
+
+class JobResponse(BaseModel):
+    job_id: UUID
     tender_id: UUID
     tender_name: str
+    status: str
     criteria: list[CriteriaGroup]
     bidder_ids: list[UUID]
+    created_at: datetime
+    updated_at: datetime
