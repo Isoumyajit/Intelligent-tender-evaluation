@@ -73,3 +73,12 @@ CREATE TABLE IF NOT EXISTS tender_evaluation_conditions (
     mandatory           BOOLEAN NOT NULL DEFAULT true,
     created_at          TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+CREATE TABLE IF NOT EXISTS audit_logs (
+    audit_id    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tender_id   UUID NOT NULL REFERENCES tenders(tender_id) ON DELETE CASCADE,
+    bidder_id   UUID REFERENCES bids(bid_id) ON DELETE SET NULL,
+    event       VARCHAR(64) NOT NULL,
+    audit_desc  TEXT NOT NULL,
+    created_at  TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);

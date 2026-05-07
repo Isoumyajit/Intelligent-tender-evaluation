@@ -133,3 +133,16 @@ class JobResponse(BaseModel):
     bidders: list[JobBidderResponse]
     created_at: datetime
     updated_at: datetime
+
+
+# ── Audit schemas ──
+
+class AuditLogResponse(BaseModel):
+    audit_id: UUID
+    tender_id: UUID
+    bidder_id: UUID | None
+    event: str
+    audit_desc: str
+    created_at: datetime
+
+    model_config = {"from_attributes": True}

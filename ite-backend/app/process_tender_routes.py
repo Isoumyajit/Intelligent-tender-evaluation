@@ -17,6 +17,7 @@ from app.schemas import (
     ProcessTenderRequest,
     ProcessTenderResponse,
 )
+from app.services.audit_service import log_audit
 from app.services.criteria_service import extract_criteria
 
 logger = logging.getLogger("ite.process_tender")
@@ -43,6 +44,12 @@ async def _process_job(job_id: UUID) -> None:
             job = result.scalar_one()
 
             job.status = "processing"
+            await log_audit(
+                db,
+                tender_id=job.tender_id,
+                event="tender_criteria_identification_started",
+                audit_desc=f"Criteria identification started for job {job_id}, tender {job.tender_id}",
+            )
             await db.commit()
 
             # TODO: Replace with actual OCR / TextLayout extraction from tender attachment
@@ -65,6 +72,15 @@ async def _process_job(job_id: UUID) -> None:
                     db.add(ec)
 
             job.status = "completed"
+            await log_audit(
+                db,
+                tender_id=job.tender_id,
+                event="tender_criteria_identification_completed",
+                audit_desc=(
+                    f"Criteria identification completed for job {job_id}, "
+                    f"tender {job.tender_id} -- {len(criteria_groups)} criteria groups extracted"
+                ),
+            )
             await db.commit()
             logger.info("Job %s completed successfully", job_id)
 
@@ -106,6 +122,16 @@ async def process_tender(
 
     for bid_id in payload.bidder_ids:
         db.add(JobBidder(job_id=job.job_id, bid_id=bid_id))
+
+    await log_audit(
+        db,
+        tender_id=payload.tender_id,
+        event="tender_criteria_evaluation_requested",
+        audit_desc=(
+            f"Criteria evaluation requested for tender {payload.tender_id}, "
+            f"job {job.job_id} created with {len(payload.bidder_ids)} bidders"
+        ),
+    )
 
     await db.commit()
     await db.refresh(job)

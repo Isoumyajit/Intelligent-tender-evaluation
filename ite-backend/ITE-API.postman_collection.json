@@ -387,6 +387,60 @@
 					}
 				}
 			]
+		},
+		{
+			"name": "Audits",
+			"item": [
+				{
+					"name": "List Audits",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/audits/",
+							"host": ["{{baseUrl}}"],
+							"path": ["audits", ""]
+						}
+					}
+				},
+				{
+					"name": "List Audits by Tender",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/audits/?tender_id={{tender_id}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["audits", ""],
+							"query": [
+								{
+									"key": "tender_id",
+									"value": "{{tender_id}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "List Audits by Tender and Bidder",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/audits/?tender_id={{tender_id}}&bidder_id={{bid_id}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["audits", ""],
+							"query": [
+								{
+									"key": "tender_id",
+									"value": "{{tender_id}}"
+								},
+								{
+									"key": "bidder_id",
+									"value": "{{bid_id}}"
+								}
+							]
+						}
+					}
+				}
+			]
 		}
 	]
 }

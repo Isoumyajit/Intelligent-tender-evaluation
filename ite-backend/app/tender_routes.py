@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.models import Attachment, Tender
 from app.schemas import TenderListResponse, TenderResponse, TenderUpdate
+from app.services.audit_service import log_audit
 
 router = APIRouter(prefix="/tenders", tags=["tenders"])
 
@@ -32,6 +33,15 @@ async def create_tender(
         tender_ref=attachment.attachment_ref_id,
     )
     db.add(tender)
+    await db.flush()
+
+    await log_audit(
+        db,
+        tender_id=tender.tender_id,
+        event="tender_created",
+        audit_desc=f"Tender {tender.tender_id} '{tender_name}' created",
+    )
+
     await db.commit()
     await db.refresh(tender)
 

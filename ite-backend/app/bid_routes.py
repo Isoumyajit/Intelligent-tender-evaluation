@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.models import Attachment, Bid, BidAttachment, Tender
 from app.schemas import BidListResponse, BidResponse, BidUpdate
+from app.services.audit_service import log_audit
 
 router = APIRouter(prefix="/tenders/{tender_id}/bid", tags=["bids"])
 
@@ -53,6 +54,14 @@ async def create_bid(
             attachment_ref_id=attachment.attachment_ref_id,
         )
         db.add(bid_attachment)
+
+    await log_audit(
+        db,
+        tender_id=tender_id,
+        event="bidder_added",
+        audit_desc=f"Bidder '{bidder_name}' (bid {bid.bid_id}) added to tender {tender_id}",
+        bidder_id=bid.bid_id,
+    )
 
     await db.commit()
     await db.refresh(bid)

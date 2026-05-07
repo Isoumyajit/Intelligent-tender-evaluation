@@ -163,3 +163,20 @@ class TenderEvaluationCondition(Base):
     created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
 
     tender_criteria: Mapped[TenderCriteria] = relationship(back_populates="evaluation_conditions")
+
+
+class AuditLog(Base):
+    __tablename__ = "audit_logs"
+
+    audit_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    tender_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("tenders.tender_id", ondelete="CASCADE"), nullable=False
+    )
+    bidder_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("bids.bid_id", ondelete="SET NULL"), nullable=True
+    )
+    event: Mapped[str] = mapped_column(String(64), nullable=False)
+    audit_desc: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)

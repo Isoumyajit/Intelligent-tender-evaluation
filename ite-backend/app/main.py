@@ -9,6 +9,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app.database import verify_db_connection
 from app.routes import router
+from app.audit_routes import router as audit_router
 from app.bid_routes import router as bid_router
 from app.process_tender_routes import router as process_tender_router
 from app.tender_routes import router as tender_router
@@ -47,6 +48,7 @@ app.include_router(router)
 app.include_router(tender_router)
 app.include_router(bid_router)
 app.include_router(process_tender_router)
+app.include_router(audit_router)
 
 
 @app.exception_handler(SQLAlchemyError)
