@@ -16,6 +16,7 @@ Each element must have exactly these fields:
 - "evaluation_conditions": an array of conditions under this category, where each condition has:
   - "name": a short kebab-case slug identifying the condition (e.g. "gst-registration", "bank-balance", "quality-assurance-plan")
   - "predicate": a clear statement describing what the bidder must satisfy or provide for this condition
+  - "mandatory": true if this condition is explicitly required and the bid will be rejected without it; false if it is optional, preferred, or provides additional scoring advantage
 
 Rules:
 1. Extract EVERY eligibility requirement mentioned in the document — documents to submit, certifications needed, financial conditions, technical qualifications, legal declarations, experience requirements.

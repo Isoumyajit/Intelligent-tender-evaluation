@@ -12,6 +12,7 @@ from app.models import Bid, Job, JobBidder, Tender, TenderCriteria, TenderEvalua
 from app.schemas import (
     CriteriaGroup,
     EvaluationCondition,
+    JobBidderResponse,
     JobResponse,
     ProcessTenderRequest,
     ProcessTenderResponse,
@@ -59,6 +60,7 @@ async def _process_job(job_id: UUID) -> None:
                         tender_criteria_id=tc.id,
                         name=condition.name,
                         predicate=condition.predicate,
+                        mandatory=condition.mandatory,
                     )
                     db.add(ec)
 
@@ -126,15 +128,23 @@ async def get_job_result(
     criteria_groups = [
         CriteriaGroup(
             criteria=tc.criteria,
+            criteria_desc=tc.criteria_desc,
             evaluation_conditions=[
-                EvaluationCondition(name=ec.name, predicate=ec.predicate)
+                EvaluationCondition(name=ec.name, predicate=ec.predicate, mandatory=ec.mandatory)
                 for ec in tc.evaluation_conditions
             ],
         )
         for tc in job.tender_criteria
     ]
 
-    bidder_ids = [jb.bid_id for jb in job.job_bidders]
+    bidders = [
+        JobBidderResponse(
+            bid_id=jb.bid_id,
+            bidder_name=jb.bid.bidder_name,
+            status=jb.status,
+        )
+        for jb in job.job_bidders
+    ]
 
     return JobResponse(
         job_id=job.job_id,
@@ -142,7 +152,7 @@ async def get_job_result(
         tender_name=job.tender.tender_name,
         status=job.status,
         criteria=criteria_groups,
-        bidder_ids=bidder_ids,
+        bidders=bidders,
         created_at=job.created_at,
         updated_at=job.updated_at,
     )

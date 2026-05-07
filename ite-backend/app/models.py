@@ -102,7 +102,7 @@ class Job(Base):
     created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    tender: Mapped[Tender] = relationship(back_populates="jobs")
+    tender: Mapped[Tender] = relationship(back_populates="jobs", lazy="selectin")
     job_bidders: Mapped[list["JobBidder"]] = relationship(
         back_populates="job", lazy="selectin", cascade="all, delete-orphan"
     )
@@ -159,6 +159,7 @@ class TenderEvaluationCondition(Base):
     )
     name: Mapped[str] = mapped_column(String(512), nullable=False)
     predicate: Mapped[str] = mapped_column(Text, nullable=False)
+    mandatory: Mapped[bool] = mapped_column(nullable=False, default=True)
     created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
 
     tender_criteria: Mapped[TenderCriteria] = relationship(back_populates="evaluation_conditions")

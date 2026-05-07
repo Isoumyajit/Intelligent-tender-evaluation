@@ -70,5 +70,6 @@ CREATE TABLE IF NOT EXISTS tender_evaluation_conditions (
     tender_criteria_id  UUID NOT NULL REFERENCES tender_criteria(id) ON DELETE CASCADE,
     name                VARCHAR(512) NOT NULL,
     predicate           TEXT NOT NULL,
+    mandatory           BOOLEAN NOT NULL DEFAULT true,
     created_at          TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

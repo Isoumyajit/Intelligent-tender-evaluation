@@ -98,10 +98,12 @@ class BidListResponse(BaseModel):
 class EvaluationCondition(BaseModel):
     name: str
     predicate: str
+    mandatory: bool = True
 
 
 class CriteriaGroup(BaseModel):
     criteria: str
+    criteria_desc: str = ""
     evaluation_conditions: list[EvaluationCondition]
 
 
@@ -116,12 +118,18 @@ class ProcessTenderResponse(BaseModel):
     job_id: UUID
 
 
+class JobBidderResponse(BaseModel):
+    bid_id: UUID
+    bidder_name: str
+    status: str
+
+
 class JobResponse(BaseModel):
     job_id: UUID
     tender_id: UUID
     tender_name: str
     status: str
     criteria: list[CriteriaGroup]
-    bidder_ids: list[UUID]
+    bidders: list[JobBidderResponse]
     created_at: datetime
     updated_at: datetime
