@@ -490,6 +490,12 @@
   padding: 16px 0 0 0;
   max-height: 420px;
   overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .audit-entry {

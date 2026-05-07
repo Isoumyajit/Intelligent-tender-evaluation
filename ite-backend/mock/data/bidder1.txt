@@ -1,50 +1,233 @@
+--- PAGE 1 ---
 BIDDER SUBMISSION — Bharat Engineering Solutions Pvt. Ltd.
 
-1. Registration Details
+TABLE OF CONTENTS
+
+1. Registration Details ............................ Page 2
+2. Bank Statement .................................. Page 3
+3. GST Clearance ................................... Page 4
+4. Earnest Money Deposit (EMD) .................... Page 5
+5. Tender Cost ..................................... Page 6
+6. Affidavit on Correctness ....................... Page 7
+7. ISO Certification (Optional) ................... Page 8
+8. Previous Work Experience (Optional) ............ Page 9
+
+Cover Letter:
+To,
+The Executive Engineer,
+PWD (R&B) Division Bhaderwah
+
+Subject: Submission of Bid for Highway Construction Project NH-48
+
+Dear Sir,
+We, Bharat Engineering Solutions Pvt. Ltd., hereby submit our bid for the
+above-referenced project as per the terms and conditions of e-NIT No. ITE/2026/029.
+All required documents are enclosed herewith.
+
+Date: 14.04.2026
+Place: Mumbai
+Authorized Signatory: Rajesh Kumar, Director
+
+--- PAGE 2 ---
+1. REGISTRATION DETAILS
+
+   Company Name: Bharat Engineering Solutions Pvt. Ltd.
    Registration Card No: RC/2025/MH/04567
    Category: Class A Government Contractor
    Registration card duly renewed for the current financial year 2025-26.
-   Issuing Authority: PWD Maharashtra
+   Issuing Authority: Public Works Department (PWD), Maharashtra
+   Date of Issue: 01.04.2025
+   Valid Until: 31.03.2026
 
-2. Bank Statement
+   CIN: U45200MH2005PTC123456
+   Date of Incorporation: 15.06.2005
+   Registered Office: 42, Industrial Estate, Andheri East, Mumbai - 400069
+
+   The company has been registered as a Class A Government Contractor since 2010
+   and has successfully completed over 45 government infrastructure projects
+   across Maharashtra, Rajasthan, and Jammu & Kashmir.
+
+--- PAGE 3 ---
+2. BANK STATEMENT
+
    Bank: State Bank of India, Industrial Finance Branch, Mumbai
    Account No: 39876543210
    IFSC: SBIN0001234
-   Last Available Balance: Rs. 15,00,00,000 (Fifteen Crore)
-   Balance is more than Rs. 10,000,000 as required.
+   Account Type: Current Account
+
+   Statement Period: 01.03.2026 to 01.04.2026
+
+   Date          Description                    Debit         Credit        Balance
+   01.03.2026    Opening Balance                                           14,85,00,000
+   05.03.2026    NHAI Payment - NH48 Pkg I                    50,00,000    15,35,00,000
+   10.03.2026    Vendor Payment - Steel         25,00,000                  15,10,00,000
+   15.03.2026    PWD MH - Final Bill                          35,00,000    15,45,00,000
+   22.03.2026    Equipment Lease                12,00,000                  15,33,00,000
+   28.03.2026    Salary Disbursement            18,00,000                  15,15,00,000
+   01.04.2026    Opening Balance (Apr)                                     15,15,00,000
+
+   Last Available Balance: Rs. 15,15,00,000 (Fifteen Crore Fifteen Lakh)
+   Balance is more than Rs. 10,000,000 as required by tender conditions.
    Statement Date: 01.04.2026
 
-3. GST Clearance
+   Certified by: Branch Manager, SBI Industrial Finance Branch, Mumbai
+   Seal & Signature affixed.
+
+--- PAGE 4 ---
+3. GST CLEARANCE
+
    GSTIN: 27AADCB2230M1ZP
-   GSTR-3B for the Month of March 2026: Filed and cleared.
+   Legal Name: Bharat Engineering Solutions Pvt. Ltd.
+   Trade Name: Bharat Engineering Solutions
+   State: Maharashtra (27)
+   Registration Date: 01.07.2017
+
+   GSTR-3B Filing Status:
+   - Filing Frequency: Monthly
+   - GSTR-3B for the Month of March 2026: FILED AND CLEARED
+   - Date of Filing: 20.03.2026
+   - Acknowledgement No: GSTN/2026/MH/0345678
+   - Tax Liability: Rs. 4,56,000 (Paid in full)
+   - Input Tax Credit Claimed: Rs. 3,12,000
+   - Net Tax Paid: Rs. 1,44,000
+
    GSTR-3B Latest Clearance Certificate attached herewith.
+   No outstanding GST dues as on date.
 
-4. Earnest Money Deposit (EMD)
-   EMD Amount: Rs. 5,00,000
-   Mode: CDR duly pledged to Executive Engineer PWD (R&B) Division Bhaderwah
+   Certificate issued by: GST Portal (auto-generated)
+   Verification URL: https://services.gst.gov.in/services/verify
+
+--- PAGE 5 ---
+4. EARNEST MONEY DEPOSIT (EMD)
+
+   EMD Amount: Rs. 5,00,000 (Rupees Five Lakh Only)
+   Mode: CDR (Certificate of Deposit Receipt)
+   CDR duly pledged to Executive Engineer PWD (R&B) Division Bhaderwah
+
+   CDR Details:
    CDR No: CDR/2026/SBI/00456
-   Date of CDR: 15.04.2026 (between Start of Bid and Bid Submission end Date)
+   Issuing Bank: State Bank of India, Industrial Finance Branch, Mumbai
+   Date of CDR: 15.04.2026
+   Valid Until: 15.10.2026
 
-5. Tender Cost
+   The date of CDR (15.04.2026) falls between the Start of Bid date (04.04.2026)
+   and Bid Submission end Date (30.04.2026) as required.
+
+   Pledged To: Executive Engineer, PWD (R&B) Division, Bhaderwah
+   Pledge Reference: PLG/2026/SBI/00456
+
+   Original CDR enclosed herewith.
+
+--- PAGE 6 ---
+5. TENDER COST
+
    Treasury Challan No: TC/2026/JK/00789
-   Amount: Rs. 2,000
-   Treasury Challan issued after date of issuance of e-NIT
-   Date: 16.04.2026 (between Start of Bid and Bid Submission end Date)
-   Work Reference: Highway Construction Tender 2025-26, NIT No. ITE/2026/029
+   Amount: Rs. 2,000 (Rupees Two Thousand Only)
+   Treasury Challan issued after date of issuance of e-NIT.
 
-6. Affidavit on Correctness
-   Notarized affidavit on correctness of information submitted with the bid.
-   Affidavit duly notarized by Public Notary, Mumbai
+   Payment Details:
+   Date of Payment: 16.04.2026
+   Treasury: J&K Government Treasury, Doda
+   Head of Account: 0059 - PWD Deposits
+   Receipt No: REC/2026/DODA/04567
+
+   Work Reference: Highway Construction Tender 2025-26
+   NIT No: ITE/2026/029
+   Tender ID: ITE-T-2026-029-001
+
+   The date of Treasury Challan (16.04.2026) falls between the Start of Bid date
+   (04.04.2026) and Bid Submission end Date (30.04.2026) as required.
+
+   Original Treasury Challan / Receipt enclosed.
+
+--- PAGE 7 ---
+6. AFFIDAVIT ON CORRECTNESS OF INFORMATION
+
+   AFFIDAVIT
+   (On Non-Judicial Stamp Paper of Rs. 100/-)
+
+   I, Rajesh Kumar, son of Shri Mohan Kumar, aged 52 years, Director of
+   Bharat Engineering Solutions Pvt. Ltd., having its registered office at
+   42, Industrial Estate, Andheri East, Mumbai - 400069, do hereby solemnly
+   affirm and state as under:
+
+   1. That the information submitted with the bid is true and correct to the
+      best of my knowledge and belief.
+   2. That no material facts have been concealed or misrepresented.
+   3. That the company is not blacklisted by any Government department.
+   4. That I am authorized to sign this affidavit on behalf of the company.
+
    Name of the work: Highway Construction Project NH-48
    e-NIT No: ITE/2026/029
-   Date: 14.04.2026 (As per Annexure-A)
 
-7. ISO Certification (Optional)
-   ISO 9001:2015 Quality Management certification valid till Dec 2026.
+   Notarized by: Shri P.K. Sharma, Public Notary, Mumbai
+   Notary Registration No: MH/MUM/2018/04567
+   Date of Notarization: 14.04.2026
+
+   (As per Annexure-A)
+
+   VERIFICATION:
+   Verified at Mumbai on 14.04.2026. The contents of this affidavit are true
+   and correct to my knowledge and belief.
+
+   Sd/-
+   Rajesh Kumar, Director
+
+--- PAGE 8 ---
+7. ISO CERTIFICATION (OPTIONAL)
+
    Certificate No: ISO/QMS/2024/MH/04567
-   Issuing Body: Bureau of Indian Standards
+   Standard: ISO 9001:2015 — Quality Management Systems
+   Issuing Body: Bureau of Indian Standards (BIS)
 
-8. Previous Work Experience (Optional)
-   - Highway NH-48 Package I for NHAI (2023) — Rs. 12 Cr
-   - Bridge construction for PWD Maharashtra (2022) — Rs. 8 Cr
-   - Road widening for CPWD (2021) — Rs. 6 Cr
+   Certified Organization: Bharat Engineering Solutions Pvt. Ltd.
+   Scope: Design, Construction, and Project Management of Highway and
+          Bridge Infrastructure Projects
+
+   Date of Initial Certification: 15.01.2020
+   Last Surveillance Audit: 10.12.2025
+   Current Certificate Valid From: 15.01.2024
+   Current Certificate Valid Until: 14.01.2027
+
+   Audit Summary:
+   - No major non-conformities found
+   - 2 minor observations addressed within 30 days
+   - Recommended for continued certification
+
+   This certifies that the Quality Management System of the above organization
+   has been assessed and found to conform to the requirements of ISO 9001:2015.
+
+   Sd/-
+   Director General, BIS
+
+--- PAGE 9 ---
+8. PREVIOUS WORK EXPERIENCE (OPTIONAL)
+
+   WORK COMPLETION CERTIFICATES
+
+   Project 1:
+   - Name: Highway NH-48 Package I — 4-lane divided carriageway
+   - Client: National Highways Authority of India (NHAI)
+   - Contract Value: Rs. 12,00,00,000 (Twelve Crore)
+   - Completion Date: March 2023
+   - Length: 24 km
+   - Performance Rating: Excellent
+   - Certificate No: NHAI/WCC/2023/NH48/PKG-I/0456
+
+   Project 2:
+   - Name: RCC Bridge over River Panchganga
+   - Client: PWD Maharashtra, Kolhapur Division
+   - Contract Value: Rs. 8,00,00,000 (Eight Crore)
+   - Completion Date: November 2022
+   - Span: 120 meters
+   - Performance Rating: Very Good
+   - Certificate No: PWD/MH/WCC/2022/KOL/0789
+
+   Project 3:
+   - Name: Road Widening — SH-17 Pune-Satara Section
+   - Client: Central Public Works Department (CPWD)
+   - Contract Value: Rs. 6,00,00,000 (Six Crore)
+   - Completion Date: July 2021
+   - Length: 18 km
+   - Performance Rating: Good
+   - Certificate No: CPWD/WCC/2021/MH/SH17/0123

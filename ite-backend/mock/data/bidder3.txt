@@ -1,31 +1,151 @@
+--- PAGE 1 ---
 BIDDER SUBMISSION — Sunrise Infrastructure Ltd.
 
-1. Registration Details
-   Company registered under Companies Act 2013.
-   Note: Registration card for FY 2025-26 NOT renewed yet.
-   Renewal application pending with PWD Delhi.
+TABLE OF CONTENTS
 
-2. Bank Statement
+1. Registration Details ............................ Page 2
+2. Bank Statement .................................. Page 3
+3. GST Details ..................................... Page 4
+4. EMD Exemption Claim ............................. Page 5
+5. Tender Cost ..................................... Page 5
+6. Affidavit ....................................... Page 6
+
+Cover Letter:
+To,
+The Executive Engineer,
+PWD (R&B) Division Bhaderwah
+
+Subject: Bid Submission for Highway Construction Tender 2025-26
+
+Sir/Madam,
+Sunrise Infrastructure Ltd. submits this bid for the referenced tender.
+We are an MSME-registered enterprise and have been operating in the
+infrastructure sector for the past 8 years.
+
+Date: 20.04.2026
+Place: New Delhi
+Authorized Signatory: Priya Sharma, CEO
+
+--- PAGE 2 ---
+1. REGISTRATION DETAILS
+
+   Company Name: Sunrise Infrastructure Ltd.
+   Company Type: Registered under Companies Act 2013
+   CIN: U45202DL2018PLC234567
+   Date of Incorporation: 10.03.2018
+   Registered Office: A-12, Connaught Place, New Delhi - 110001
+
+   Registration Card Status:
+   NOTE: Registration card for FY 2025-26 has NOT been renewed yet.
+   Previous registration was for FY 2024-25 (expired 31.03.2025).
+   Renewal application has been submitted to PWD Delhi on 05.04.2026.
+   Application Reference: PWD/DL/RENEWAL/2026/03456
+   Expected processing time: 4-6 weeks.
+
+   The bidder acknowledges that the current registration card is expired
+   and renewal is pending. A copy of the renewal application receipt is
+   attached for reference.
+
+--- PAGE 3 ---
+2. BANK STATEMENT
+
    Bank: HDFC Bank, Connaught Place Branch, New Delhi
    Account No: 50100987654321
-   Last Available Balance: Rs. 8,50,000 (Eight Lakh Fifty Thousand only)
-   NOTE: Balance is BELOW the required Rs. 10,000,000 threshold.
+   IFSC: HDFC0000123
+   Account Type: Current Account
+
+   Statement Period: 01.03.2026 to 28.03.2026
+
+   Date          Description                    Debit         Credit        Balance
+   01.03.2026    Opening Balance                                           9,50,000
+   05.03.2026    Client Payment                                2,00,000   11,50,000
+   10.03.2026    Office Rent                    1,50,000                  10,00,000
+   15.03.2026    Salary Payment                 2,50,000                   7,50,000
+   20.03.2026    Material Advance               1,00,000                   6,50,000
+   25.03.2026    Small Project Payment                         2,00,000    8,50,000
+   28.03.2026    Closing Balance                                           8,50,000
+
+   Last Available Balance: Rs. 8,50,000 (Eight Lakh Fifty Thousand Only)
+
+   *** WARNING: Balance is BELOW the required threshold of Rs. 10,000,000 ***
+   The bidder's available balance of Rs. 8,50,000 does not meet the
+   minimum requirement of Rs. 1,00,00,000 (One Crore) specified in
+   the tender conditions.
+
    Statement Date: 28.03.2026
+   Branch Manager certification attached.
 
-3. GST Details
+--- PAGE 4 ---
+3. GST DETAILS
+
    GSTIN: 07AABCS1234F1Z5
-   GSTR-3B: Quarterly filer. Latest quarter Jan-Mar 2025-26 filed.
+   Legal Name: Sunrise Infrastructure Ltd.
+   State: Delhi (07)
+   Registration Date: 15.04.2018
 
-4. EMD
-   No EMD submitted. Bidder claims exemption under MSME category.
-   Udyam Registration: UDYAM-DL-02-0054321
-   Note: CDR / FDR not provided as required.
+   GSTR-3B Filing Status:
+   - Filing Frequency: Quarterly
+   - Latest Quarter: Jan-Mar 2025-26
+   - Status: FILED
 
-5. Tender Cost
-   Treasury Challan: Not submitted.
-   Bidder states tender fee will be submitted separately.
+   Quarter Details:
+   - Quarter: January 2026 - March 2026
+   - Filing Date: 19.04.2026
+   - Acknowledgement No: GSTN/2026/DL/QTRLY/01234
+   - Tax Liability: Rs. 1,23,000
+   - Tax Paid: Rs. 1,23,000 (No outstanding dues)
 
-6. Affidavit
-   Affidavit submitted but NOT notarized.
-   Signed declaration only, dated 10.04.2026.
-   Notarization not completed.
+   GSTR-3B clearance for the latest quarter (Jan-Mar 2025-26) is available.
+   Certificate downloaded from GST portal on 20.04.2026.
+
+--- PAGE 5 ---
+4. EMD (EARNEST MONEY DEPOSIT)
+
+   EMD Submission Status: NOT SUBMITTED
+
+   The bidder claims exemption from EMD under MSME category.
+   Udyam Registration Number: UDYAM-DL-02-0054321
+   Category: Micro Enterprise
+   Date of Registration: 22.06.2020
+
+   NOTE: No CDR / FDR has been provided as required by the tender conditions.
+   The tender specifies EMD must be in the shape of CDR / FDR duly pledged
+   to Executive Engineer PWD (R&B) Division Bhaderwah. The MSME exemption
+   claim needs to be verified against the specific tender provisions.
+
+   ---
+
+5. TENDER COST
+
+   Treasury Challan: NOT SUBMITTED
+
+   The bidder has not deposited the tender cost fee.
+   Bidder states that the tender fee payment will be submitted separately
+   before the bid submission deadline, but as of the submission date
+   no proof of payment has been provided.
+
+--- PAGE 6 ---
+6. AFFIDAVIT ON CORRECTNESS
+
+   SIGNED DECLARATION
+   (On plain paper)
+
+   I, Priya Sharma, CEO of Sunrise Infrastructure Ltd., do hereby
+   declare that the information provided in this bid submission is
+   true and correct to the best of my knowledge and belief.
+
+   Date: 10.04.2026
+   Place: New Delhi
+
+   NOTE: This declaration is NOT notarized.
+   The affidavit has been submitted as a signed declaration only.
+   Notarization has not been completed.
+   The tender requires the affidavit to be "duly Notarized" with
+   the name of the work and e-NIT No. as per Annexure-A.
+
+   The declaration does not mention the specific name of the work
+   or e-NIT number as required.
+
+   Sd/-
+   Priya Sharma
+   CEO, Sunrise Infrastructure Ltd.

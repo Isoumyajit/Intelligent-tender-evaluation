@@ -40,22 +40,39 @@ def _build_document_text(pages: list[str]) -> str:
     return "\n\n".join(sections)
 
 
+def _strip_trailing_commas(text: str) -> str:
+    """Remove trailing commas before } or ] that make JSON invalid."""
+    return re.sub(r",\s*([}\]])", r"\1", text)
+
+
 def _parse_criteria_json(raw: str) -> list[dict]:
     text = raw.strip()
 
-    try:
-        return json.loads(text)
-    except json.JSONDecodeError:
-        pass
+    # Strip markdown code fences the LLM sometimes wraps around the JSON
+    text = re.sub(r"^```(?:json)?\s*\n?", "", text)
+    text = re.sub(r"\n?```\s*$", "", text)
+    text = text.strip()
 
-    match = re.search(r"\[.*\]", text, re.DOTALL)
-    if match:
+    for candidate in [text, _strip_trailing_commas(text)]:
         try:
-            return json.loads(match.group())
+            return json.loads(candidate)
         except json.JSONDecodeError:
             pass
 
+    match = re.search(r"\[.*\]", text, re.DOTALL)
+    if match:
+        extracted = match.group()
+        for candidate in [extracted, _strip_trailing_commas(extracted)]:
+            try:
+                return json.loads(candidate)
+            except json.JSONDecodeError:
+                pass
+
     raise ValueError(f"Could not parse criteria JSON from LLM response: {text[:200]}...")
+
+
+MIN_EXPECTED_CONDITIONS = 3
+MAX_RETRIES = 3
 
 
 async def extract_criteria(pages: list[str]) -> list[CriteriaGroup]:
@@ -72,17 +89,46 @@ async def extract_criteria(pages: list[str]) -> list[CriteriaGroup]:
         LLMMessage(role="user", content=USER_PROMPT_TEMPLATE.format(document_text=document_text)),
     ]
 
-    response = await chat_completion(messages=messages, temperature=0.1)
+    best_groups: list[CriteriaGroup] = []
+    best_count = 0
 
-    parsed = _parse_criteria_json(response.content)
+    for attempt in range(1, MAX_RETRIES + 1):
+        temp = 0.1 + (attempt - 1) * 0.1
+        logger.info("Criteria extraction attempt %d/%d (temperature=%.2f)",
+                     attempt, MAX_RETRIES, temp)
 
-    criteria_groups = [CriteriaGroup(**item) for item in parsed]
-    logger.info("Extracted %d criteria groups from tender document", len(criteria_groups))
-    for group in criteria_groups:
+        try:
+            response = await chat_completion(messages=messages, temperature=temp)
+            parsed = _parse_criteria_json(response.content)
+            groups = [CriteriaGroup(**item) for item in parsed]
+            total_conditions = sum(len(g.evaluation_conditions) for g in groups)
+
+            logger.info("Attempt %d: extracted %d groups, %d conditions",
+                        attempt, len(groups), total_conditions)
+
+            if total_conditions > best_count:
+                best_groups = groups
+                best_count = total_conditions
+
+            if total_conditions >= MIN_EXPECTED_CONDITIONS:
+                break
+
+            logger.warning(
+                "Only %d conditions extracted (minimum %d). Retrying...",
+                total_conditions, MIN_EXPECTED_CONDITIONS,
+            )
+        except Exception as exc:
+            logger.warning("Attempt %d failed: %s", attempt, exc)
+            if attempt == MAX_RETRIES and best_count == 0:
+                raise
+
+    logger.info("Final result: %d criteria groups, %d total conditions",
+                len(best_groups), best_count)
+    for group in best_groups:
         for cond in group.evaluation_conditions:
             logger.info(
                 "LLM criterion: [%s] %s (mandatory=%s) — %s",
                 group.criteria, cond.name, cond.mandatory, cond.predicate,
             )
 
-    return criteria_groups
+    return best_groups

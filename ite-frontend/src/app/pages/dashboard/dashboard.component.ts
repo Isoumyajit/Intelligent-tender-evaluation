@@ -60,7 +60,7 @@ export class DashboardComponent implements OnInit {
   private readonly refresh = inject(RefreshBus);
   private readonly stages = inject(TenderStageStore);
 
-  officerName = 'Ravi Kumar';
+  officerName = 'User';
   officerTitle = 'Procurement Officer • Ministry of Public Works';
   today = new Date();
   greeting = '';

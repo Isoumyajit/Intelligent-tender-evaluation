@@ -1,34 +1,156 @@
+--- PAGE 1 ---
 BIDDER SUBMISSION — Apex Builders & Associates
 
-1. Registration Details
-   Firm Type: Partnership Firm
-   Registration card issued for FY 2023-24.
-   Registration card NOT renewed for current financial year 2025-26.
-   Previous registration expired on 31.03.2024.
+TABLE OF CONTENTS
 
-2. Bank Statement
+1. Registration Details ............................ Page 2
+2. Bank Statement .................................. Page 3
+3. GST Details ..................................... Page 4
+4. EMD .............................................. Page 5
+5. Tender Cost ..................................... Page 5
+6. Affidavit ....................................... Page 6
+
+Cover Letter:
+To,
+The Executive Engineer,
+PWD (R&B) Division Bhaderwah
+
+Subject: Bid for Highway Construction Tender 2025-26
+
+Dear Sir,
+On behalf of Apex Builders & Associates, a partnership firm, we are pleased
+to submit our bid for the referenced tender. Enclosed please find all
+supporting documents as required.
+
+Date: 22.04.2026
+Place: Chandigarh
+Authorized Signatory: Gurpreet Singh, Senior Partner
+
+--- PAGE 2 ---
+1. REGISTRATION DETAILS
+
+   Firm Name: Apex Builders & Associates
+   Firm Type: Partnership Firm
+   Partnership Deed Date: 05.05.2015
+   PAN: AABPA5678M
+
+   Registration Card Details:
+   Registration Card No: RC/2023/CH/04567
+   Issuing Authority: PWD Chandigarh
+   Date of Issue: 01.04.2023
+   Valid Until: 31.03.2024
+
+   IMPORTANT NOTE:
+   Registration card was issued for FY 2023-24 only.
+   Registration card has NOT been renewed for the current financial year 2025-26.
+   Previous registration EXPIRED on 31.03.2024 — over one year ago.
+
+   The firm has not applied for renewal as of the bid submission date.
+   This is a mandatory requirement under clause (a) of the tender conditions:
+   "Copy of registration card duly renewed for the current financial year 2025-26."
+
+   Registered Office: SCO 45, Sector 17, Chandigarh - 160017
+
+--- PAGE 3 ---
+2. BANK STATEMENT
+
    Bank: Punjab National Bank, Sector 17 Branch, Chandigarh
    Account No: 0987654321098
-   Last Available Balance: Rs. 3,25,000 (Three Lakh Twenty-Five Thousand only)
-   NOTE: Balance is significantly BELOW the required Rs. 10,000,000.
+   IFSC: PUNB0001700
+   Account Type: Partnership Current Account
+
+   Statement Period: 01.03.2026 to 15.03.2026
+
+   Date          Description                    Debit         Credit        Balance
+   01.03.2026    Opening Balance                                           4,25,000
+   05.03.2026    Rent Collection                               1,50,000   5,75,000
+   08.03.2026    Office Expenses                  75,000                   5,00,000
+   10.03.2026    Partner Drawing                1,25,000                   3,75,000
+   12.03.2026    Small Work Payment                              50,000   4,25,000
+   15.03.2026    Closing Balance                                           3,25,000
+
+   Last Available Balance: Rs. 3,25,000 (Three Lakh Twenty-Five Thousand Only)
+
+   *** CRITICAL: Balance is significantly BELOW the required Rs. 10,000,000 ***
+   The available balance of Rs. 3,25,000 is only 3.25% of the required minimum
+   balance of Rs. 1,00,00,000 (One Crore).
+
    Statement Date: 15.03.2026
+   Note: Statement is over one month old at the time of bid submission.
 
-3. GST Details
+--- PAGE 4 ---
+3. GST DETAILS
+
    GSTIN: 03AABPA5678M1Z2
-   GSTR-3B: Not submitted for current period.
-   Note: GST registration is active but GSTR-3B clearance certificate
-   is NOT available. Returns are pending for last 2 quarters.
+   Legal Name: Apex Builders & Associates
+   State: Chandigarh (03)
+   Registration Date: 01.07.2017
+   GST Registration Status: ACTIVE
 
-4. EMD
-   EMD of Rs. 5,00,000 submitted via Demand Draft.
+   GSTR-3B Filing Status:
+   - Filing Frequency: Monthly
+
+   CRITICAL ISSUE:
+   GSTR-3B returns are PENDING for the last 2 quarters:
+   - October 2025: NOT FILED
+   - November 2025: NOT FILED
+   - December 2025: NOT FILED
+   - January 2026: NOT FILED
+   - February 2026: NOT FILED
+   - March 2026: NOT FILED
+
+   GSTR-3B Latest Clearance Certificate is NOT AVAILABLE.
+   The firm has not filed returns for 6 consecutive months.
+   Outstanding tax liability (estimated): Rs. 2,45,000
+
+   A show-cause notice (SCN) has been issued by the GST department
+   for non-filing. SCN Reference: GST/CH/SCN/2026/01234.
+
+--- PAGE 5 ---
+4. EMD (EARNEST MONEY DEPOSIT)
+
+   EMD Amount: Rs. 5,00,000 (Rupees Five Lakh Only)
+   Mode: Demand Draft (DD)
    DD No: DD/2026/PNB/04567
-   Note: EMD should be in the shape of CDR / FDR as specified.
-   Demand Draft does not meet the CDR/FDR requirement.
+   Issuing Bank: Punjab National Bank, Sector 17 Branch, Chandigarh
+   Date of DD: 20.04.2026
+   In Favour Of: Executive Engineer, PWD (R&B) Division, Bhaderwah
 
-5. Tender Cost
-   Treasury Challan: Not submitted.
-   Payment not made for tender cost.
+   COMPLIANCE ISSUE:
+   The tender conditions specify that EMD must be in the shape of
+   CDR (Certificate of Deposit Receipt) / FDR (Fixed Deposit Receipt)
+   duly pledged to the Executive Engineer.
 
-6. Affidavit
-   No affidavit submitted with the bid.
-   Required notarized affidavit on correctness is missing entirely.
+   A Demand Draft has been submitted instead of CDR/FDR.
+   This does NOT meet the specified EMD format requirement.
+   CDR/FDR allows for pledge; DD is a one-time payment instrument
+   and cannot be pledged as required.
+
+   ---
+
+5. TENDER COST
+
+   Treasury Challan: NOT SUBMITTED
+   No payment has been made towards tender cost.
+   The required Treasury Challan / Receipt has not been provided.
+   This is a mandatory requirement under clause (e) of the tender conditions.
+
+--- PAGE 6 ---
+6. AFFIDAVIT ON CORRECTNESS
+
+   STATUS: NO AFFIDAVIT SUBMITTED
+
+   The required notarized affidavit on correctness of information
+   has not been submitted with this bid.
+
+   The tender conditions under clause (f) require:
+   "Affidavit on Correctness of Information submitted with the bid
+   duly Notarized with indicating Name of the work and e-NIT No.
+   (As per Annexure-A)."
+
+   This document is entirely MISSING from the bid submission.
+   No signed declaration, no affidavit, no notarized document of
+   any kind has been provided for this requirement.
+
+   The absence of this mandatory document is a significant
+   non-compliance with the tender conditions.

@@ -131,6 +131,53 @@
       </mat-card>
     </section>
 
+    <section class="tender-requirements">
+      <button
+        type="button"
+        class="tender-requirements__toggle"
+        (click)="requirementsExpanded = !requirementsExpanded"
+      >
+        <div class="tender-requirements__toggle-left">
+          <mat-icon class="tender-requirements__toggle-chevron">
+            {{ requirementsExpanded ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }}
+          </mat-icon>
+          <mat-icon class="tender-requirements__toggle-icon">checklist</mat-icon>
+          <div>
+            <strong>Tender Requirements</strong>
+            <span class="tender-requirements__count">
+              {{ bidder.criteria.length }} criteria — {{ mandatoryCount }} mandatory, {{ optionalCount }} optional
+            </span>
+          </div>
+        </div>
+      </button>
+
+      @if (requirementsExpanded) {
+        <div class="tender-requirements__grid">
+          @for (criterion of bidder.criteria; track criterion.id) {
+            <div class="req-card" [class.req-card--optional]="criterion.isMandatory === false">
+              <div class="req-card__header">
+                <mat-icon class="req-card__type-icon">
+                  {{ criterion.isMandatory === false ? 'star_outline' : 'verified' }}
+                </mat-icon>
+                <span class="req-card__title">{{ criterion.title }}</span>
+                <span class="{{ criterion.isMandatory === false ? 'optional-badge' : 'mandatory-badge' }}">
+                  {{ criterion.isMandatory === false ? 'Optional' : 'Mandatory' }}
+                </span>
+              </div>
+              <p class="req-card__predicate">{{ criterion.requirement }}</p>
+              <div class="req-card__footer">
+                <span class="req-card__category">{{ criterion.category }}</span>
+                <mat-chip class="{{ statusClass(criterion.status) }}" disableRipple>
+                  <mat-icon matChipAvatar>{{ statusIcon(criterion.status) }}</mat-icon>
+                  {{ statusLabel(criterion.status) }}
+                </mat-chip>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </section>
+
     <mat-card appearance="outlined" class="report-card">
       <mat-tab-group dynamicHeight animationDuration="150ms">
         @for (group of categoryGroups; track group.category) {

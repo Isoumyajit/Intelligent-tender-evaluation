@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -10,8 +10,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { Observable, forkJoin } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { Observable, Subscription, forkJoin, merge, of } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { BIDDER_REPOSITORY } from '../../core/abstractions/bidder-repository';
 import { TENDER_REPOSITORY } from '../../core/abstractions/tender-repository';
@@ -23,6 +23,7 @@ import {
   ProcessedTender,
 } from '../../core/models/evaluation.models';
 import { AppRoutes } from '../../core/routing/app-routes';
+import { RefreshBus } from '../../core/services/refresh-bus';
 import { TenderStageStore } from '../../core/services/tender-stage.store';
 import {
   BreadcrumbComponent,
@@ -54,12 +55,14 @@ interface BidderListData {
   templateUrl: './bidder-list.component.html',
   styleUrl: './bidder-list.component.scss',
 })
-export class BidderListComponent implements OnInit {
+export class BidderListComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly tenderRepo = inject(TENDER_REPOSITORY);
   private readonly bidderRepo = inject(BIDDER_REPOSITORY);
   private readonly scorer = inject(EvaluationScorer);
+  private readonly refreshBus = inject(RefreshBus);
+  private refreshSub?: Subscription;
 
   tender: ProcessedTender | null = null;
   bidders: BidderSummary[] = [];
@@ -78,13 +81,18 @@ export class BidderListComponent implements OnInit {
     this.isUploadSetupRoute = this.router.url.startsWith('/upload/');
     this.showAuditTrail = !this.isUploadSetupRoute;
 
-    const combined$ = forkJoin({
-      tender: this.tenderRepo.getById(tenderId),
-      bidders: this.bidderRepo.listForTender(tenderId),
-    }).pipe(map((data) => data as BidderListData));
+    const source$ = merge(of(null), this.refreshBus.tenders$).pipe(
+      switchMap(() =>
+        forkJoin({
+          tender: this.tenderRepo.getById(tenderId),
+          bidders: this.bidderRepo.listForTender(tenderId),
+        }),
+      ),
+      map((data) => data as BidderListData),
+    );
 
-    this.state$ = toLoadState(combined$);
-    this.state$.subscribe((s) => {
+    this.state$ = toLoadState(source$);
+    this.refreshSub = this.state$.subscribe((s) => {
       if (s.status === 'success') {
         this.tender = s.data.tender ?? null;
         this.bidders = [...s.data.bidders].sort(
@@ -108,6 +116,10 @@ export class BidderListComponent implements OnInit {
         }
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.refreshSub?.unsubscribe();
   }
 
   private loadAudit(tenderId: string): void {

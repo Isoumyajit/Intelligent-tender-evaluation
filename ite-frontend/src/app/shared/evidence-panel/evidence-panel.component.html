@@ -75,7 +75,7 @@
                 <mat-icon>description</mat-icon>
                 <div>
                   <strong>{{ docDisplayName(active) }}</strong>
-                  <span>{{ active.pageOrSection }}</span>
+                  <span>{{ active.pageOrSection }}@if (active.pageNumber) { — viewing page {{ active.pageNumber }}}</span>
                 </div>
               </div>
               <span class="viewer-section__confidence">
@@ -86,7 +86,7 @@
             <div class="viewer-section__stage">
               <app-document-viewer
                 [documentId]="active.documentName"
-                [initialPage]="1"
+                [initialPage]="active.pageNumber || 1"
                 (closed)="close()"
               ></app-document-viewer>
             </div>

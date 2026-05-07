@@ -1,40 +1,170 @@
+--- PAGE 1 ---
 BIDDER SUBMISSION — Delta Constructions Pvt. Ltd.
 
-1. Registration Details
+TABLE OF CONTENTS
+
+1. Registration Details ............................ Page 2
+2. Bank Statement .................................. Page 3
+3. GST Clearance ................................... Page 4
+4. Earnest Money Deposit (EMD) .................... Page 5
+5. Tender Cost ..................................... Page 6
+6. Affidavit on Correctness ....................... Page 7
+
+Cover Letter:
+To,
+The Executive Engineer,
+PWD (R&B) Division Bhaderwah
+
+Subject: Submission of Bid for Highway Construction Project
+
+Dear Sir,
+Delta Constructions Pvt. Ltd. hereby submits this bid in response to
+e-NIT No. ITE/2026/029 for Highway Construction Tender 2025-26.
+
+Date: 17.04.2026
+Place: Bangalore
+Authorized Signatory: Anand Reddy, Managing Director
+
+--- PAGE 2 ---
+1. REGISTRATION DETAILS
+
+   Company Name: Delta Constructions Pvt. Ltd.
    Registration Card No: RC/2024/KA/09876
    Category: Class B Government Contractor
    Registration card renewed for the financial year 2025-26.
    Issuing Authority: PWD Karnataka
+   Date of Issue: 01.04.2024
+   Valid Until: 31.03.2026
 
-2. Bank Statement
+   CIN: U45201KA2010PTC098765
+   Date of Incorporation: 22.08.2010
+   Registered Office: 15, MG Road, 3rd Floor, Bangalore - 560001
+
+   Delta Constructions has been active in government infrastructure projects
+   since 2012 with a focus on road construction and flyover development
+   across Karnataka and Tamil Nadu.
+
+--- PAGE 3 ---
+2. BANK STATEMENT
+
    Bank: Canara Bank, MG Road Branch, Bangalore
    Account No: 1234567890123
-   Last Available Balance: Rs. 25,00,00,000 (Twenty-Five Crore)
+   IFSC: CNRB0001234
+   Account Type: Current Account
+
+   Statement Period: 01.03.2026 to 10.04.2026
+
+   Date          Description                    Debit         Credit        Balance
+   01.03.2026    Opening Balance                                           24,50,00,000
+   08.03.2026    PWD KA Payment                                75,00,000   25,25,00,000
+   14.03.2026    Material Purchase              40,00,000                  24,85,00,000
+   20.03.2026    Sub-contractor Payment         30,00,000                  24,55,00,000
+   28.03.2026    Salary & Wages                 15,00,000                  24,40,00,000
+   05.04.2026    NHAI Interim Payment                          85,00,000   25,25,00,000
+   10.04.2026    Closing Balance                                           25,25,00,000
+
+   Last Available Balance: Rs. 25,25,00,000 (Twenty-Five Crore Twenty-Five Lakh)
    Balance is more than Rs. 10,000,000 as required.
    Statement Date: 10.04.2026
 
-3. GST Clearance
+   Certified by: Branch Manager, Canara Bank, MG Road Branch, Bangalore
+
+--- PAGE 4 ---
+3. GST CLEARANCE
+
    GSTIN: 29AABCD5678K1Z9
-   GSTR-3B filing status: Quarterly filer
-   GSTR-3B clearance certificate: NOT available yet — under processing.
-   Expected to be available by next week. Application pending with GST portal.
+   Legal Name: Delta Constructions Pvt. Ltd.
+   State: Karnataka (29)
+   Registration Date: 01.07.2017
 
-4. Earnest Money Deposit (EMD)
-   EMD Amount: Rs. 5,00,000
-   Mode: FDR duly pledged to Executive Engineer PWD (R&B) Division Bhaderwah
+   GSTR-3B Filing Status:
+   - Filing Frequency: Quarterly
+   - Latest Quarter: Jan-Mar 2025-26
+
+   STATUS: GSTR-3B clearance certificate is NOT available yet.
+   The return filing is under processing on the GST portal.
+
+   Expected availability: By next week (estimated 25.04.2026).
+   Application for clearance certificate has been submitted.
+   Portal reference: GST/KA/CLR/2026/PENDING/09876
+
+   NOTE: While the GSTR-3B return has been filed on time, the clearance
+   certificate issuance is delayed due to portal processing backlog.
+   A screenshot of the filing confirmation is attached for reference.
+
+   Filing Confirmation:
+   - Quarter: Jan 2026 - Mar 2026
+   - Filed on: 18.04.2026
+   - Acknowledgement No: GSTN/2026/KA/QTRLY/05678
+   - Tax Paid: Rs. 6,78,000 (Payment confirmed)
+
+--- PAGE 5 ---
+4. EARNEST MONEY DEPOSIT (EMD)
+
+   EMD Amount: Rs. 5,00,000 (Rupees Five Lakh Only)
+   Mode: FDR (Fixed Deposit Receipt)
+   FDR duly pledged to Executive Engineer PWD (R&B) Division Bhaderwah
+
+   FDR Details:
    FDR No: FDR/2026/CAN/00789
-   Date of FDR: 18.04.2026 (between Start of Bid and Bid Submission end Date)
+   Issuing Bank: Canara Bank, MG Road Branch, Bangalore
+   Date of FDR: 18.04.2026
+   Maturity Date: 18.10.2026
+   Interest Rate: 7.1% per annum
 
-5. Tender Cost
+   The date of FDR (18.04.2026) falls between the Start of Bid date (04.04.2026)
+   and Bid Submission end Date (30.04.2026) as required.
+
+   Pledged To: Executive Engineer, PWD (R&B) Division, Bhaderwah
+   Original FDR enclosed herewith.
+
+--- PAGE 6 ---
+5. TENDER COST
+
    Treasury Challan No: TC/2026/KA/01234
-   Amount: Rs. 2,000
-   Treasury Challan issued after date of issuance of e-NIT
-   Date: 17.04.2026 (between Start of Bid and Bid Submission end Date)
-   Work Reference: Highway Construction Tender 2025-26
+   Amount: Rs. 2,000 (Rupees Two Thousand Only)
+   Treasury Challan issued after date of issuance of e-NIT.
 
-6. Affidavit on Correctness
-   Affidavit on correctness of information submitted with the bid.
-   NOTE: Affidavit NOT notarized — notarization is pending.
-   Only signed declaration provided. Notarization appointment scheduled for 25.04.2026.
+   Payment Details:
+   Date of Payment: 17.04.2026
+   Treasury: Karnataka State Treasury, Bangalore
+   Head of Account: Revenue Deposits — PWD
+   Receipt No: REC/2026/BLR/06789
+
+   Work Reference: Highway Construction Tender 2025-26
+   NIT No: Not specifically mentioned on challan.
+   Note: Challan mentions "Highway Construction Tender" but does not include
+   NIT No. or Tender ID as required in the tender conditions.
+
+   The date of Treasury Challan (17.04.2026) falls between the Start of Bid date
+   (04.04.2026) and Bid Submission end Date (30.04.2026).
+
+   Original Treasury Challan enclosed.
+
+--- PAGE 7 ---
+6. AFFIDAVIT ON CORRECTNESS OF INFORMATION
+
+   DECLARATION
+   (On plain paper — NOT on Non-Judicial Stamp Paper)
+
+   I, Anand Reddy, Managing Director of Delta Constructions Pvt. Ltd.,
+   hereby declare that all information submitted in this bid is true
+   and correct to the best of my knowledge.
+
    Name of the work: Highway Construction Project
    e-NIT No: ITE/2026/029
+
+   IMPORTANT NOTE:
+   This affidavit has NOT been notarized.
+   Notarization is pending — appointment scheduled for 25.04.2026
+   with Notary Public, Bangalore.
+
+   Only a signed declaration is provided at this time. The notarized
+   version will be submitted as a supplementary document once available.
+
+   Date: 17.04.2026
+   Place: Bangalore
+
+   Sd/-
+   Anand Reddy
+   Managing Director, Delta Constructions Pvt. Ltd.

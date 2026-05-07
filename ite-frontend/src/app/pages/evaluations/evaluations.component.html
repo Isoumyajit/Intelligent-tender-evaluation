@@ -97,18 +97,29 @@
 
                 <div class="row__progress">
                   @if (stageOf(row.tender) === 'in-evaluation') {
+                    @let pct = (progressOf(row.tender) | async) ?? 0;
                     <div class="row__progress-head">
                       <span class="row__progress-label">
                         <mat-icon class="spin">autorenew</mat-icon>
-                        Evaluating…
+                        @if (pct < 20) {
+                          Initialising…
+                        } @else if (pct < 50) {
+                          Extracting criteria…
+                        } @else if (pct < 80) {
+                          Analysing documents…
+                        } @else if (pct < 100) {
+                          Finalising results…
+                        } @else {
+                          Complete
+                        }
                       </span>
                       <span class="row__progress-value">
-                        {{ (progressOf(row.tender) | async) ?? 0 }}%
+                        {{ pct }}%
                       </span>
                     </div>
                     <mat-progress-bar
                       mode="determinate"
-                      [value]="(progressOf(row.tender) | async) ?? 0"
+                      [value]="pct"
                     ></mat-progress-bar>
                   }
                   <div class="row__progress-meta">

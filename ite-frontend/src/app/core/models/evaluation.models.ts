@@ -38,9 +38,13 @@ export interface DocumentEvidence {
   documentName: string;
   fileName?: string;
   pageOrSection: string;
+  pageNumber?: number;
   excerpt: string;
   extractedValue?: string;
   confidence: number;
+  verificationStatus?: 'passed' | 'failed';
+  verificationSource?: string;
+  verificationMessage?: string;
 }
 
 export interface EvaluationCriterion {

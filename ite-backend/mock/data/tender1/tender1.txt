@@ -27,10 +27,16 @@ date of Start of Bid and Bid Submission end Date)
 Affidavit on Correctness of Information submitted with the bid duly Notarized with 
 indicating Name of the work and e-NIT No. (As per Annexure-A). 
 
+(g)
+Copy of valid PAN Card of the bidder (Company/Firm/Individual). The PAN card 
+will be verified against the Income Tax Department records. Bidders whose PAN card 
+is found to be invalid, fake, or does not match the bidder entity name will be 
+disqualified. PAN card must be legible and clearly show the PAN number and name.
+
 The following documents are optional and preferred but not mandatory:
-(g) 
+(h) 
 ISO 9001:2015 Quality Management certification is desirable. Bidders with valid 
 ISO certification will receive preferential scoring.
-(h)
+(i)
 Previous work experience certificate from a Government department is preferred 
 but not required. Submission of at least 3 completed project references is optional.

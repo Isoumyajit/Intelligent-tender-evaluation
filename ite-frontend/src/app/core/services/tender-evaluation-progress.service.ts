@@ -11,6 +11,7 @@ import {
 } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { BIDDER_REPOSITORY } from '../abstractions/bidder-repository';
+import { RefreshBus } from './refresh-bus';
 import { TenderStageStore } from './tender-stage.store';
 
 interface ProcessTenderRequest {
@@ -37,6 +38,7 @@ interface JobStatusResponse {
 export class TenderEvaluationProgressService {
   private readonly stages = inject(TenderStageStore);
   private readonly bidderRepo = inject(BIDDER_REPOSITORY);
+  private readonly refresh = inject(RefreshBus);
   private readonly http = inject(HttpClient);
   private readonly base = environment.apiBaseUrl;
 
@@ -155,11 +157,13 @@ export class TenderEvaluationProgressService {
           if (res.status === 'completed') {
             this.setProgress(tenderId, 100);
             this.stages.set(tenderId, 'evaluated');
+            this.refresh.emitTendersChanged();
             return false;
           }
           if (res.status === 'failed') {
             this.setProgress(tenderId, 0);
             this.stages.set(tenderId, 'fresh');
+            this.refresh.emitTendersChanged();
             this._errors$.next({
               tenderId,
               message:

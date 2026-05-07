@@ -89,6 +89,7 @@ export class EvaluationReportComponent implements OnInit {
   categoryGroups: CategoryGroup[] = [];
   state$!: Observable<LoadState<EvaluationReportData>>;
   selectedCriterion: EvaluationCriterion | null = null;
+  requirementsExpanded = false;
   readonly routes = AppRoutes;
 
   openEvidence(criterion: EvaluationCriterion): void {
@@ -189,6 +190,14 @@ export class EvaluationReportComponent implements OnInit {
 
   get missingDocCount(): number {
     return this.bidder?.criteria.filter((c) => c.status === 'missing-document').length ?? 0;
+  }
+
+  get mandatoryCount(): number {
+    return this.bidder?.criteria.filter((c) => c.isMandatory !== false).length ?? 0;
+  }
+
+  get optionalCount(): number {
+    return this.bidder?.criteria.filter((c) => c.isMandatory === false).length ?? 0;
   }
 
   get overallScore(): number {

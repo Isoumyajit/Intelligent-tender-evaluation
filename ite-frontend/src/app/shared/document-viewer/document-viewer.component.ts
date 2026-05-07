@@ -111,6 +111,11 @@ export class DocumentViewerComponent
     if (!this.documentId) return;
     if (changes['documentId'] && !changes['documentId'].firstChange) {
       this.loadDocument();
+    } else if (changes['initialPage'] && !changes['initialPage'].firstChange) {
+      const newPage = changes['initialPage'].currentValue ?? 1;
+      if (this.state.snapshot.totalPages > 0 && newPage !== this.currentPage) {
+        this.state.setPage(newPage);
+      }
     }
   }
 
