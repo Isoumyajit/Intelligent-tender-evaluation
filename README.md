@@ -11,11 +11,11 @@ Intelligent-tender-evaluation/
 └── README.md
 ```
 
-| Service      | Tech Stack                                  | Default URL            |
-|-------------|---------------------------------------------|------------------------|
-| **Frontend** | Angular 19, Angular Material, TypeScript    | http://localhost:4200  |
-| **Backend**  | FastAPI, PostgreSQL 16, Sarvam AI (LLM)     | http://localhost:8000  |
-| **Database** | PostgreSQL 16 (Docker)                      | localhost:5433         |
+| Service      | Tech Stack                                  | Default URL            | Docs |
+|-------------|---------------------------------------------|------------------------|------|
+| **Frontend** | Angular 19, Angular Material, TypeScript    | http://localhost:4200  | [Frontend README](./ite-frontend/README.md) |
+| **Backend**  | FastAPI, PostgreSQL 16, Sarvam AI (LLM)     | http://localhost:8000  | [Backend README](./ite-backend/README.md) |
+| **Database** | PostgreSQL 16 (Docker)                      | localhost:5433         | [DB Setup](./ite-backend/README.md#database-setup) |
 
 ## Prerequisites
 
@@ -80,6 +80,8 @@ bash ite-backend/scripts/setup-db.sh
 
 This creates a Docker container named `ite-postgres` running PostgreSQL 16 on **port 5433**.
 
+> For native PostgreSQL setup (without Docker) on macOS, Windows, or Linux, see the [Backend README — Database Setup](./ite-backend/README.md#database-setup).
+
 ### 3. Start the backend
 
 ```bash
@@ -107,6 +109,8 @@ python -m uvicorn app.main:app --reload
 
 Backend runs at **http://localhost:8000**. API docs at **http://localhost:8000/docs**.
 
+> For detailed backend setup, environment variables, and project structure, see the [Backend README](./ite-backend/README.md).
+
 ### 4. Start the frontend
 
 Open a **new terminal**:
@@ -122,6 +126,8 @@ npm start
 ```
 
 Frontend runs at **http://localhost:4200**.
+
+> For detailed frontend setup, available scripts, and project structure, see the [Frontend README](./ite-frontend/README.md).
 
 ### 5. Open the application
 
@@ -186,6 +192,17 @@ bash ite-backend/scripts/setup-db.sh
 ```powershell
 .\ite-backend\scripts\setup-db.ps1
 ```
+
+## Detailed Documentation
+
+| Document | Description |
+|----------|-------------|
+| [Backend README](./ite-backend/README.md) | Python/FastAPI setup, database options (Docker + native for macOS/Windows/Linux), environment variables, project structure |
+| [Frontend README](./ite-frontend/README.md) | Angular setup, Node.js install, available scripts, production build, project structure |
+| [Database Setup](./ite-backend/README.md#database-setup) | Step-by-step DB setup for Docker, native macOS, native Windows, and native Linux |
+| [Mock Data Guide](./ite-backend/README.md#using-mock--demo-data) | How to use the included sample tender and bidder documents for testing |
+| [API Docs (Swagger)](http://localhost:8000/docs) | Interactive API documentation (requires running backend) |
+| [Postman Collection](./ite-backend/ITE-API.postman_collection.json) | Pre-configured API requests for testing |
 
 ## Troubleshooting
 
