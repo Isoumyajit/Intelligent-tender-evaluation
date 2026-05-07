@@ -32,7 +32,7 @@ uvicorn app.main:app --reload
 
 Open http://localhost:8000/docs in your browser to see the Swagger UI with all available endpoints, or verify the database connection at http://localhost:8000/health.
 
-If you want to test with Postman, import the `ITE-API.postman_collection.json` file from the project root into Postman. It has all endpoints pre-configured.
+To test the API, import the `ITE-API.postman_collection.json` file from the project root into Postman. It has all endpoints pre-configured with sample request bodies and variables. Use this collection for all backend testing.
 
 When you are done and want to clean up, run the teardown script to stop and remove the Docker container and image.
 
