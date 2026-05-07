@@ -119,10 +119,19 @@ class ProcessTenderResponse(BaseModel):
     job_id: UUID
 
 
-class JobBidderResponse(BaseModel):
+class ConditionEvidenceResponse(BaseModel):
+    condition_name: str
+    verdict: str
+    evidence: str
+    source_file: str | None = None
+    page_index: int = 0
+
+
+class BidderEvaluationResponse(BaseModel):
     bid_id: UUID
     bidder_name: str
     status: str
+    evaluations: list[ConditionEvidenceResponse]
 
 
 class JobResponse(BaseModel):
@@ -131,7 +140,7 @@ class JobResponse(BaseModel):
     tender_name: str
     status: str
     criteria: list[CriteriaGroup]
-    bidders: list[JobBidderResponse]
+    bidders: list[BidderEvaluationResponse]
     created_at: datetime
     updated_at: datetime
 

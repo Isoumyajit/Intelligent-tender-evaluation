@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import ForeignKey, LargeBinary, String, Text
+from sqlalchemy import ForeignKey, Integer, LargeBinary, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -167,6 +167,32 @@ class TenderEvaluationCondition(Base):
     created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
 
     tender_criteria: Mapped[TenderCriteria] = relationship(back_populates="evaluation_conditions")
+
+
+class BidderEvaluation(Base):
+    __tablename__ = "bidder_evaluations"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    job_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("jobs.job_id", ondelete="CASCADE"), nullable=False
+    )
+    bid_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("bids.bid_id", ondelete="CASCADE"), nullable=False
+    )
+    condition_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("tender_evaluation_conditions.id", ondelete="CASCADE"), nullable=False
+    )
+    verdict: Mapped[str] = mapped_column(String(32), nullable=False)
+    evidence: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    source_file: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    page_index: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+
+    job: Mapped[Job] = relationship(lazy="selectin")
+    bid: Mapped[Bid] = relationship(lazy="selectin")
+    condition: Mapped[TenderEvaluationCondition] = relationship(lazy="selectin")
 
 
 class AuditLog(Base):

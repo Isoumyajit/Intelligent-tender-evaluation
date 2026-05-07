@@ -87,6 +87,18 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     created_at  TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS bidder_evaluations (
+    id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    job_id              UUID NOT NULL REFERENCES jobs(job_id) ON DELETE CASCADE,
+    bid_id              UUID NOT NULL REFERENCES bids(bid_id) ON DELETE CASCADE,
+    condition_id        UUID NOT NULL REFERENCES tender_evaluation_conditions(id) ON DELETE CASCADE,
+    verdict             VARCHAR(32) NOT NULL,
+    evidence            TEXT NOT NULL DEFAULT '',
+    source_file         VARCHAR(512),
+    page_index          INTEGER NOT NULL DEFAULT 0,
+    created_at          TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 CREATE TABLE IF NOT EXISTS evaluation_overrides (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tender_id       UUID NOT NULL REFERENCES tenders(tender_id) ON DELETE CASCADE,

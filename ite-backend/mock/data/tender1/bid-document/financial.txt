@@ -1,0 +1,22 @@
+1. Bank Name: HDFC Delhi
+Bank Statement
+   Bank: State Bank of India, Industrial Finance Branch, Mumbai
+   Account No: 39876543210
+   IFSC: SBIN0001234
+   Last Available Balance: Rs. 15,00,00,000 (Fifteen Crore)
+   Balance is more than Rs. 10,000,000 as required.
+   Statement Date: 01.04.2026
+Date: 22/04/2026
+
+2. Earnest Money Deposit (EMD)
+   EMD Amount: Rs. 5,00,000
+   Mode: CDR duly pledged to Executive Engineer PWD (R&B) Division Bhaderwah
+   CDR No: CDR/2026/SBI/00456
+   Date of CDR: 15.04.2026 (between Start of Bid and Bid Submission end Date)
+
+3. Tender Cost
+   Treasury Challan No: TC/2026/JK/00789
+   Amount: Rs. 2,000
+   Treasury Challan issued after date of issuance of e-NIT
+   Date: 16.04.2026 (between Start of Bid and Bid Submission end Date)
+   Work Reference: Highway Construction Tender 2025-26, NIT No. ITE/2026/029
